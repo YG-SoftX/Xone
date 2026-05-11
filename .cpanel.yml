@@ -5,8 +5,11 @@ deployment:
     - /bin/cp -R home/* $DEPLOYPATH
     - /bin/cp home/.env $DEPLOYPATH
     - /bin/chmod 644 $DEPLOYPATH/.env
+    - /bin/chmod -R 775 $DEPLOYPATH/storage
+    - /bin/chmod -R 775 $DEPLOYPATH/bootstrap/cache
     - cd $DEPLOYPATH
     - /usr/local/bin/php artisan config:clear
-    - /usr/local/bin/php artisan cache:clear
     - /usr/local/bin/php artisan view:clear
     - /usr/local/bin/php artisan route:clear
+    - /usr/local/bin/php artisan cache:clear
+    - /usr/local/bin/php artisan config:cache
