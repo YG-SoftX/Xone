@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Search - YGXONE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-obsidian: #020202;
+            --bg-surface: #0a0a0a;
+            --crimson-neon: #ff003c;
+            --crimson-dim: #9b1b30;
+            --crimson-glow: rgba(255, 0, 60, 0.15);
+            --text-main: #f5f0f1;
+            --text-dim: #9b8e90;
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --border-crimson: rgba(255, 0, 60, 0.3);
+            --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-obsidian);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(2, 2, 2, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        .logo em { font-style: normal; color: var(--crimson-neon); }
+
+        .search-inner {
+            flex: 1;
+            max-width: 700px;
+            position: relative;
+        }
+        .search-bar {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            padding: 14px 24px 14px 50px;
+            border-radius: 24px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-bar:focus { border-color: var(--border-crimson); box-shadow: 0 0 20px var(--crimson-glow); }
+        .search-icon { position: absolute; left: 20px; top: 50%; translate: 0 -50%; color: var(--text-dim); opacity: 0.5; }
+
+        .nav { display: flex; gap: 20px; align-items: center; margin-left: auto; }
+        .nav a { color: var(--text-dim); text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- Tabs --- */
+        .tabs {
+            padding: 10px 40px 0 160px; /* Aligned with search box */
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            gap: 30px;
+        }
+        .tab {
+            padding: 12px 15px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .tab.active { color: var(--crimson-neon); }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 3px;
+            background: var(--crimson-neon);
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 -5px 15px var(--crimson-glow);
+        }
+
+        /* --- Results Layout --- */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 40px;
+            display: grid;
+            grid-template-columns: 700px 1fr;
+            gap: 60px;
+        }
+
+        .stats { font-size: 12px; color: var(--text-dim); margin-bottom: 30px; }
+
+        .result { margin-bottom: 40px; animation: fadeInUp 0.6s var(--transition-smooth); }
+        .result cite { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 5px; font-style: normal; }
+        .result h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .result h3 a { color: var(--crimson-neon); text-decoration: none; transition: underline; }
+        .result h3 a:hover { text-decoration: underline; }
+        .result p { font-size: 14px; line-height: 1.6; color: var(--text-dim); }
+
+        /* --- Knowledge Panel --- */
+        .panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: 32px;
+            padding: 40px;
+            height: fit-content;
+            position: sticky;
+            top: 110px;
+        }
+        .panel h2 { font-size: 28px; font-weight: 900; margin-bottom: 10px; letter-spacing: -1px; }
+        .panel .subtitle { color: var(--crimson-neon); font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 25px; display: block; }
+        .panel .summary { font-size: 14px; color: var(--text-dim); line-height: 1.8; margin-bottom: 30px; }
+        .panel .attr { display: flex; gap: 10px; margin-bottom: 15px; font-size: 13px; }
+        .panel .attr label { font-weight: 700; color: var(--text-main); min-width: 100px; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 60, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 0, 60, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 60, 0); }
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="https://ygxone.com" class="logo">YGX<em>ONE</em></a>
+    <div class="search-inner">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <input type="text" class="search-bar" id="search-input" value="Ygxone Sovereign Ecosystem">
+    </div>
+    <div class="nav">
+        <a href="https://account.ygxone.com">Account</a>
+        <div style="width: 32px; height: 32px; background: var(--crimson-neon); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px;">Y</div>
+    </div>
+</header>
+
+<div class="tabs">
+    <a href="#" class="tab active">All</a>
+    <a href="#" class="tab">Nodes</a>
+    <a href="#" class="tab">Ledgers</a>
+    <a href="#" class="tab">Mail</a>
+    <a href="#" class="tab">Identity</a>
+    <a href="#" class="tab">Sovereignty</a>
+</div>
+
+<div class="container">
+    <main>
+        <div class="stats">About 2,341,000 results (0.04 seconds)</div>
+
+        {/* AI Pulse Section */}
+        <div class="ai-pulse" style="background: rgba(255, 0, 60, 0.03); border: 1px solid var(--border-crimson); border-radius: 32px; padding: 40px; margin-bottom: 50px; position: relative; overflow: hidden; animation: fadeInUp 0.8s var(--transition-smooth);">
+            <div class="absolute top-0 right-0 p-8 text-crimson-neon opacity-10 animate-pulse text-4xl">🧠</div>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <span style="width: 10px; height: 10px; background: var(--crimson-neon); border-radius: 50%; box-shadow: 0 0 10px var(--crimson-neon); animation: pulse 2s infinite;"></span>
+                <h4 style="font-size: 11px; font-weight: 900; color: var(--crimson-neon); text-transform: uppercase; letter-spacing: 2px;">NEURAL_AI_PULSE_GEN_v2.0</h4>
+            </div>
+            
+            <p style="font-size: 16px; font-weight: 500; line-height: 1.8; color: var(--text-main); margin-bottom: 30px;">
+                YGXONE represents a paradigm shift in digital sovereignty, utilizing a <span style="background: var(--crimson-glow); color: var(--crimson-neon); padding: 2px 6px; border-radius: 4px;">Decentralized Node Architecture</span> to secure personal data. It unifies search, identity (KYC), and financial settlements through double-entry ledgers, ensuring that every user maintains absolute control over their neural footprint within the global net.
+            </p>
+
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                 <div style="padding: 10px 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; font-size: 10px; font-weight: 800; color: var(--text-dim);">Source_01: Node_IAM (Identity)</div>
+                 <div style="padding: 10px 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; font-size: 10px; font-weight: 800; color: var(--text-dim);">Source_02: YG_Whitepaper_v2</div>
+                 <div style="padding: 10px 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; font-size: 10px; font-weight: 800; color: var(--text-dim);">Source_03: Core_Sovereignty_Docs</div>
+            </div>
+
+            <button style="margin-top: 35px; background: var(--crimson-neon); border: none; color: #fff; padding: 15px 30px; border-radius: 16px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px var(--crimson-glow);" onclick="location.href='neural-chat.html'">Continue Conversation with YGX AI →</button>
+        </div>
+
+        <div class="results-list">
+            <div class="result">
+                <cite>https://ygxone.com › sovereign-ecosystem</cite>
+                <h3><a href="#">YGXONE: The World's First Sovereign Digital Ecosystem</a></h3>
+                <p>Architecting the future of decentralized identity, search, and neural ledgers. YGXONE provides a unified core for digital sovereignty across all global nodes...</p>
+            </div>
+
+            <div class="result">
+                <cite>https://account.ygxone.com › identity-node</cite>
+                <h3><a href="#">Sovereign Identity Node - Manage your YGX Account</a></h3>
+                <p>Verify your identity node to unlock high-tier financial limits for YG Pay and access to sovereign government nodes. Monitor your neural protection levels...</p>
+            </div>
+
+            <div class="result">
+                <cite>https://drive.ygxone.com › vault</cite>
+                <h3><a href="#">YG Drive: Encrypted Neural Storage</a></h3>
+                <p>Your data is encrypted at the node level. YGXONE drive ensures that even administrators cannot view your sovereign payloads without explicit consent...</p>
+            </div>
+
+            <div class="result">
+                <cite>https://pay.ygxone.com › double-entry</cite>
+                <h3><a href="#">YG Pay: Decentralized Settlement Protocol</a></h3>
+                <p>Leveraging double-entry ledgers for instant settlements and global financial sovereignty. Connect your node to Fonepay and regional fiat gateways...</p>
+            </div>
+        </div>
+    </main>
+
+    <aside>
+        <div class="panel">
+            <h2>YGXONE</h2>
+            <span class="subtitle">Sovereign Ecosystem Infrastructure</span>
+            <p class="summary">
+                YGXONE is a decentralized digital infrastructure platform designed to provide individual sovereignty over search, personal data, and financial transactions. Utilizing the Obsidian & Crimson design language, it unifies identity nodes into a global, high-fidelity ecosystem.
+            </p>
+            <div class="attr"><label>Founder</label> <span>Bim Wallah</span></div>
+            <div class="attr"><label>Launch</label> <span>2026 Neural Cycle</span></div>
+            <div class="attr"><label>Architecture</label> <span>Decentralized Core</span></div>
+            <div class="attr"><label>Headquarters</label> <span>Sovereign Net</span></div>
+            <button style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: #fff; font-weight: 800; font-size: 11px; text-transform: uppercase; border-radius: 12px; margin-top: 20px; cursor: pointer;">View Neural Map</button>
+        </div>
+    </aside>
+</div>
+
+<footer style="margin-top: 60px; padding: 40px; border-top: 1px solid var(--border-glass); background: var(--bg-surface); text-align: center;">
+    <p style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">© 2026 YGXONE SOVEREIGNTY NODE ALLIANCE</p>
+</footer>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+        document.getElementById('search-input').value = query;
+        document.title = `${query} - Sovereign Search`;
+    }
+</script>
+
+</body>
+</html>

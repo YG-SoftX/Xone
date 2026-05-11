@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YG Mail Extension</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { width: 360px; font-family: 'Inter', sans-serif; background: #ffffff; margin: 0; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        .mail-gradient { background: linear-gradient(135deg, #ea4335 0%, #db4437 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .mail-row:hover { background: #f8fafc; }
+    </style>
+</head>
+<body class="p-4 shadow-xl">
+    
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-3">
+             <div class="mail-gradient text-white p-2 rounded-xl shadow-lg"><i data-lucide="mail" size="20"></i></div>
+             <span class="font-outfit text-xl font-extrabold tracking-tight">YG Mail</span>
+        </div>
+        <div class="flex gap-4 text-slate-400">
+             <button class="hover:text-slate-900 transition"><i data-lucide="bell" size="18"></i></button>
+             <button class="hover:text-slate-900 transition"><i data-lucide="settings" size="18"></i></button>
+        </div>
+    </div>
+
+    <div class="bg-blue-50 p-4 rounded-2xl mb-6 border border-blue-100">
+        <div class="flex justify-between items-center">
+            <div>
+                <span class="text-[10px] font-bold text-blue-600 block mb-1">INBOX STATUS</span>
+                <span class="text-lg font-extrabold text-blue-900">12 New Emails</span>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:bg-blue-700 transition" onclick="window.open('http://localhost:5007', '_blank')">Open Inbox</button>
+        </div>
+    </div>
+
+    <div class="space-y-1 mb-6">
+         <div class="flex items-center gap-3 p-3 rounded-xl mail-row cursor-pointer group">
+              <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs">Y</div>
+              <div class="flex-1 overflow-hidden">
+                   <div class="text-sm font-bold flex justify-between">Yuga AI <span class="text-[10px] font-normal text-slate-400">12:45 PM</span></div>
+                   <div class="text-[11px] text-slate-500 truncate">Weekly Intelligence Sync Complete — See your reports inside.</div>
+              </div>
+         </div>
+         <div class="flex items-center gap-3 p-3 rounded-xl mail-row cursor-pointer group">
+              <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs">S</div>
+              <div class="flex-1 overflow-hidden">
+                   <div class="text-sm font-bold flex justify-between">System Admin <span class="text-[10px] font-normal text-slate-400">Yesterday</span></div>
+                   <div class="text-[11px] text-slate-500 truncate">Sovereign 2FA Enabled — Your identity is now secure.</div>
+              </div>
+         </div>
+    </div>
+
+    <div class="flex gap-2">
+         <button class="flex-1 flex items-center justify-center gap-2 border border-slate-200 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition" onclick="window.open('http://localhost:5007', '_blank')">
+              <i data-lucide="plus" size="14"></i> Quick Compose
+         </button>
+         <button class="flex-1 flex items-center justify-center gap-2 border border-slate-200 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition" onclick="window.open('http://localhost:5007', '_blank')">
+              <i data-lucide="archive" size="14"></i> Archive All
+         </button>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+         <div class="flex items-center justify-center gap-2 text-[10px] font-bold text-emerald-600">
+              <i data-lucide="shield-check" size="12"></i> SOVEREIGN PROTECT ACTIVE
+         </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Print styles for export */
+@media print {
+
+    header,
+    .toolbar,
+    .comments-sidebar {
+        display: none !important;
+    }
+
+    .document-editor {
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Content editable styles */
+[contenteditable] {
+    outline: none;
+}
+
+[contenteditable]:empty:before {
+    content: attr(placeholder);
+    color: #9ca3af;
+}
+
+/* Prose styles for document content */
+.prose {
+    max-width: 65ch;
+    color: inherit;
+}
+
+.prose h1 {
+    font-size: 2.25em;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 0.8888889em;
+    line-height: 1.1111111;
+}
+
+.prose h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    line-height: 1.3333333;
+}
+
+.prose p {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+}
+
+.prose blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1em;
+    font-style: italic;
+    margin: 1em 0;
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.prose td,
+.prose th {
+    border: 1px solid #e5e7eb;
+    padding: 0.5em 1em;
+}
+
+.prose img {
+    max-width: 100%;
+    height: auto;
+}
+
+.prose a {
+    color: #2563eb;
+    text-decoration: underline;
+}

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# YG Drive — Backup Script (cPanel compatible)
+# Cron: 0 2 * * * bash /path/to/yg-drive/scripts/backup.sh >> /path/to/logs/backup.log 2>&1
+set -euo pipefail
+
+APP_ROOT="${APP_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+BACKUP_DIR="${BACKUP_DIR:-$APP_ROOT/storage/backups}"
+KEEP_DAYS=14
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+[[ -f "$APP_ROOT/.env" ]] && export $(grep -v '^#' "$APP_ROOT/.env" | grep -v '^\s*$' | xargs) 2>/dev/null || true
+
+mkdir -p "$BACKUP_DIR"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting YG Drive backup..."
+
+if [[ -n "${DB_DATABASE:-}" && -n "${DB_USERNAME:-}" ]]; then
+    DB_FILE="$BACKUP_DIR/db_${DB_DATABASE}_${TIMESTAMP}.sql.gz"
+    MYSQL_PWD="${DB_PASSWORD:-}" mysqldump --host="${DB_HOST:-localhost}" --user="$DB_USERNAME" \
+        --single-transaction --no-tablespaces "$DB_DATABASE" | gzip -9 > "$DB_FILE"
+    chmod 600 "$DB_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] DB backup: $(du -sh "$DB_FILE" | cut -f1)"
+fi
+
+# Backup uploaded files (storage/app)
+FILES_FILE="$BACKUP_DIR/files_${TIMESTAMP}.tar.gz"
+tar -czf "$FILES_FILE" -C "$APP_ROOT" storage/app
+chmod 600 "$FILES_FILE"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Files backup: $(du -sh "$FILES_FILE" | cut -f1)"
+
+find "$BACKUP_DIR" \( -name "*.sql.gz" -o -name "*.tar.gz" \) -mtime "+$KEEP_DAYS" -delete
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup complete."

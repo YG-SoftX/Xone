@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Services\AppRegistryService;
+use App\Services\EcosystemCommandService;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+
+class BackupManager extends Page
+{
+    protected static \Filament\Support\Enums\UnitEnum|string|null $navigationIcon  = 'heroicon-o-archive-box';
+    protected static ?string $navigationLabel = 'Backups';
+    protected static \Filament\Support\Enums\UnitEnum|string|null $navigationGroup = 'Configuration';
+    protected static ?int    $navigationSort  = 5;
+    
+    protected string $view = 'filament.pages.backup-manager';
+
+    public array  $backups       = [];
+    public string $commandOutput = '';
+    public bool   $showOutput    = false;
+
+    public function mount(): void
+    {
+        $this->loadBackups();
+    }
+
+    public function loadBackups(): void
+    {
+        $registry = app(AppRegistryService::class);
+        $result   = [];
+
+        foreach ($registry->all() as $id => $app) {
+            $backupDir = $app['path'] . '/storage/backups';
+            $files     = [];
+
+            if (is_dir($backupDir)) {
+                $glob = array_merge(
+                    glob($backupDir . '/*.sql.gz') ?: [],
+                    glob($backupDir . '/*.tar.gz') ?: [],
+                    glob($backupDir . '/*.sqlite.gz') ?: []
+                );
+                foreach ($glob as $file) {
+                    $files[] = [
+                        'name'    => basename($file),
+                        'size'    => $this->humanSize(filesize($file)),
+                        'mtime'   => date('Y-m-d H:i', filemtime($file)),
+                        'path'    => $file,
+                    ];
+                }
+                usort($files, fn ($a, $b) => strcmp($b['mtime'], $a['mtime']));
+                $files = array_slice($files, 0, 10);
+            }
+
+            $result[$id] = [
+                'name'       => $app['name'],
+                'icon'       => $app['icon'],
+                'backupDir'  => $backupDir,
+                'hasScript'  => file_exists($app['path'] . '/scripts/backup.sh'),
+                'files'      => $files,
+            ];
+        }
+
+        $this->backups = $result;
+    }
+
+    public function runBackup(string $id): void
+    {
+        $result = app(EcosystemCommandService::class)->backup($id);
+
+        $this->commandOutput = $result['output'];
+        $this->showOutput    = true;
+
+        $result['success']
+            ? Notification::make()->success()->title("Backup complete: {$id}")->send()
+            : Notification::make()->danger()->title("Backup failed: {$id}")->send();
+
+        $this->loadBackups();
+    }
+
+    public function backupAll(): void
+    {
+        $outputs = [];
+        foreach (array_keys($this->backups) as $id) {
+            $result    = app(EcosystemCommandService::class)->backup($id);
+            $outputs[] = "=== {$id} ===\n" . $result['output'];
+        }
+        $this->commandOutput = implode("\n\n", $outputs);
+        $this->showOutput    = true;
+        $this->loadBackups();
+        Notification::make()->success()->title('All backups complete')->send();
+    }
+
+    public function deleteBackup(string $path): void
+    {
+        if (file_exists($path) && str_contains($path, '/storage/backups/')) {
+            unlink($path);
+            $this->loadBackups();
+            Notification::make()->success()->title('Backup deleted')->send();
+        }
+    }
+
+    public function closeOutput(): void
+    {
+        $this->showOutput    = false;
+        $this->commandOutput = '';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('refresh')
+                ->label('Refresh')
+                ->icon('heroicon-o-arrow-path')
+                ->color('gray')
+                ->action(fn () => $this->loadBackups()),
+
+            Action::make('backupAll')
+                ->label('Backup All Apps')
+                ->icon('heroicon-o-archive-box-arrow-down')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->action(fn () => $this->backupAll()),
+        ];
+    }
+
+    private function humanSize(int $bytes): string
+    {
+        if ($bytes >= 1073741824) return round($bytes / 1073741824, 1) . ' GB';
+        if ($bytes >= 1048576)   return round($bytes / 1048576,   1) . ' MB';
+        if ($bytes >= 1024)      return round($bytes / 1024,       1) . ' KB';
+        return $bytes . ' B';
+    }
+}

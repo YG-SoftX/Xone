@@ -1,0 +1,36 @@
+{
+  "name": "YGXONE Sovereign Empire",
+  "short_name": "YGXONE",
+  "description": "Unified Sovereign Productivity Suite",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://pay.ygxone.com/assets/images/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://pay.ygxone.com/assets/images/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "YG Mail",
+      "url": "https://mail.ygxone.com",
+      "icons": [{ "src": "https://mail.ygxone.com/favicon.ico", "sizes": "192x192" }]
+    },
+    {
+      "name": "YG Drive",
+      "url": "https://drive.ygxone.com",
+      "icons": [{ "src": "https://drive.ygxone.com/favicon.ico", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YG Maps — Sovereign Geographic Intelligence</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --bg-obsidian: #020202;
+            --crimson-neon: #ff003c;
+        }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Inter', sans-serif; background: var(--bg-obsidian); }
+        #map { height: 100%; width: 100%; }
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 24px;
+            width: 350px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .search-box {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        .logo { font-size: 24px; font-weight: 900; color: white; margin-bottom: 20px; }
+        .logo em { color: var(--crimson-neon); font-style: normal; }
+    </style>
+</head>
+<body>
+    <div class="map-overlay">
+        <div class="logo">YGX<em>MAPS</em></div>
+        <input type="text" class="search-box" placeholder="Search for nodes, places, or users...">
+        <div style="color: #64748b; font-size: 13px;">
+            <p>Geographic Intelligence Node: <strong>ACTIVE</strong></p>
+            <p>Sovereign Mapping Layer: <strong>ENCRYPTED</strong></p>
+        </div>
+    </div>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([27.7172, 85.3240], 13); // Kathmandu
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20
+        }).addTo(map);
+
+        // Add some "Sovereign Nodes"
+        var nodes = [
+            {lat: 27.7172, lon: 85.3240, name: "YG HQ - Kathmandu Node"},
+            {lat: 27.6710, lon: 85.3213, name: "Bloodmate Emergency Node"},
+        ];
+
+        nodes.forEach(node => {
+            L.circleMarker([node.lat, node.lon], {
+                color: '#ff003c',
+                fillColor: '#ff003c',
+                fillOpacity: 0.5,
+                radius: 8
+            }).addTo(map).bindPopup(node.name);
+        });
+    </script>
+</body>
+</html>

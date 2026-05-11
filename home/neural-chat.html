@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Chat - YGXONE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-obsidian: #020202;
+            --bg-surface: #0a0a0a;
+            --crimson-neon: #ff003c;
+            --crimson-dim: #9b1b30;
+            --crimson-glow: rgba(255, 0, 60, 0.15);
+            --text-main: #f5f0f1;
+            --text-dim: #9b8e90;
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --border-crimson: rgba(255, 0, 60, 0.3);
+            --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-obsidian);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+            background: rgba(2, 2, 2, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        .logo { font-size: 20px; font-weight: 900; text-decoration: none; color: #fff; letter-spacing: -1px; }
+        .logo em { font-style: normal; color: var(--crimson-neon); }
+
+        /* --- Chat View --- */
+        #chat-container {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            scroll-behavior: smooth;
+        }
+
+        .message { display: flex; gap: 20px; animation: fadeInUp 0.5s var(--transition-smooth); }
+        .message.user { flex-direction: row-reverse; }
+        
+        .avatar { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-glass); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .message.ai .avatar { border-color: var(--border-crimson); color: var(--crimson-neon); box-shadow: 0 0 15px var(--crimson-glow); }
+        .message.user .avatar { background: white; color: black; font-weight: 900; font-size: 14px; }
+
+        .bubble { max-width: 80%; padding: 25px 30px; border-radius: 24px; line-height: 1.8; font-size: 15px; position: relative; }
+        .message.ai .bubble { background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); color: var(--text-dim); }
+        .message.user .bubble { background: var(--crimson-neon); color: #fff; font-weight: 500; box-shadow: 0 10px 30px var(--crimson-glow); }
+
+        /* --- Typing indicator --- */
+        .typing { display: flex; gap: 5px; align-items: center; margin-top: 10px; }
+        .dot { width: 4px; height: 4px; background: var(--crimson-neon); border-radius: 50%; animation: blink 1.5s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* --- Footer Input --- */
+        footer {
+            padding: 40px;
+            background: linear-gradient(to top, var(--bg-obsidian), transparent);
+            display: flex;
+            justify-content: center;
+        }
+        .input-bar {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(15,15,15,0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 10px 10px 10px 30px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+        .input-bar:focus-within { border-color: var(--border-crimson); transform: translateY(-5px); }
+        
+        input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; font-weight: 500; }
+        input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+        .send-btn { width: 44px; height: 44px; background: var(--crimson-neon); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; transition: 0.3s; border: none; }
+        .send-btn:hover { scale: 1.1; box-shadow: 0 0 20px var(--crimson-neon); }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">YGX<em>ONE</em></a>
+    <div style="font-size: 10px; font-weight: 900; color: var(--crimson-neon); text-transform: uppercase; letter-spacing: 2px;">NEURAL_AI_SESSION_ACTIVE</div>
+    <div class="nav">
+        <a href="https://account.ygxone.com" style="color: var(--text-dim); text-decoration: none; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Account Hub</a>
+    </div>
+</header>
+
+<div id="chat-container">
+    {/* Initial AI Handshake */}
+    <div class="message ai">
+        <div class="avatar">🧠</div>
+        <div class="bubble">
+            Welcome to the YGXONE Neural Session. I am your sovereign ecosystem assistant. How can I help you navigate your decentralized nodes today?
+        </div>
+    </div>
+</div>
+
+<footer>
+    <form id="chat-form" class="input-bar">
+        <input type="text" id="chat-input" placeholder="Ask anything about your sovereign ecosystem..." autocomplete="off">
+        <button type="submit" class="send-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+    </form>
+</footer>
+
+<script>
+    const chatContainer = document.getElementById('chat-container');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // User Message
+        addMessage(text, 'user');
+        chatInput.value = '';
+
+        // Mock AI Response
+        setTimeout(() => {
+            const typingMsg = addMessage('', 'ai', true);
+            setTimeout(() => {
+                typingMsg.remove();
+                addMessage("Initiating neural query across your decentralized nodes. Sovereignty handshake confirmed. I've analyzed your telemetry and linked your identity to the requested context. Is there any specific node payload you'd like to access?", 'ai');
+            }, 1500);
+        }, 500);
+    });
+
+    function addMessage(text, side, isTyping = false) {
+        const div = document.createElement('div');
+        div.className = `message ${side}`;
+        div.innerHTML = `
+            <div class="avatar">${side === 'ai' ? '🧠' : 'Y'}</div>
+            <div class="bubble">
+                ${isTyping ? '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>' : text}
+            </div>
+        `;
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        return div;
+    }
+</script>
+
+</body>
+</html>

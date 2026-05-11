@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YGXONE - Sovereign Search Engine</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Obsidian & Crimson Palette */
+            --bg-obsidian: #020202;
+            --bg-surface: #0a0a0a;
+            --crimson-neon: #ff003c;
+            --crimson-dim: #9b1b30;
+            --crimson-glow: rgba(255, 0, 60, 0.15);
+            --text-main: #f5f0f1;
+            --text-dim: #9b8e90;
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --border-crimson: rgba(255, 0, 60, 0.3);
+            --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-obsidian);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Ambient Background --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle at center, var(--crimson-glow) 0%, transparent 80%);
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* --- Header Navigation --- */
+        header {
+            padding: 25px 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 28px;
+            animation: fadeInDown 0.8s var(--transition-smooth);
+        }
+        header a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.6;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        header a:hover { opacity: 1; color: var(--crimson-neon); text-shadow: 0 0 10px var(--crimson-neon); }
+
+        .apps-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: background 0.2s, color 0.2s;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+        }
+        .apps-icon:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+        .profile-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--crimson-neon), var(--crimson-dim));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,0,60,0.3);
+            transition: transform 0.2s;
+        }
+        .profile-btn:hover { transform: scale(1.05); }
+
+        /* --- Central Search Container --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 140px;
+        }
+
+        .logo {
+            font-size: 110px;
+            font-weight: 900;
+            letter-spacing: -8px;
+            margin-bottom: 40px;
+            position: relative;
+            user-select: none;
+            filter: drop-shadow(0 0 30px rgba(255,0,60,0.2));
+            animation: zoomIn 1.2s var(--transition-smooth);
+        }
+        .logo em {
+            font-style: normal;
+            color: var(--crimson-neon);
+            text-shadow: 0 0 40px var(--crimson-neon);
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 620px;
+            position: relative;
+            margin-top: 10px;
+            animation: fadeInUp 0.8s var(--transition-smooth) 0.2s backwards;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(15,15,15,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 18px 28px 18px 56px;
+            border-radius: 32px;
+            color: #fff;
+            font-size: 17px;
+            outline: none;
+            transition: all 0.3s var(--transition-smooth);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .search-bar:focus {
+            background: rgba(20,20,20,0.9);
+            border-color: var(--border-crimson);
+            box-shadow: 0 0 0 4px rgba(255,0,60, 0.05), 0 20px 80px rgba(0,0,0,0.8);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .mic-icon {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--crimson-neon);
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            filter: drop-shadow(0 0 5px var(--crimson-neon));
+        }
+        .mic-icon:hover { transform: translateY(-50%) scale(1.1); filter: drop-shadow(0 0 10px var(--crimson-neon)); }
+
+        .search-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            animation: fadeInUp 0.8s var(--transition-smooth) 0.4s backwards;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            color: var(--text-dim);
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border-color: var(--crimson-dim);
+            transform: translateY(-2px);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(10px);
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-glass);
+            animation: fadeInUp 0.8s var(--transition-smooth) 0.6s backwards;
+        }
+        footer .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+        footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: color 0.2s;
+        }
+        footer a:hover { color: var(--text-main); }
+
+        /* --- Keyframes --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="bg-glow"></div>
+
+        /* --- Animations --- */
+        .fade-in {
+            animation: fadeIn 1s var(--transition-smooth);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <header>
+        <a href="https://mail.ygxone.com">Gmail</a>
+        <a href="https://drive.ygxone.com">Drive</a>
+        <div class="apps-icon" title="YGX Ecosystem">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+        </div>
+        <div class="profile-btn" onclick="location.href='https://account.ygxone.com'">Y</div>
+    </header>
+
+    <main class="fade-in">
+        <div class="logo">
+            YGX<em>ONE</em>
+        </div>
+
+        <div class="search-container">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <form id="search-form" onsubmit="event.preventDefault(); window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8011/search.php?q=' : 'https://search.ygxone.com/search.php?q=') + encodeURIComponent(document.querySelector('.search-bar').value)">
+                <input type="text" class="search-bar" placeholder="Enter keywords or prompt..." autofocus autocomplete="off">
+            </form>
+            <svg class="mic-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+        </div>
+
+        <div class="search-buttons">
+            <button class="btn" onclick="document.getElementById('search-form').dispatchEvent(new Event('submit'))">YGX Search</button>
+            <button class="btn" onclick="let url = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8011/search.php?lucky=1' : 'https://search.ygxone.com?lucky=1'; window.location.href = url;">I'm Feeling Lucky</button>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://ygxone.com/about">About</a>
+            <a href="https://ygxone.com/advertising">Advertising</a>
+            <a href="https://ygxone.com/business">Business</a>
+            <a href="https://search.ygxone.com">How Search works</a>
+        </div>
+        <div class="footer-links">
+            <a href="https://account.ygxone.com/privacy">Privacy</a>
+            <a href="https://account.ygxone.com/terms">Terms</a>
+            <a href="https://account.ygxone.com/settings">Settings</a>
+        </div>
+    </footer>
+
+    <script>
+        // Particle System for Ambient Background
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initParticles() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25,
+                    opacity: Math.random() * 0.5
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 0, 60, ${p.opacity})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        animate();
+
+        // Ecosystem Switcher (Apps Drawer Placeholder)
+        document.querySelector('.apps-icon').onclick = () => {
+             alert("Accessing YGXONE Ecosystem Architecture...");
+        };
+    </script>
+</body>
+</html>

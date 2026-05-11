@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - YG Mail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#dc2626">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto text-center px-4">
+        <div class="mb-8">
+            <svg class="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0">
+                </path>
+            </svg>
+        </div>
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">You're Offline</h1>
+        
+        <p class="text-gray-600 mb-8">
+            It looks like you've lost your internet connection. Don't worry - you can still access your cached emails and compose messages that will sync when you're back online.
+        </p>
+        
+        <div class="space-y-4">
+            <button onclick="window.location.reload()" 
+                    class="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                Try Again
+            </button>
+            
+            <button onclick="goToInbox()" 
+                    class="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                View Cached Inbox
+            </button>
+        </div>
+        
+        <div class="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-blue-900 mb-2">💡 Pro Tip</h3>
+            <p class="text-sm text-blue-800">
+                Install YG Mail as an app for better offline experience! Click the install icon in your browser's address bar.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function goToInbox() {
+            // Try to navigate to cached inbox
+            window.location.href = '/inbox';
+        }
+        
+        // Register service worker if not already registered
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

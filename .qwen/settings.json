@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del *)",
+      "Bash(rmdir *)",
+      "Bash(mkdir *)",
+      "Bash(dir *)",
+      "Bash(npm install *)",
+      "Bash(powershell *)",
+      "Bash(type *)",
+      "Bash(php *)",
+      "Bash(composer *)",
+      "Bash(touch *)",
+      "Bash(npm run *)",
+      "Bash(echo *)",
+      "Bash(r *)",
+      "Bash(@echo *)",
+      "Bash(@powershell *)",
+      "Bash(npx *)"
+    ]
+  },
+  "$version": 3
+}

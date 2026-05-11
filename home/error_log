@@ -1,0 +1,20 @@
+[10-May-2026 03:58:33 UTC] PHP Warning:  require(/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php): Failed to open stream: No such file or directory in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 03:58:34 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php' (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php:2
+Stack trace:
+#0 {main}
+  thrown in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 03:58:49 UTC] PHP Warning:  require(/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php): Failed to open stream: No such file or directory in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 03:58:49 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php' (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php:2
+Stack trace:
+#0 {main}
+  thrown in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 03:59:34 UTC] PHP Warning:  require(/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php): Failed to open stream: No such file or directory in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 03:59:36 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php' (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php:2
+Stack trace:
+#0 {main}
+  thrown in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 04:03:38 UTC] PHP Warning:  require(/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php): Failed to open stream: No such file or directory in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2
+[10-May-2026 04:03:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/ygmarket/ygxone.com/yg-home/scratch/vendor/autoload.php' (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php:2
+Stack trace:
+#0 {main}
+  thrown in /home4/ygmarket/ygxone.com/yg-home/scratch/debug_scraper.php on line 2

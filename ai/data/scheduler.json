@@ -1,0 +1,22 @@
+{
+    "tasks": [
+        {
+            "id": "task_neural_evolution_01",
+            "label": "Daily Neural Evolution",
+            "type": "neural_evolution",
+            "model": "default",
+            "url": "",
+            "max_pages": 100,
+            "steps": 5000,
+            "schedule": "daily",
+            "cron_expr": "0 2 * * *",
+            "active": true,
+            "created": 1714234954,
+            "last_run": null,
+            "next_run": 1714273200,
+            "last_status": null,
+            "run_count": 0
+        }
+    ],
+    "log": []
+}

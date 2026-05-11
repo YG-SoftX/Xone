@@ -1,0 +1,6 @@
+# Only allow index.php and migrate.php through — block directory listing
+Options -Indexes
+<FilesMatch "^(?!index\.php|migrate\.php).*$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
