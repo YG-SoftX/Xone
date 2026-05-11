@@ -1,9 +1,9 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home4/ygmarket/ygxone.com/home
-    - /bin/cp -R home/* $DEPLOYPATH
-    - /bin/cp home/.env $DEPLOYPATH
+    - export DEPLOYPATH=/home4/ygmarket/ygxone.com
+    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp .env $DEPLOYPATH
     - /bin/chmod 644 $DEPLOYPATH/.env
     - /bin/chmod -R 775 $DEPLOYPATH/storage
     - /bin/chmod -R 775 $DEPLOYPATH/bootstrap/cache
