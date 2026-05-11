@@ -208,3 +208,42 @@
 [11-May-2026 10:52:00 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
 [11-May-2026 10:52:00 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
 [11-May-2026 10:52:00 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:02:21 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:02:21 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:02:21 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:18:12 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:18:12 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:18:12 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:31:44 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:31:44 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:31:44 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:48:06 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:48:06 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:48:06 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:56:06 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:56:06 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:56:06 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:56:26 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:56:26 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:56:26 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:57:07 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:57:07 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:57:07 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:57:57 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:57:57 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:57:57 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 11:59:27 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 11:59:27 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 11:59:27 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 12:02:17 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 12:02:17 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 12:02:17 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 12:06:58 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 12:06:58 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 12:06:58 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 12:19:39 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 12:19:39 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 12:19:39 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
+[11-May-2026 12:33:20 UTC] PHP Warning:  Constant YUGA_ROOT already defined in /home4/ygmarket/ygxone.com/ai/search.php on line 6
+[11-May-2026 12:33:20 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home4/ygmarket/ygxone.com/ai/index.php on line 9) in /home4/ygmarket/ygxone.com/ai/search.php on line 8
+[11-May-2026 12:33:20 UTC] PHP Fatal error:  Cannot redeclare env() (previously declared in /home4/ygmarket/ygxone.com/ai/config.php:33) in /home4/ygmarket/ygxone.com/ai/config.php on line 33
