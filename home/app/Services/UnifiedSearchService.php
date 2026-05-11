@@ -181,6 +181,10 @@ class UnifiedSearchService
                 $url = html_entity_decode(trim($m[1]));
                 if (str_contains($url, 'duckduckgo.com')) continue;
                 
+                // Extract domain from URL
+                $parsedUrl = parse_url($url);
+                $domain = $parsedUrl['host'] ?? 'unknown.com';
+                
                 $snippet = html_entity_decode(strip_tags($m[3]));
                 
                 // Filter out common "meta text" from search engines
@@ -601,7 +605,7 @@ class UnifiedSearchService
     /**
      * Get user search history matching query
      */
-    private function getUserSearchHistory(string $query): array
+    public function getUserSearchHistory(string $query): array
     {
         if (!auth()->check()) {
             return [];
@@ -623,7 +627,7 @@ class UnifiedSearchService
     /**
      * Get trending searches matching query
      */
-    private function getTrendingMatches(string $query): array
+    public function getTrendingMatches(string $query): array
     {
         try {
             $safe = '%' . addcslashes($query, '%_\\') . '%';
