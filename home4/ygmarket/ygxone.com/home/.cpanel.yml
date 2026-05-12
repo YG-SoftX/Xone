@@ -1,9 +1,0 @@
----
-deploy:
-  post-deploy:
-    - 'cd /home4/ygmarket/ygxone.com/home && php artisan config:clear'
-    - 'cd /home4/ygmarket/ygxone.com/home && php artisan cache:clear'
-    - 'cd /home4/ygmarket/ygxone.com/home && php artisan view:clear'
-    - 'cd /home4/ygmarket/ygxone.com/home && php artisan route:clear'
-    - 'cd /home4/ygmarket/ygxone.com/home && chmod 644 .env'
-    - 'cd /home4/ygmarket/ygxone.com/home && chmod 775 storage && chmod 775 bootstrap/cache'
