@@ -24,6 +24,8 @@ class SsoController extends Controller
         'chat.ygxone.com',
         'pay.ygxone.com',
         'master.ygxone.com',
+        'ygxone.com',
+        'www.ygxone.com',
         'ygsoftx.com',
         'www.ygsoftx.com',
         'localhost',
