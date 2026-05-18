@@ -31,7 +31,7 @@ $rootPath = Get-Location
 $isProduction = $false
 if ($rootPath -match "ygmarket" -or $env:COMPUTERNAME -match "access") {
     $isProduction = $true
-    Write-Info "Production environment detected! Setting production APP_URLs and session sharing."
+    Write-Info "Production environment detected! Setting production APP_URLs, sharing sessions, and database."
 } else {
     Write-Info "Development environment detected."
 }
@@ -73,7 +73,7 @@ foreach ($service in $services) {
     # Step 2: Configure Environment Settings (APP_URL, DB, Session sharing)
     $envContent = Get-Content $envFile -Raw
     if ($isProduction) {
-        Write-Info "Configuring production environment tokens..."
+        Write-Info "Configuring production environment tokens and DB credentials..."
         
         # Set proper subdomains
         $envContent = $envContent -replace "APP_URL=http://localhost.*", "APP_URL=https://$service.ygxone.com"
@@ -84,15 +84,20 @@ foreach ($service in $services) {
         $envContent = $envContent -replace "SESSION_DOMAIN=.*", "SESSION_DOMAIN=.ygxone.com"
         $envContent = $envContent -replace "SESSION_SECURE_COOKIE=.*", "SESSION_SECURE_COOKIE=true"
         
-        # Set database host to localhost
-        $envContent = $envContent -replace "DB_HOST=127.0.0.1", "DB_HOST=localhost"
+        # Configure actual cPanel MySQL credentials
+        $envContent = $envContent -replace "DB_CONNECTION=.*", "DB_CONNECTION=mysql"
+        $envContent = $envContent -replace "DB_HOST=.*", "DB_HOST=127.0.0.1"
+        $envContent = $envContent -replace "DB_PORT=.*", "DB_PORT=3306"
+        $envContent = $envContent -replace "DB_DATABASE=.*", "DB_DATABASE=ygmarket_account"
+        $envContent = $envContent -replace "DB_USERNAME=.*", "DB_USERNAME=ygmarket_account"
+        $envContent = $envContent -replace "DB_PASSWORD=.*", "DB_PASSWORD='Ygaccount@2.0##2026'"
 
         # Handle service integrations and SSO URLs
         $envContent = $envContent -replace "YG_ACCOUNT_URL=.*", "YG_ACCOUNT_URL=https://account.ygxone.com"
         $envContent = $envContent -replace "YG_ACCOUNT_API_URL=.*", "YG_ACCOUNT_API_URL=https://account.ygxone.com/api"
         
         Set-Content $envFile -Value $envContent -NoNewline
-        Write-Success "Production URLs and Session SSO configured successfully."
+        Write-Success "Production URLs, Database credentials, and Session SSO configured successfully."
     } else {
         Write-Info "Applying local development APP_URL configurations..."
         if ($service -eq "account") {

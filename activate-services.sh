@@ -36,11 +36,10 @@ services=("account" "developer" "master" "docx" "xcel")
 root_path=$(pwd)
 
 # Verify if we are running in cPanel/production environment
-# Standard check: if hostname or domain matches ygxone.com or if we are under home4/ygmarket
 IS_PRODUCTION=false
 if [[ "$root_path" == *"ygmarket"* ]] || [[ "$(hostname)" == *"access"* ]]; then
     IS_PRODUCTION=true
-    write_info "Production environment detected! Setting production APP_URLs and session sharing."
+    write_info "Production environment detected! Setting production APP_URLs, sharing sessions, and database."
 else
     write_info "Development environment detected."
 fi
@@ -78,7 +77,7 @@ for service in "${services[@]}"; do
 
     # Step 2: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
     if [ "$IS_PRODUCTION" == "true" ]; then
-        write_info "Configuring production environment tokens..."
+        write_info "Configuring production environment tokens and DB credentials..."
         
         # Set proper subdomains
         sed -i "s|APP_URL=http://localhost.*|APP_URL=https://$service.ygxone.com|g" .env || true
@@ -89,14 +88,19 @@ for service in "${services[@]}"; do
         sed -i 's/SESSION_DOMAIN=.*/SESSION_DOMAIN=.ygxone.com/g' .env || true
         sed -i 's/SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/g' .env || true
         
-        # Set database host to localhost or 127.0.0.1
-        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/g' .env || true
+        # Configure actual cPanel MySQL credentials
+        sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env || true
+        sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' .env || true
+        sed -i 's/DB_PORT=.*/DB_PORT=3306/g' .env || true
+        sed -i 's/DB_DATABASE=.*/DB_DATABASE=ygmarket_account/g' .env || true
+        sed -i 's/DB_USERNAME=.*/DB_USERNAME=ygmarket_account/g' .env || true
+        sed -i "s/DB_PASSWORD=.*/DB_PASSWORD='Ygaccount@2.0##2026'/g" .env || true
 
         # Handle service integrations and SSO URLs
         sed -i 's|YG_ACCOUNT_URL=.*|YG_ACCOUNT_URL=https://account.ygxone.com|g' .env || true
         sed -i 's|YG_ACCOUNT_API_URL=.*|YG_ACCOUNT_API_URL=https://account.ygxone.com/api|g' .env || true
         
-        write_success "Production URLs and Session SSO configured successfully."
+        write_success "Production URLs, Database credentials, and Session SSO configured successfully."
     else
         write_info "Applying local development APP_URL configurations..."
         if [ "$service" == "account" ]; then
@@ -119,7 +123,7 @@ for service in "${services[@]}"; do
     if ! grep -q "APP_KEY=base64:" .env; then
         write_info "Generating application key..."
         
-        # Temporary SQLite switch to bypass MySQL connection errors on local systems
+        # Temporary SQLite switch to bypass MySQL connection errors on local systems during key generation
         sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/g' .env || true
         sed -i 's/DB_DATABASE=ygmarket_account/DB_DATABASE=:memory:/g' .env || true
         
