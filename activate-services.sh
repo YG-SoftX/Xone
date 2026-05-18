@@ -145,6 +145,7 @@ for service in "${services[@]}"; do
         sed -i 's/SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/g' .env || true
         
         # Configure actual cPanel MySQL credentials
+        sed -i 's/^# DB_/DB_/g' .env || true
         sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env || true
         sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' .env || true
         sed -i 's/DB_PORT=.*/DB_PORT=3306/g' .env || true
