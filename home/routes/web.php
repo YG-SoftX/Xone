@@ -82,6 +82,11 @@ Route::get('/up', function () {
     ], $allHealthy ? 200 : 503);
 })->name('health.check');
 
+// Admin routes redirect to master portal
+Route::get('/admin', function () {
+    return redirect('https://master.ygxone.com/admin');
+});
+
 // Admin routes (protected with authentication and admin role)
 Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
