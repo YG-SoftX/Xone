@@ -32,8 +32,15 @@ return new class extends Migration
                 $table->foreignId('product_id')->nullable()->constrained('api_products')->onDelete('cascade');
                 $table->string('name');                      // 'Free', 'Pro', 'Enterprise'
                 $table->string('slug')->unique();
+                $table->text('description')->nullable();
+                $table->decimal('price', 10, 2)->default(0);
                 $table->decimal('monthly_price', 10, 2)->default(0);
+                $table->string('currency')->default('USD');
+                $table->string('billing_cycle')->default('monthly');
+                $table->integer('trial_days')->default(0);
                 $table->json('features')->nullable();
+                $table->json('quotas')->nullable();
+                $table->integer('sort_order')->default(0);
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();
             });

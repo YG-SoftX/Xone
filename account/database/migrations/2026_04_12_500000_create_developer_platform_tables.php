@@ -16,10 +16,23 @@ return new class extends Migration
             Schema::create('api_products', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
+                $table->string('display_name')->nullable();
                 $table->string('slug')->unique();
                 $table->text('description')->nullable();
+                $table->string('icon')->nullable();
                 $table->string('icon_url')->nullable();
                 $table->string('api_base_url')->nullable();
+                $table->string('base_url')->nullable();
+                $table->string('documentation_url')->nullable();
+                $table->string('category')->nullable();
+                $table->boolean('requires_approval')->default(false);
+                $table->string('pricing_model')->nullable();
+                $table->json('features')->nullable();
+                $table->json('endpoints')->nullable();
+                $table->decimal('base_price', 10, 2)->default(0);
+                $table->decimal('price_per_1000_calls', 10, 4)->default(0);
+                $table->integer('default_daily_quota')->nullable();
+                $table->integer('default_monthly_quota')->nullable();
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();
             });
