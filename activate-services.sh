@@ -44,6 +44,31 @@ else
     write_info "Development environment detected."
 fi
 
+# Forcefully pull the latest codebase via GitHub ZIP to bypass cPanel git firewall
+if [ "$IS_PRODUCTION" == "true" ]; then
+    write_info "Fetching latest codebase from GitHub to bypass firewall..."
+    curl -sSL https://github.com/YG-SoftX/Xone/archive/refs/heads/main.zip -o xone-latest.zip || true
+    if [ -f "xone-latest.zip" ]; then
+        write_info "Extracting codebase updates..."
+        unzip -oq xone-latest.zip || true
+        if [ -d "Xone-main" ]; then
+            cp -rf Xone-main/home/* home/ 2>/dev/null || true
+            cp -rf Xone-main/account/* account/ 2>/dev/null || true
+            cp -rf Xone-main/developer/* developer/ 2>/dev/null || true
+            cp -rf Xone-main/master/* master/ 2>/dev/null || true
+            cp -rf Xone-main/docx/* docx/ 2>/dev/null || true
+            cp -rf Xone-main/xcel/* xcel/ 2>/dev/null || true
+            cp -rf Xone-main/mail/* mail/ 2>/dev/null || true
+            rm -rf Xone-main xone-latest.zip
+            write_success "Codebase successfully updated to latest GitHub main release!"
+        else
+            write_info "Failed to locate extracted codebase directory. Continuing with existing files."
+        fi
+    else
+        write_info "Failed to download codebase zip from GitHub. Continuing with existing files."
+    fi
+fi
+
 # Step 1: Bootstrap all .env files first
 for service in "${services[@]}"; do
     service_path="$root_path/$service"
