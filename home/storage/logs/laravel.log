@@ -2737,3 +2737,30 @@ Please set a user-agent and respect our robot policy https://w.wiki/4wJS. See al
 #35 D:/YG SoftX/Xone/home/artisan(24): Illuminate/Foundation/Console/Kernel->handle()
 #36 {main}
 "} 
+[2026-05-18 08:39:08] production.ERROR: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it {"exception":"[object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it at D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct()
+#1 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(85): Illuminate/Database/Connectors/Connector->createPdoConnection()
+#2 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(48): Illuminate/Database/Connectors/Connector->tryAgainIfCausedByLostConnection()
+#3 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection()
+#4 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(185): Illuminate/Database/Connectors/MySqlConnector->connect()
+#5 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#6 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1231): call_user_func()
+#7 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(102): Illuminate/Database/Connection->getPdo()
+#8 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(29): Illuminate/Database/MySqlConnection->isMaria()
+#9 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Database/Console/ShowCommand.php(50): Illuminate/Database/MySqlConnection->getDriverTitle()
+#10 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/ShowCommand->handle()
+#11 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#12 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate/Container/Util::unwrapIfClosure()
+#13 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#14 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate/Container/BoundMethod::call()
+#15 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate/Container/Container->call()
+#16 D:/YG SoftX/Xone/home/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#17 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony/Component/Console/Command/Command->run()
+#18 D:/YG SoftX/Xone/home/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#19 D:/YG SoftX/Xone/home/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#20 D:/YG SoftX/Xone/home/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#21 D:/YG SoftX/Xone/home/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#22 D:/YG SoftX/Xone/home/artisan(24): Illuminate/Foundation/Console/Kernel->handle()
+#23 {main}
+"} 
