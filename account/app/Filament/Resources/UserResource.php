@@ -109,7 +109,7 @@ class UserResource extends Resource
                     ->trueColor('danger')
                     ->falseColor('success'),
                 Tables\Columns\IconColumn::make('two_factor_enabled')->boolean()->label('2FA'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime('Y-m-d H:i:s')->sortable()->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')->options([

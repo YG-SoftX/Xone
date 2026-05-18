@@ -60,7 +60,7 @@ class TransactionResource extends Resource
                     'secondary' => 'cancelled',
                 ]),
                 Tables\Columns\TextColumn::make('reference')->searchable(),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')->options([

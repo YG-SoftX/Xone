@@ -71,7 +71,7 @@ class ApiProductResource extends Resource
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label('Active'),
                 Tables\Columns\TextColumn::make('default_monthly_quota')->label('Mo. Quota')->formatStateUsing(fn ($state) => $state == 0 ? 'Unlimited' : number_format($state)),
-                Tables\Columns\TextColumn::make('updated_at')->dateTime()->label('Modified'),
+                Tables\Columns\TextColumn::make('updated_at')->dateTime('Y-m-d H:i:s')->label('Modified'),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active'),

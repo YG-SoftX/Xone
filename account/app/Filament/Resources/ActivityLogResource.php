@@ -24,7 +24,7 @@ class ActivityLogResource extends Resource
                 Tables\Columns\TextColumn::make('action')->searchable()->badge(),
                 Tables\Columns\TextColumn::make('description')->limit(80)->searchable(),
                 Tables\Columns\TextColumn::make('ip_address')->label('IP'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('action')

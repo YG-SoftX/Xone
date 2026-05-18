@@ -53,7 +53,7 @@ class PostResource extends Resource
                 TextColumn::make('content')->limit(50)->searchable(),
                 TextColumn::make('trending_score')->label('Gravity')->sortable(),
                 ToggleColumn::make('is_hidden')->label('Hidden'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('created_at')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_hidden'),

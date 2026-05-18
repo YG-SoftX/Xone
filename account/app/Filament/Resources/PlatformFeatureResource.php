@@ -62,7 +62,7 @@ class PlatformFeatureResource extends Resource
                 Tables\Columns\IconColumn::make('is_public')
                     ->boolean()
                     ->label('Public'),
-                Tables\Columns\TextColumn::make('updated_at')->dateTime()->label('Last Modified'),
+                Tables\Columns\TextColumn::make('updated_at')->dateTime('Y-m-d H:i:s')->label('Last Modified'),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_enabled'),

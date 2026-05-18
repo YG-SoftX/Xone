@@ -81,7 +81,7 @@ class DocumentationResource extends Resource
                     ->boolean()
                     ->label('Status'),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable(),
             ])
             ->filters([

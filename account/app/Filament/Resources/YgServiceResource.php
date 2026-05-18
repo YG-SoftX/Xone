@@ -71,7 +71,7 @@ class YgServiceResource extends Resource
                         'warning' => 'maintenance',
                         'gray' => 'degraded',
                     ]),
-                Tables\Columns\TextColumn::make('last_health_check')->dateTime()->label('Last Check'),
+                Tables\Columns\TextColumn::make('last_health_check')->dateTime('Y-m-d H:i:s')->label('Last Check'),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active'),

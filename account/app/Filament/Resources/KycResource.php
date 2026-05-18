@@ -53,7 +53,7 @@ class KycResource extends Resource
                     'success' => 'verified',
                     'danger'  => 'rejected',
                 ]),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->options([

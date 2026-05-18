@@ -52,7 +52,7 @@ class ReportResource extends Resource
                         'resolved' => 'success',
                         'dismissed' => 'gray',
                     }),
-                TextColumn::make('created_at')->label('Signaled')->dateTime()->sortable(),
+                TextColumn::make('created_at')->label('Signaled')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
