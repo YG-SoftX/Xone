@@ -168,6 +168,19 @@ for service in "${services[@]}"; do
         sed -i 's/SESSION_DRIVER=.*/SESSION_DRIVER=database/g' .env || true
         sed -i 's/SESSION_DOMAIN=.*/SESSION_DOMAIN=.ygxone.com/g' .env || true
         sed -i 's/SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/g' .env || true
+
+        # Configure unique session cookies to prevent cross-subdomain CSRF and session collisions
+        sed -i "s/SESSION_COOKIE=.*/SESSION_COOKIE=yg_${service}_session/g" .env || true
+        if ! grep -q "SESSION_COOKIE=" .env; then
+            echo -e "\nSESSION_COOKIE=yg_${service}_session" >> .env
+        fi
+
+        # Force database cache for reliable, zero-file-permission tokens and sessions
+        sed -i 's/CACHE_STORE=.*/CACHE_STORE=database/g' .env || true
+        sed -i 's/CACHE_DRIVER=.*/CACHE_DRIVER=database/g' .env || true
+        if ! grep -q "CACHE_STORE=" .env; then
+            echo -e "\nCACHE_STORE=database\nCACHE_DRIVER=database" >> .env
+        fi
         
         # Forcefully inject cPanel MySQL credentials cleanly
         sed -i '/^#\? *DB_/d' .env || true
