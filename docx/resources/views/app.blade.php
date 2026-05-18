@@ -7,7 +7,8 @@
     <title inertia>YG DocX</title>
     @routes
     @viteReactRefresh
-    @vite(['resources/js/app.jsx', 'resources/css/app.css'])
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="{{ asset('js/app.js') }}" defer></script>
     @inertiaHead
 </head>
 <body class="antialiased">
