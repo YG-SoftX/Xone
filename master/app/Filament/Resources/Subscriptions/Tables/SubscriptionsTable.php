@@ -18,17 +18,20 @@ class SubscriptionsTable
                     ->searchable(),
                 TextColumn::make('plan_name')
                     ->searchable(),
+                TextColumn::make('amount')
+                    ->money()
+                    ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
                 TextColumn::make('expires_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

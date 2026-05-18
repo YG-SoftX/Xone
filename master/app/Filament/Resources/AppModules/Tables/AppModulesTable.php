@@ -28,11 +28,11 @@ class AppModulesTable
                 TextColumn::make('base_url')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

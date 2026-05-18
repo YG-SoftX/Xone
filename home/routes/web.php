@@ -8,6 +8,9 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SSOController;
 
+// Include authentication routes
+require __DIR__.'/auth.php';
+
 // Main search routes (Public)
 Route::get('/test', function() { return 'ok'; });
 Route::get('/', [SearchController::class, 'index'])->name('search.home');
@@ -37,6 +40,7 @@ Route::get('/search/lucky', [SearchController::class, 'feelingLucky'])
 // SSO routes (public)
 // Note: /callback must be GET — the account service issues a redirect (not a POST)
 //       back to this URL with ?token=xxx in the query string.
+Route::get('/login', [SSOController::class, 'initiate'])->name('login');
 Route::prefix('sso')->group(function () {
     Route::get('/initiate', [SSOController::class, 'initiate'])->name('sso.initiate');
     Route::get('/callback', [SSOController::class, 'callback'])->name('sso.callback');

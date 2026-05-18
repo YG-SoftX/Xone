@@ -38,14 +38,14 @@ class UsersTable
                     }),
                 TextColumn::make('phone'),
                 TextColumn::make('email_verified_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

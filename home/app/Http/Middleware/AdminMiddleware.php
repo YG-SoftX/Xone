@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
@@ -23,8 +24,8 @@ class AdminMiddleware
         
         // Check if user has admin role
         // For now, check against a list of admin emails from .env
-        $adminEmails = explode(',', env('ADMIN_EMAILS', ''));
-        $userEmail = auth()->user()->email ?? '';
+        $adminEmails = array_filter(explode(',', env('ADMIN_EMAILS', '')));
+        $userEmail = auth()->user()?->email ?? '';
         
         // In production, replace with proper role-based authorization
         if (!in_array($userEmail, $adminEmails) && !$this->isAdminUser(auth()->user())) {
@@ -32,7 +33,7 @@ class AdminMiddleware
         }
         
         // Log admin access
-        \Log::info('Admin dashboard accessed', [
+        Log::info('Admin dashboard accessed', [
             'user_id' => auth()->id(),
             'email' => $userEmail,
             'ip' => $request->ip(),

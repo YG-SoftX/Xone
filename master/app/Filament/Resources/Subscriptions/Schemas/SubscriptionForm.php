@@ -18,6 +18,10 @@ class SubscriptionForm
                     ->required(),
                 TextInput::make('plan_name')
                     ->required(),
+                TextInput::make('amount')
+                    ->numeric()
+                    ->default(0.00)
+                    ->required(),
                 TextInput::make('status')
                     ->required()
                     ->default('active'),
