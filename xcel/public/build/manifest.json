@@ -1,0 +1,39 @@
+{
+  "_plus-BgzepDQx.js": {
+    "file": "assets/plus-BgzepDQx.js",
+    "name": "plus",
+    "imports": [
+      "resources/js/app.jsx"
+    ]
+  },
+  "resources/js/Pages/SpreadsheetEditor.jsx": {
+    "file": "assets/SpreadsheetEditor-C1inMnrd.js",
+    "name": "SpreadsheetEditor",
+    "src": "resources/js/Pages/SpreadsheetEditor.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_plus-BgzepDQx.js"
+    ]
+  },
+  "resources/js/Pages/SpreadsheetHome.jsx": {
+    "file": "assets/SpreadsheetHome-8Iau4jib.js",
+    "name": "SpreadsheetHome",
+    "src": "resources/js/Pages/SpreadsheetHome.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_plus-BgzepDQx.js"
+    ]
+  },
+  "resources/js/app.jsx": {
+    "file": "assets/app-DSjamVNS.js",
+    "name": "app",
+    "src": "resources/js/app.jsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/Pages/SpreadsheetEditor.jsx",
+      "resources/js/Pages/SpreadsheetHome.jsx"
+    ]
+  }
+}
