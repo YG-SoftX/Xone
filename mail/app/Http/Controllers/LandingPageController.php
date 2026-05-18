@@ -9,6 +9,10 @@ class LandingPageController extends Controller
 {
     public function index()
     {
+        if (auth()->check()) {
+            return redirect('/dashboard');
+        }
+
         // For demo, we just take the first setting or default
         $settings = MailSetting::first();
         
