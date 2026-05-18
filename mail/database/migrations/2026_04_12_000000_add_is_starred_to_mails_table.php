@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('mails', function (Blueprint $table) {
-            $table->boolean('is_starred')->default(false)->after('is_read');
-        });
+        if (!Schema::hasColumn('mails', 'is_starred')) {
+            Schema::table('mails', function (Blueprint $table) {
+                $table->boolean('is_starred')->default(false)->after('read');
+            });
+        }
     }
 
     public function down(): void

@@ -9,14 +9,30 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('profile_photo_path')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('status')->default('active'); // active, suspended, pending
-            $table->string('role')->default('user'); // admin, super_admin, user, developer
-            $table->string('timezone')->default('UTC');
-            $table->timestamp('last_login_at')->nullable();
-            $table->string('last_login_ip')->nullable();
-            $table->json('metadata')->nullable(); // For flexible history/logs context
+            if (!Schema::hasColumn('users', 'profile_photo_path')) {
+                $table->string('profile_photo_path')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'status')) {
+                $table->string('status')->default('active'); // active, suspended, pending
+            }
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('user'); // admin, super_admin, user, developer
+            }
+            if (!Schema::hasColumn('users', 'timezone')) {
+                $table->string('timezone')->default('UTC');
+            }
+            if (!Schema::hasColumn('users', 'last_login_at')) {
+                $table->timestamp('last_login_at')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'last_login_ip')) {
+                $table->string('last_login_ip')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'metadata')) {
+                $table->json('metadata')->nullable(); // For flexible history/logs context
+            }
         });
     }
 
