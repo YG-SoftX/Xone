@@ -12,18 +12,27 @@ class ApiProduct extends Model
     protected $fillable = [
         'name',
         'display_name',
+        'slug',
         'description',
         'icon',
+        'icon_url',
+        'api_base_url',
+        'base_url',
+        'documentation_url',
+        'category',
+        'requires_approval',
+        'pricing_model',
+        'features',
         'endpoints',
         'price_per_1000_calls',
         'default_daily_quota',
         'default_monthly_quota',
         'is_active',
-        'requires_approval',
     ];
 
     protected $casts = [
         'endpoints' => 'array',
+        'features' => 'array',
         'price_per_1000_calls' => 'decimal:4',
         'is_active' => 'boolean',
         'requires_approval' => 'boolean',
