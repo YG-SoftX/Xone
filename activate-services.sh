@@ -144,14 +144,9 @@ for service in "${services[@]}"; do
         sed -i 's/SESSION_DOMAIN=.*/SESSION_DOMAIN=.ygxone.com/g' .env || true
         sed -i 's/SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/g' .env || true
         
-        # Configure actual cPanel MySQL credentials
-        sed -i 's/^# DB_/DB_/g' .env || true
-        sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env || true
-        sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' .env || true
-        sed -i 's/DB_PORT=.*/DB_PORT=3306/g' .env || true
-        sed -i 's/DB_DATABASE=.*/DB_DATABASE=ygmarket_account/g' .env || true
-        sed -i 's/DB_USERNAME=.*/DB_USERNAME=ygmarket_account/g' .env || true
-        sed -i "s/DB_PASSWORD=.*/DB_PASSWORD='Ygaccount@2.0##2026'/g" .env || true
+        # Forcefully inject cPanel MySQL credentials cleanly
+        sed -i '/^#\? *DB_/d' .env || true
+        echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'" >> .env
 
         # Handle service integrations and SSO URLs (Force secure production URLs)
         if ! grep -q "YG_ACCOUNT_API_BASE=" .env; then
