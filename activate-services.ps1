@@ -36,21 +36,17 @@ if ($rootPath -match "ygmarket" -or $env:COMPUTERNAME -match "access") {
     Write-Info "Development environment detected."
 }
 
+# Step 1: Bootstrap all .env files and directories first
 foreach ($service in $services) {
-    Write-Header "ACTIVATING MODULE: $service"
-    
     $servicePath = Join-Path $rootPath $service
     if (-not (Test-Path $servicePath)) {
-        Write-Warning "Module directory '$service' not found. Skipping."
         continue
     }
 
     # Navigate to module
     Set-Location $servicePath
-    Write-Info "Working directory: $servicePath"
 
-    # Step 1: Ensure standard Laravel directory structure exists to prevent View path errors
-    Write-Info "Creating required Laravel storage and bootstrap cache directories..."
+    # Ensure directories exist
     $storageDirs = @(
         "storage/framework/cache/data",
         "storage/framework/sessions",
@@ -64,33 +60,25 @@ foreach ($service in $services) {
             New-Item -ItemType Directory -Path $fullDir -Force | Out-Null
         }
     }
-    Write-Success "Storage directories verified."
 
-    # Step 2: Handle .env File
+    # Handle .env File
     $envFile = Join-Path $servicePath ".env"
     $envExample = Join-Path $servicePath ".env.example"
     $envProdExample = Join-Path $servicePath ".env.production.example"
     
     if (-not (Test-Path $envFile)) {
         if ($service -eq "docx" -and $isProduction -and (Test-Path $envProdExample)) {
-            Write-Info "Copying .env.production.example to .env..."
             Copy-Item $envProdExample $envFile
         } elseif (Test-Path $envExample) {
-            Write-Info "Copying .env.example to .env..."
             Copy-Item $envExample $envFile
         } else {
-            Write-Host "  ⚠ No .env.example found. Creating empty .env..." -ForegroundColor Yellow
             New-Item $envFile -ItemType File | Out-Null
         }
-        Write-Success ".env file created."
-    } else {
-        Write-Success ".env file already exists."
     }
 
-    # Step 3: Ensure database variables and APP_KEY placeholder exist in the .env
+    # Ensure database variables and APP_KEY placeholder exist
     $envContent = Get-Content $envFile -Raw
     if ($envContent -notmatch "DB_CONNECTION=") {
-        Write-Info "Appending missing database variables to .env..."
         $dbGaps = @"
 
 DB_CONNECTION=mysql
@@ -105,12 +93,71 @@ DB_PASSWORD='Ygaccount@2.0##2026'
         Set-Content $envFile -Value $envContent -NoNewline
     }
     if ($envContent -notmatch "APP_KEY=") {
-        Write-Info "Adding APP_KEY placeholder..."
         $envContent = $envContent + "`nAPP_KEY=`n"
         Set-Content $envFile -Value $envContent -NoNewline
     }
+}
+
+# Step 2: Synchronize APP_KEY across all modules for Single Sign-On (SSO)
+Write-Info "Synchronizing APP_KEY across all modules to enable Single Sign-On (SSO)..."
+$accountPath = Join-Path $rootPath "account"
+Set-Location $accountPath
+$accountEnvFile = Join-Path $accountPath ".env"
+$accountEnvContent = Get-Content $accountEnvFile -Raw
+
+if ($accountEnvContent -notmatch "APP_KEY=base64:") {
+    # Temporarily switch to SQLite
+    $tempContent = $accountEnvContent -replace "DB_CONNECTION=mysql", "DB_CONNECTION=sqlite"
+    $tempContent = $tempContent -replace "DB_DATABASE=ygmarket_account", "DB_DATABASE=:memory:"
+    Set-Content $accountEnvFile -Value $tempContent -NoNewline
+    
+    php artisan key:generate --force
+    
+    # Restore
+    $restoredContent = Get-Content $accountEnvFile -Raw
+    $restoredContent = $restoredContent -replace "DB_CONNECTION=sqlite", "DB_CONNECTION=mysql"
+    $restoredContent = $restoredContent -replace "DB_DATABASE=:memory:", "DB_DATABASE=ygmarket_account"
+    Set-Content $accountEnvFile -Value $restoredContent -NoNewline
+}
+
+# Extract key
+$accountEnvContent = Get-Content $accountEnvFile -Raw
+$sharedKey = ""
+if ($accountEnvContent -match "APP_KEY=(base64:[^\r\n]*)") {
+    $sharedKey = $Matches[1]
+}
+
+# Apply shared key to all other modules
+foreach ($service in $services) {
+    if ($service -ne "account") {
+        $servicePath = Join-Path $rootPath $service
+        if (Test-Path $servicePath) {
+            $sEnvFile = Join-Path $servicePath ".env"
+            if (Test-Path $sEnvFile) {
+                $sEnvContent = Get-Content $sEnvFile -Raw
+                $sEnvContent = $sEnvContent -replace "APP_KEY=.*", "APP_KEY=$sharedKey"
+                Set-Content $sEnvFile -Value $sEnvContent -NoNewline
+            }
+        }
+    }
+}
+Write-Success "Ecosystem-wide SSO APP_KEY synchronization complete!"
+
+# Step 3: Run full service configuration, dependency installation, and caching
+foreach ($service in $services) {
+    Write-Header "ACTIVATING MODULE: $service"
+    
+    $servicePath = Join-Path $rootPath $service
+    if (-not (Test-Path $servicePath)) {
+        Write-Warning "Module directory '$service' not found. Skipping."
+        continue
+    }
+
+    Set-Location $servicePath
+    Write-Info "Working directory: $servicePath"
 
     # Step 4: Configure Environment Settings (APP_URL, DB, Session sharing)
+    $envFile = Join-Path $servicePath ".env"
     $envContent = Get-Content $envFile -Raw
     if ($isProduction) {
         Write-Info "Configuring production environment tokens and DB credentials..."
@@ -164,31 +211,7 @@ DB_PASSWORD='Ygaccount@2.0##2026'
     composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
     Write-Success "Composer packages installed."
 
-    # Step 6: Generate APP_KEY if empty
-    $envContent = Get-Content $envFile -Raw
-    if ($envContent -notmatch "APP_KEY=base64:") {
-        Write-Info "Generating application key..."
-        
-        # Temporary SQLite switch to bypass MySQL connection errors
-        $tempContent = $envContent -replace "DB_CONNECTION=mysql", "DB_CONNECTION=sqlite"
-        $tempContent = $tempContent -replace "DB_DATABASE=ygmarket_account", "DB_DATABASE=:memory:"
-        Set-Content $envFile -Value $tempContent -NoNewline
-        
-        # Generate key
-        php artisan key:generate --force
-        
-        # Restore MySQL settings
-        $restoredContent = Get-Content $envFile -Raw
-        $restoredContent = $restoredContent -replace "DB_CONNECTION=sqlite", "DB_CONNECTION=mysql"
-        $restoredContent = $restoredContent -replace "DB_DATABASE=:memory:", "DB_DATABASE=ygmarket_account"
-        Set-Content $envFile -Value $restoredContent -NoNewline
-        
-        Write-Success "App key generated successfully."
-    } else {
-        Write-Success "App key already configured."
-    }
-
-    # Step 7: Clear Laravel Cache
+    # Step 6: Clear Laravel Cache
     Write-Info "Clearing application caches..."
     php artisan optimize:clear
     Write-Success "Cache cleared successfully."

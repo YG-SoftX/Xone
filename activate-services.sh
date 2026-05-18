@@ -44,6 +44,67 @@ else
     write_info "Development environment detected."
 fi
 
+# Step 1: Bootstrap all .env files first
+for service in "${services[@]}"; do
+    service_path="$root_path/$service"
+    if [ ! -d "$service_path" ]; then
+        continue
+    fi
+
+    # Navigate to module
+    cd "$service_path"
+
+    # Create directories
+    mkdir -p storage/framework/cache/data
+    mkdir -p storage/framework/sessions
+    mkdir -p storage/framework/views
+    mkdir -p storage/logs
+    mkdir -p bootstrap/cache
+    chmod -R 775 storage bootstrap/cache || true
+
+    # Handle .env File
+    if [ ! -f ".env" ]; then
+        if [ "$service" == "docx" ] && [ "$IS_PRODUCTION" == "true" ] && [ -f ".env.production.example" ]; then
+            cp .env.production.example .env
+        elif [ -f ".env.example" ]; then
+            cp .env.example .env
+        else
+            touch .env
+        fi
+    fi
+
+    # Ensure database variables and APP_KEY placeholder exist in the .env
+    if ! grep -q "DB_CONNECTION=" .env; then
+        echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'\n" >> .env
+    fi
+    if ! grep -q "APP_KEY=" .env; then
+        echo -e "\nAPP_KEY=" >> .env
+    fi
+done
+
+# Step 2: Synchronize APP_KEY across all modules for Single Sign-On (SSO)
+# In Laravel, cookies and sessions must be decrypted using the same APP_KEY for SSO to work.
+write_info "Synchronizing APP_KEY across all modules to enable Single Sign-On (SSO)..."
+cd "$root_path/account"
+if ! grep -q "APP_KEY=base64:" .env; then
+    # Temporarily switch to SQLite to bypass connection issues during generation
+    sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/g' .env || true
+    sed -i 's/DB_DATABASE=ygmarket_account/DB_DATABASE=:memory:/g' .env || true
+    php artisan key:generate --force
+    sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/g' .env || true
+    sed -i 's/DB_DATABASE=:memory:/DB_DATABASE=ygmarket_account/g' .env || true
+fi
+shared_key=$(grep "^APP_KEY=" .env | cut -d'=' -f2)
+
+# Copy the shared key to all other modules
+for service in "${services[@]}"; do
+    if [ "$service" != "account" ] && [ -f "$root_path/$service/.env" ]; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=$shared_key|g" "$root_path/$service/.env" || true
+    fi
+done
+write_success "Ecosystem-wide SSO APP_KEY synchronization complete!"
+
+# Step 3: Run full service configuration, dependency installation, and caching
 for service in "${services[@]}"; do
     write_header "ACTIVATING MODULE: $service"
     
@@ -56,44 +117,6 @@ for service in "${services[@]}"; do
     # Navigate to module
     cd "$service_path"
     write_info "Working directory: $service_path"
-
-    # Step 1: Ensure standard Laravel directory structure exists to prevent View path errors
-    write_info "Creating required Laravel storage and bootstrap cache directories..."
-    mkdir -p storage/framework/cache/data
-    mkdir -p storage/framework/sessions
-    mkdir -p storage/framework/views
-    mkdir -p storage/logs
-    mkdir -p bootstrap/cache
-    chmod -R 775 storage bootstrap/cache || true
-    write_success "Storage directories verified."
-
-    # Step 2: Handle .env File
-    if [ ! -f ".env" ]; then
-        # Use .env.production.example for docx if present and in production
-        if [ "$service" == "docx" ] && [ "$IS_PRODUCTION" == "true" ] && [ -f ".env.production.example" ]; then
-            write_info "Copying .env.production.example to .env..."
-            cp .env.production.example .env
-        elif [ -f ".env.example" ]; then
-            write_info "Copying .env.example to .env..."
-            cp .env.example .env
-        else
-            write_info "No .env.example found. Creating empty .env..."
-            touch .env
-        fi
-        write_success ".env file created."
-    else
-        write_success ".env file already exists."
-    fi
-
-    # Step 3: Ensure database variables and APP_KEY placeholder exist in the .env
-    if ! grep -q "DB_CONNECTION=" .env; then
-        write_info "Appending missing database variables to .env..."
-        echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'\n" >> .env
-    fi
-    if ! grep -q "APP_KEY=" .env; then
-        write_info "Adding APP_KEY placeholder..."
-        echo -e "\nAPP_KEY=" >> .env
-    fi
 
     # Step 4: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
     if [ "$IS_PRODUCTION" == "true" ]; then
@@ -147,27 +170,7 @@ for service in "${services[@]}"; do
     composer install --ignore-platform-reqs --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist
     write_success "Composer packages installed."
 
-    # Step 6: Generate APP_KEY if empty
-    if ! grep -q "APP_KEY=base64:" .env; then
-        write_info "Generating application key..."
-        
-        # Temporary SQLite switch to bypass MySQL connection errors on local systems during key generation
-        sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/g' .env || true
-        sed -i 's/DB_DATABASE=ygmarket_account/DB_DATABASE=:memory:/g' .env || true
-        
-        # Generate key
-        php artisan key:generate --force
-        
-        # Restore MySQL settings
-        sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/g' .env || true
-        sed -i 's/DB_DATABASE=:memory:/DB_DATABASE=ygmarket_account/g' .env || true
-        
-        write_success "App key generated successfully."
-    else
-        write_success "App key already configured."
-    fi
-
-    # Step 7: Clear & Rebuild Caches
+    # Step 6: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
     php artisan optimize:clear
     php artisan config:cache || true
