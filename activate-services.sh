@@ -184,6 +184,20 @@ for service in "${services[@]}"; do
     composer install --ignore-platform-reqs --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist
     write_success "Composer packages installed."
 
+    # Step 5.5: Run database migrations and seeders (safe for production)
+    if [ "$service" == "account" ]; then
+        write_info "Running account database migrations and seeders..."
+        php artisan migrate --force || true
+        php artisan db:seed --force || true
+    elif [ "$service" == "master" ]; then
+        write_info "Running master database migrations and seeders..."
+        php artisan migrate --force || true
+        php artisan db:seed --class=AdminUserSeeder --force || true
+    else
+        write_info "Running database migrations..."
+        php artisan migrate --force || true
+    fi
+
     # Step 6: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
     rm -f bootstrap/cache/*.php || true
