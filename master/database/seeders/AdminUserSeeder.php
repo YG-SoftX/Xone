@@ -25,7 +25,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'admin@ygxone.com',
                 'password' => Hash::make('YgMaster@2026!Secure'),
                 'role' => 'super_admin',
-                'is_active' => true,
+                'status' => 'active',
                 'email_verified_at' => now(),
             ]
         );

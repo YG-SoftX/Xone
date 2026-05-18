@@ -11,25 +11,42 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('documents', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('set null');
-            $table->string('title');
-            $table->longText('content')->nullable();
-            $table->json('content_json')->nullable();
-            $table->string('thumbnail')->nullable();
-            $table->string('document_type')->default('document'); // document, spreadsheet, presentation
-            $table->string('status')->default('draft'); // draft, published, archived
-            $table->integer('word_count')->default(0);
-            $table->integer('page_count')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
+        if (!Schema::hasTable('folders')) {
+            Schema::create('folders', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('parent_id')->nullable()->constrained('folders')->onDelete('cascade');
+                $table->string('name');
+                $table->string('color')->nullable();
+                $table->string('icon')->nullable();
+                $table->timestamps();
 
-            $table->index(['user_id', 'status']);
-            $table->index(['folder_id', 'created_at']);
-            $table->index('document_type');
-        });
+                $table->index(['user_id', 'parent_id']);
+                $table->index('created_at');
+            });
+        }
+
+        if (!Schema::hasTable('documents')) {
+            Schema::create('documents', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('set null');
+                $table->string('title');
+                $table->longText('content')->nullable();
+                $table->json('content_json')->nullable();
+                $table->string('thumbnail')->nullable();
+                $table->string('document_type')->default('document'); // document, spreadsheet, presentation
+                $table->string('status')->default('draft'); // draft, published, archived
+                $table->integer('word_count')->default(0);
+                $table->integer('page_count')->default(0);
+                $table->timestamps();
+                $table->softDeletes();
+
+                $table->index(['user_id', 'status']);
+                $table->index(['folder_id', 'created_at']);
+                $table->index('document_type');
+            });
+        }
     }
 
     /**

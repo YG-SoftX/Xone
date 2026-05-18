@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('webhook_deliveries')) {
             Schema::create('webhook_deliveries', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('webhook_id')->constrained()->onDelete('cascade');
+                $table->foreignId('webhook_id')->constrained('webhooks')->onDelete('cascade');
                 $table->integer('status_code')->nullable();
                 $table->text('response_body')->nullable();
                 $table->decimal('response_time_ms', 10, 2)->nullable();
@@ -33,8 +33,8 @@ return new class extends Migration
         if (!Schema::hasTable('api_usage')) {
             Schema::create('api_usage', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('api_key_id')->constrained()->onDelete('cascade');
-                $table->foreignId('project_id')->constrained()->onDelete('cascade');
+                $table->foreignId('api_key_id')->constrained('api_credentials')->onDelete('cascade');
+                $table->foreignId('project_id')->constrained('developer_projects')->onDelete('cascade');
                 $table->string('endpoint');
                 $table->string('method', 10);
                 $table->string('ip_address', 45)->nullable();

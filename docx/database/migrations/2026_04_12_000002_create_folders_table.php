@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('folders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('parent_id')->nullable()->constrained('folders')->onDelete('cascade');
-            $table->string('name');
-            $table->string('color')->nullable();
-            $table->string('icon')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('folders')) {
+            Schema::create('folders', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('parent_id')->nullable()->constrained('folders')->onDelete('cascade');
+                $table->string('name');
+                $table->string('color')->nullable();
+                $table->string('icon')->nullable();
+                $table->timestamps();
 
-            $table->index(['user_id', 'parent_id']);
-            $table->index('created_at');
-        });
+                $table->index(['user_id', 'parent_id']);
+                $table->index('created_at');
+            });
+        }
     }
 
     /**
