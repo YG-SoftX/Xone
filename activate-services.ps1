@@ -49,7 +49,24 @@ foreach ($service in $services) {
     Set-Location $servicePath
     Write-Info "Working directory: $servicePath"
 
-    # Step 1: Handle .env File
+    # Step 1: Ensure standard Laravel directory structure exists to prevent View path errors
+    Write-Info "Creating required Laravel storage and bootstrap cache directories..."
+    $storageDirs = @(
+        "storage/framework/cache/data",
+        "storage/framework/sessions",
+        "storage/framework/views",
+        "storage/logs",
+        "bootstrap/cache"
+    )
+    foreach ($dir in $storageDirs) {
+        $fullDir = Join-Path $servicePath $dir
+        if (-not (Test-Path $fullDir)) {
+            New-Item -ItemType Directory -Path $fullDir -Force | Out-Null
+        }
+    }
+    Write-Success "Storage directories verified."
+
+    # Step 2: Handle .env File
     $envFile = Join-Path $servicePath ".env"
     $envExample = Join-Path $servicePath ".env.example"
     $envProdExample = Join-Path $servicePath ".env.production.example"
@@ -70,7 +87,7 @@ foreach ($service in $services) {
         Write-Success ".env file already exists."
     }
 
-    # Step 2: Ensure database variables exist in the .env (specifically for home module template gaps)
+    # Step 3: Ensure database variables and APP_KEY placeholder exist in the .env
     $envContent = Get-Content $envFile -Raw
     if ($envContent -notmatch "DB_CONNECTION=") {
         Write-Info "Appending missing database variables to .env..."
@@ -87,8 +104,13 @@ DB_PASSWORD='Ygaccount@2.0##2026'
         $envContent = $envContent + $dbGaps
         Set-Content $envFile -Value $envContent -NoNewline
     }
+    if ($envContent -notmatch "APP_KEY=") {
+        Write-Info "Adding APP_KEY placeholder..."
+        $envContent = $envContent + "`nAPP_KEY=`n"
+        Set-Content $envFile -Value $envContent -NoNewline
+    }
 
-    # Step 3: Configure Environment Settings (APP_URL, DB, Session sharing)
+    # Step 4: Configure Environment Settings (APP_URL, DB, Session sharing)
     $envContent = Get-Content $envFile -Raw
     if ($isProduction) {
         Write-Info "Configuring production environment tokens and DB credentials..."
@@ -137,12 +159,12 @@ DB_PASSWORD='Ygaccount@2.0##2026'
         Write-Success "Local APP_URL configured."
     }
 
-    # Step 4: Install Composer Dependencies
+    # Step 5: Install Composer Dependencies
     Write-Info "Installing Composer dependencies..."
     composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
     Write-Success "Composer packages installed."
 
-    # Step 5: Generate APP_KEY if empty
+    # Step 6: Generate APP_KEY if empty
     $envContent = Get-Content $envFile -Raw
     if ($envContent -notmatch "APP_KEY=base64:") {
         Write-Info "Generating application key..."
@@ -166,7 +188,7 @@ DB_PASSWORD='Ygaccount@2.0##2026'
         Write-Success "App key already configured."
     }
 
-    # Step 6: Clear Laravel Cache
+    # Step 7: Clear Laravel Cache
     Write-Info "Clearing application caches..."
     php artisan optimize:clear
     Write-Success "Cache cleared successfully."

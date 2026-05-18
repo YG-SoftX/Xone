@@ -57,7 +57,17 @@ for service in "${services[@]}"; do
     cd "$service_path"
     write_info "Working directory: $service_path"
 
-    # Step 1: Handle .env File
+    # Step 1: Ensure standard Laravel directory structure exists to prevent View path errors
+    write_info "Creating required Laravel storage and bootstrap cache directories..."
+    mkdir -p storage/framework/cache/data
+    mkdir -p storage/framework/sessions
+    mkdir -p storage/framework/views
+    mkdir -p storage/logs
+    mkdir -p bootstrap/cache
+    chmod -R 775 storage bootstrap/cache || true
+    write_success "Storage directories verified."
+
+    # Step 2: Handle .env File
     if [ ! -f ".env" ]; then
         # Use .env.production.example for docx if present and in production
         if [ "$service" == "docx" ] && [ "$IS_PRODUCTION" == "true" ] && [ -f ".env.production.example" ]; then
@@ -75,13 +85,17 @@ for service in "${services[@]}"; do
         write_success ".env file already exists."
     fi
 
-    # Step 2: Ensure database variables exist in the .env (specifically for home module template gaps)
+    # Step 3: Ensure database variables and APP_KEY placeholder exist in the .env
     if ! grep -q "DB_CONNECTION=" .env; then
         write_info "Appending missing database variables to .env..."
         echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'\n" >> .env
     fi
+    if ! grep -q "APP_KEY=" .env; then
+        write_info "Adding APP_KEY placeholder..."
+        echo -e "\nAPP_KEY=" >> .env
+    fi
 
-    # Step 3: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
+    # Step 4: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
     if [ "$IS_PRODUCTION" == "true" ]; then
         write_info "Configuring production environment tokens and DB credentials..."
         
@@ -127,13 +141,13 @@ for service in "${services[@]}"; do
         write_success "Local APP_URL configured."
     fi
 
-    # Step 4: Install Composer Dependencies
+    # Step 5: Install Composer Dependencies
     write_info "Installing Composer dependencies..."
     composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist || \
     composer install --ignore-platform-reqs --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist
     write_success "Composer packages installed."
 
-    # Step 5: Generate APP_KEY if empty
+    # Step 6: Generate APP_KEY if empty
     if ! grep -q "APP_KEY=base64:" .env; then
         write_info "Generating application key..."
         
@@ -153,7 +167,7 @@ for service in "${services[@]}"; do
         write_success "App key already configured."
     fi
 
-    # Step 6: Clear & Rebuild Caches
+    # Step 7: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
     php artisan optimize:clear
     php artisan config:cache || true
