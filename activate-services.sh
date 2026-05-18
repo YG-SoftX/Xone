@@ -35,6 +35,16 @@ write_header "YGXONE MASTER SERVICE ACTIVATION ENGINE (cPanel)"
 services=("account" "developer" "master" "docx" "xcel")
 root_path=$(pwd)
 
+# Verify if we are running in cPanel/production environment
+# Standard check: if hostname or domain matches ygxone.com or if we are under home4/ygmarket
+IS_PRODUCTION=false
+if [[ "$root_path" == *"ygmarket"* ]] || [[ "$(hostname)" == *"access"* ]]; then
+    IS_PRODUCTION=true
+    write_info "Production environment detected! Setting production APP_URLs and session sharing."
+else
+    write_info "Development environment detected."
+fi
+
 for service in "${services[@]}"; do
     write_header "ACTIVATING MODULE: $service"
     
@@ -50,25 +60,62 @@ for service in "${services[@]}"; do
 
     # Step 1: Handle .env File
     if [ ! -f ".env" ]; then
-        if [ -f ".env.example" ]; then
+        # Use .env.production.example for docx if present and in production
+        if [ "$service" == "docx" ] && [ "$IS_PRODUCTION" == "true" ] && [ -f ".env.production.example" ]; then
+            write_info "Copying .env.production.example to .env..."
+            cp .env.production.example .env
+        elif [ -f ".env.example" ]; then
             write_info "Copying .env.example to .env..."
             cp .env.example .env
-            write_success ".env file created."
         else
             write_info "No .env.example found. Creating empty .env..."
             touch .env
         fi
+        write_success ".env file created."
     else
         write_success ".env file already exists."
     fi
 
-    # Step 2: Install Composer Dependencies
+    # Step 2: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
+    if [ "$IS_PRODUCTION" == "true" ]; then
+        write_info "Configuring production environment tokens..."
+        
+        # Set proper subdomains
+        sed -i "s|APP_URL=http://localhost.*|APP_URL=https://$service.ygxone.com|g" .env || true
+        sed -i "s|APP_URL=http://127.0.0.1.*|APP_URL=https://$service.ygxone.com|g" .env || true
+        
+        # Configure cross-subdomain SSO sessions
+        sed -i 's/SESSION_DRIVER=.*/SESSION_DRIVER=database/g' .env || true
+        sed -i 's/SESSION_DOMAIN=.*/SESSION_DOMAIN=.ygxone.com/g' .env || true
+        sed -i 's/SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/g' .env || true
+        
+        # Set database host to localhost or 127.0.0.1
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/g' .env || true
+
+        # Handle service integrations and SSO URLs
+        sed -i 's|YG_ACCOUNT_URL=.*|YG_ACCOUNT_URL=https://account.ygxone.com|g' .env || true
+        sed -i 's|YG_ACCOUNT_API_URL=.*|YG_ACCOUNT_API_URL=https://account.ygxone.com/api|g' .env || true
+        
+        write_success "Production URLs and Session SSO configured successfully."
+    else
+        write_info "Applying local development APP_URL configurations..."
+        if [ "$service" == "account" ]; then
+            sed -i 's|APP_URL=.*|APP_URL=http://localhost:8000|g' .env || true
+        elif [ "$service" == "developer" ]; then
+            sed -i 's|APP_URL=.*|APP_URL=http://localhost:8010|g' .env || true
+        else
+            sed -i 's|APP_URL=.*|APP_URL=http://localhost|g' .env || true
+        fi
+        write_success "Local APP_URL configured."
+    fi
+
+    # Step 3: Install Composer Dependencies
     write_info "Installing Composer dependencies..."
     composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist || \
     composer install --ignore-platform-reqs --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist
     write_success "Composer packages installed."
 
-    # Step 3: Generate APP_KEY if empty
+    # Step 4: Generate APP_KEY if empty
     if ! grep -q "APP_KEY=base64:" .env; then
         write_info "Generating application key..."
         
@@ -88,7 +135,7 @@ for service in "${services[@]}"; do
         write_success "App key already configured."
     fi
 
-    # Step 4: Clear & Rebuild Caches
+    # Step 5: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
     php artisan optimize:clear
     php artisan config:cache || true
