@@ -1,8 +1,8 @@
 # =============================================================================
 # 🚀 YGXONE Service Activation Script (PowerShell)
 # =============================================================================
-# Purpose: Instantly activates the 5 major modules in your ecosystem
-# Modules: account, developer, master, docx, xcel
+# Purpose: Instantly activates all modules in your ecosystem
+# Modules: home, account, developer, master, docx, xcel
 # =============================================================================
 
 $ErrorActionPreference = "Stop"
@@ -24,7 +24,7 @@ function Write-Info($text) {
 
 Write-Header "YGXONE MASTER SERVICE ACTIVATION ENGINE"
 
-$services = @("account", "developer", "master", "docx", "xcel")
+$services = @("home", "account", "developer", "master", "docx", "xcel")
 $rootPath = Get-Location
 
 # Check if we are running in cPanel environment
@@ -70,14 +70,38 @@ foreach ($service in $services) {
         Write-Success ".env file already exists."
     }
 
-    # Step 2: Configure Environment Settings (APP_URL, DB, Session sharing)
+    # Step 2: Ensure database variables exist in the .env (specifically for home module template gaps)
+    $envContent = Get-Content $envFile -Raw
+    if ($envContent -notmatch "DB_CONNECTION=") {
+        Write-Info "Appending missing database variables to .env..."
+        $dbGaps = @"
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ygmarket_account
+DB_USERNAME=ygmarket_account
+DB_PASSWORD='Ygaccount@2.0##2026'
+
+"@
+        $envContent = $envContent + $dbGaps
+        Set-Content $envFile -Value $envContent -NoNewline
+    }
+
+    # Step 3: Configure Environment Settings (APP_URL, DB, Session sharing)
     $envContent = Get-Content $envFile -Raw
     if ($isProduction) {
         Write-Info "Configuring production environment tokens and DB credentials..."
         
-        # Set proper subdomains
-        $envContent = $envContent -replace "APP_URL=http://localhost.*", "APP_URL=https://$service.ygxone.com"
-        $envContent = $envContent -replace "APP_URL=http://127.0.0.1.*", "APP_URL=https://$service.ygxone.com"
+        # Set proper subdomains (home service maps to ygxone.com without subdomain)
+        if ($service -eq "home") {
+            $envContent = $envContent -replace "APP_URL=http://localhost.*", "APP_URL=https://ygxone.com"
+            $envContent = $envContent -replace "APP_URL=http://127.0.0.1.*", "APP_URL=https://ygxone.com"
+            $envContent = $envContent -replace "APP_URL=https://home.ygxone.com", "APP_URL=https://ygxone.com"
+        } else {
+            $envContent = $envContent -replace "APP_URL=http://localhost.*", "APP_URL=https://$service.ygxone.com"
+            $envContent = $envContent -replace "APP_URL=http://127.0.0.1.*", "APP_URL=https://$service.ygxone.com"
+        }
         
         # Configure cross-subdomain SSO sessions
         $envContent = $envContent -replace "SESSION_DRIVER=.*", "SESSION_DRIVER=database"
@@ -100,7 +124,9 @@ foreach ($service in $services) {
         Write-Success "Production URLs, Database credentials, and Session SSO configured successfully."
     } else {
         Write-Info "Applying local development APP_URL configurations..."
-        if ($service -eq "account") {
+        if ($service -eq "home") {
+            $envContent = $envContent -replace "APP_URL=.*", "APP_URL=http://localhost:8000"
+        } elseif ($service -eq "account") {
             $envContent = $envContent -replace "APP_URL=.*", "APP_URL=http://localhost:8000"
         } elseif ($service -eq "developer") {
             $envContent = $envContent -replace "APP_URL=.*", "APP_URL=http://localhost:8010"
@@ -111,12 +137,12 @@ foreach ($service in $services) {
         Write-Success "Local APP_URL configured."
     }
 
-    # Step 3: Install Composer Dependencies
+    # Step 4: Install Composer Dependencies
     Write-Info "Installing Composer dependencies..."
     composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
     Write-Success "Composer packages installed."
 
-    # Step 4: Generate APP_KEY if empty
+    # Step 5: Generate APP_KEY if empty
     $envContent = Get-Content $envFile -Raw
     if ($envContent -notmatch "APP_KEY=base64:") {
         Write-Info "Generating application key..."
@@ -140,7 +166,7 @@ foreach ($service in $services) {
         Write-Success "App key already configured."
     }
 
-    # Step 5: Clear Laravel Cache
+    # Step 6: Clear Laravel Cache
     Write-Info "Clearing application caches..."
     php artisan optimize:clear
     Write-Success "Cache cleared successfully."
@@ -149,5 +175,5 @@ foreach ($service in $services) {
 # Return to root directory
 Set-Location $rootPath
 
-Write-Header "🎉 ecosystem SERVICES SUCCESSFULLY ACTIVATED!"
+Write-Header "🎉 ALL ECOSYSTEM SERVICES SUCCESSFULLY ACTIVATED!"
 Write-Host "Ready to deploy to cPanel. Push to Git and pull directly!" -ForegroundColor Green

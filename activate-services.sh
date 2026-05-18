@@ -2,8 +2,8 @@
 # =============================================================================
 # 🚀 YGXONE Service Activation Script (Linux/cPanel Bash)
 # =============================================================================
-# Purpose: Instantly activates the 5 major modules in your ecosystem on cPanel
-# Modules: account, developer, master, docx, xcel
+# Purpose: Instantly activates all modules in your ecosystem on cPanel
+# Modules: home, account, developer, master, docx, xcel
 # Usage: chmod +x activate-services.sh && ./activate-services.sh
 # =============================================================================
 
@@ -32,7 +32,7 @@ write_info() {
 
 write_header "YGXONE MASTER SERVICE ACTIVATION ENGINE (cPanel)"
 
-services=("account" "developer" "master" "docx" "xcel")
+services=("home" "account" "developer" "master" "docx" "xcel")
 root_path=$(pwd)
 
 # Verify if we are running in cPanel/production environment
@@ -75,13 +75,25 @@ for service in "${services[@]}"; do
         write_success ".env file already exists."
     fi
 
-    # Step 2: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
+    # Step 2: Ensure database variables exist in the .env (specifically for home module template gaps)
+    if ! grep -q "DB_CONNECTION=" .env; then
+        write_info "Appending missing database variables to .env..."
+        echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'\n" >> .env
+    fi
+
+    # Step 3: Configure Environment Settings (APP_URL, Database connection, Session Sharing)
     if [ "$IS_PRODUCTION" == "true" ]; then
         write_info "Configuring production environment tokens and DB credentials..."
         
-        # Set proper subdomains
-        sed -i "s|APP_URL=http://localhost.*|APP_URL=https://$service.ygxone.com|g" .env || true
-        sed -i "s|APP_URL=http://127.0.0.1.*|APP_URL=https://$service.ygxone.com|g" .env || true
+        # Set proper subdomains (home service maps to ygxone.com without subdomain)
+        if [ "$service" == "home" ]; then
+            sed -i "s|APP_URL=http://localhost.*|APP_URL=https://ygxone.com|g" .env || true
+            sed -i "s|APP_URL=http://127.0.0.1.*|APP_URL=https://ygxone.com|g" .env || true
+            sed -i "s|APP_URL=https://home.ygxone.com|APP_URL=https://ygxone.com|g" .env || true
+        else
+            sed -i "s|APP_URL=http://localhost.*|APP_URL=https://$service.ygxone.com|g" .env || true
+            sed -i "s|APP_URL=http://127.0.0.1.*|APP_URL=https://$service.ygxone.com|g" .env || true
+        fi
         
         # Configure cross-subdomain SSO sessions
         sed -i 's/SESSION_DRIVER=.*/SESSION_DRIVER=database/g' .env || true
@@ -103,7 +115,9 @@ for service in "${services[@]}"; do
         write_success "Production URLs, Database credentials, and Session SSO configured successfully."
     else
         write_info "Applying local development APP_URL configurations..."
-        if [ "$service" == "account" ]; then
+        if [ "$service" == "home" ]; then
+            sed -i 's|APP_URL=.*|APP_URL=http://localhost:8000|g' .env || true
+        elif [ "$service" == "account" ]; then
             sed -i 's|APP_URL=.*|APP_URL=http://localhost:8000|g' .env || true
         elif [ "$service" == "developer" ]; then
             sed -i 's|APP_URL=.*|APP_URL=http://localhost:8010|g' .env || true
@@ -113,13 +127,13 @@ for service in "${services[@]}"; do
         write_success "Local APP_URL configured."
     fi
 
-    # Step 3: Install Composer Dependencies
+    # Step 4: Install Composer Dependencies
     write_info "Installing Composer dependencies..."
     composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist || \
     composer install --ignore-platform-reqs --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts --prefer-dist
     write_success "Composer packages installed."
 
-    # Step 4: Generate APP_KEY if empty
+    # Step 5: Generate APP_KEY if empty
     if ! grep -q "APP_KEY=base64:" .env; then
         write_info "Generating application key..."
         
@@ -139,7 +153,7 @@ for service in "${services[@]}"; do
         write_success "App key already configured."
     fi
 
-    # Step 5: Clear & Rebuild Caches
+    # Step 6: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
     php artisan optimize:clear
     php artisan config:cache || true
@@ -150,5 +164,5 @@ done
 # Return to root
 cd "$root_path"
 
-write_header "🎉 ALL 5 SERVICES SUCCESSFULLY ACTIVATED!"
-echo -e "${GREEN}All services are prepared and ready for production use!${NC}"
+write_header "🎉 ALL SERVICES SUCCESSFULLY ACTIVATED!"
+echo -e "${GREEN}All services (including ygxone.com search hub) are fully active and production-ready!${NC}"
