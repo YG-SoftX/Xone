@@ -186,6 +186,7 @@ for service in "${services[@]}"; do
 
     # Step 6: Clear & Rebuild Caches
     write_info "Clearing and optimizing Laravel caches..."
+    rm -f bootstrap/cache/*.php || true
     php artisan optimize:clear
     php artisan config:cache || true
     php artisan route:cache || true
