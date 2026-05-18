@@ -18,9 +18,9 @@ class ServiceHealthWidget extends StatsOverviewWidget
     protected function getStats(): array
     {
         $totalServices = AppModule::count();
-        $healthyServices = AppModule::where('status', 'healthy')->count();
-        $degradedServices = AppModule::where('status', 'degraded')->count();
-        $unhealthyServices = AppModule::where('status', 'unhealthy')->count();
+        $healthyServices = AppModule::where('is_active', true)->count();
+        $degradedServices = 0;
+        $unhealthyServices = AppModule::where('is_active', false)->count();
 
         $healthPercentage = $totalServices > 0 
             ? round(($healthyServices / $totalServices) * 100, 1)
