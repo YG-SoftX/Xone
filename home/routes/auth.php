@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Auth::routes([
-    'register' => false,      // Disable registration (using SSO)
-    'reset' => false,         // Disable password reset (handled by account service)
-    'verify' => false,        // Disable email verification
-]);
+// Auth::routes() is removed because laravel/ui is not installed.
+// We map the standard logout route to our SSO controller.
+Route::post('/logout', [\App\Http\Controllers\SSOController::class, 'logout'])->name('logout');

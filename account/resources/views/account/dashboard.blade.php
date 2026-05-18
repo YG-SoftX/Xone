@@ -229,7 +229,7 @@
             </div>
 
             <div class="space-y-6">
-                <!-- Sample Announcement (Static for demo, would be @foreach) -->
+                <!-- Sample Announcement (Static for demo, would be a foreach loop) -->
                 <div class="flex gap-6 group cursor-pointer hover:bg-gray-50 p-4 rounded-2xl transition-colors border border-transparent hover:border-gray-100">
                     <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                         <i class="fas fa-bullhorn text-blue-600"></i>
