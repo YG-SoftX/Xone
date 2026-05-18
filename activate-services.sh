@@ -32,7 +32,7 @@ write_info() {
 
 write_header "YGXONE MASTER SERVICE ACTIVATION ENGINE (cPanel)"
 
-services=("home" "account" "developer" "master" "docx" "xcel")
+services=("home" "account" "developer" "master" "docx" "xcel" "mail")
 root_path=$(pwd)
 
 # Verify if we are running in cPanel/production environment
@@ -153,8 +153,12 @@ for service in "${services[@]}"; do
         sed -i "s/DB_PASSWORD=.*/DB_PASSWORD='Ygaccount@2.0##2026'/g" .env || true
 
         # Handle service integrations and SSO URLs (Force secure production URLs)
+        if ! grep -q "YG_ACCOUNT_API_BASE=" .env; then
+            echo -e "\nYG_ACCOUNT_API_BASE=https://account.ygxone.com/api" >> .env
+        fi
         sed -i 's|YG_ACCOUNT_URL=.*|YG_ACCOUNT_URL=https://account.ygxone.com|g' .env || true
         sed -i 's|YG_ACCOUNT_API_URL=.*|YG_ACCOUNT_API_URL=https://account.ygxone.com/api|g' .env || true
+        sed -i 's|YG_ACCOUNT_API_BASE=.*|YG_ACCOUNT_API_BASE=https://account.ygxone.com/api|g' .env || true
         sed -i 's|YG_MAIL_URL=.*|YG_MAIL_URL=https://mail.ygxone.com|g' .env || true
         sed -i 's|YG_DRIVE_URL=.*|YG_DRIVE_URL=https://drive.ygxone.com|g' .env || true
         sed -i 's|YG_MASTER_URL=.*|YG_MASTER_URL=https://master.ygxone.com|g' .env || true
