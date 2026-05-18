@@ -35,9 +35,11 @@ Route::get('/search/lucky', [SearchController::class, 'feelingLucky'])
 
 
 // SSO routes (public)
+// Note: /callback must be GET — the account service issues a redirect (not a POST)
+//       back to this URL with ?token=xxx in the query string.
 Route::prefix('sso')->group(function () {
     Route::get('/initiate', [SSOController::class, 'initiate'])->name('sso.initiate');
-    Route::post('/callback', [SSOController::class, 'callback'])->name('sso.callback');
+    Route::get('/callback', [SSOController::class, 'callback'])->name('sso.callback');
     Route::get('/logout', [SSOController::class, 'logout'])->name('sso.logout');
 });
 

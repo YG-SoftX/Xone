@@ -21,6 +21,11 @@
     .nav-link { color: var(--text-dim); text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s; }
     .nav-link:hover { color: var(--yg-accent-blue); }
     .profile-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--yg-accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; text-decoration: none; }
+    .sso-login-btn { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; border: none; padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; transition: opacity 0.2s; display: flex; align-items: center; gap: 8px; }
+    .sso-login-btn:hover { opacity: 0.88; color: #fff; }
+    .sso-alert { padding: 10px 20px; border-radius: 8px; margin: 8px 16px; font-size: 13px; font-weight: 600; }
+    .sso-alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .sso-alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
     main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 100px; width: 100%; max-width: 800px; margin: 0 auto; }
     .logo { font-size: 80px; font-weight: 900; letter-spacing: -3px; margin-bottom: 30px; color: #0f172a; font-family: 'Outfit', sans-serif; }
@@ -46,17 +51,34 @@
             <a href="https://drive.ygxone.com" class="nav-link">YG Drive</a>
             <a href="https://ai.ygxone.com" class="nav-link">YG AI</a>
             @if(auth()->check())
-                <a href="https://account.ygxone.com" class="profile-btn">
-                    <i class="fas fa-user"></i>
+                <span class="nav-link" style="color:var(--text-main); font-weight:700">
+                    {{ auth()->user()->name }}
+                </span>
+                <a href="{{ route('sso.logout') }}" class="profile-btn" title="Sign out">
+                    <i class="fas fa-sign-out-alt"></i>
                 </a>
             @else
-                <a href="https://account.ygxone.com/login" class="nav-link">Sign In</a>
-                <a href="https://account.ygxone.com/register" class="profile-btn">
-                    <i class="fas fa-user-plus"></i>
+                <a href="{{ route('sso.initiate') }}" class="sso-login-btn">
+                    <i class="fas fa-key"></i> Login with YG
+                </a>
+                <a href="https://account.ygxone.com/register" class="nav-link" style="color:var(--yg-accent-blue)">
+                    Register
                 </a>
             @endif
         </div>
     </header>
+
+    {{-- SSO flash messages --}}
+    @if(session('sso_success'))
+        <div class="sso-alert sso-alert-success" style="text-align:center">
+            <i class="fas fa-check-circle"></i> {{ session('sso_success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="sso-alert sso-alert-error" style="text-align:center">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        </div>
+    @endif
 
     <main>
         <div class="logo">YGX<span>ONE</span></div>

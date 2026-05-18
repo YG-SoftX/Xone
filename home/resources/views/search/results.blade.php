@@ -79,14 +79,22 @@
             </form>
         </div>
 
-        <div class="nav-links" style="display: flex; gap: 20px; margin-left: auto;">
+        <div class="nav-links" style="display: flex; gap: 20px; margin-left: auto; align-items: center;">
             <a href="#" class="text-gray-500 hover:bg-gray-100 p-2 rounded-lg"><i class="fas fa-th"></i></a>
             @if(auth()->check())
-                <a href="https://account.ygxone.com" class="profile-btn" style="background: #2563eb; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; items-center justify-center; font-size: 14px;">
-                    {{ substr(auth()->user()->name ?? 'P', 0, 1) }}
+                <span style="font-size:13px; font-weight:700; color:#0f172a;">
+                    {{ auth()->user()->name }}
+                </span>
+                <a href="{{ route('sso.logout') }}"
+                   style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;text-decoration:none;"
+                   title="Sign out">
+                    <i class="fas fa-sign-out-alt"></i>
                 </a>
             @else
-                <a href="https://account.ygxone.com/login" class="nav-link" style="background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: bold; text-decoration: none; font-size: 13px;">Sign In</a>
+                <a href="{{ route('sso.initiate') }}"
+                   style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-key"></i> Login with YG
+                </a>
             @endif
         </div>
     </div>
