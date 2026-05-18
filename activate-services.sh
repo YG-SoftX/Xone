@@ -73,10 +73,17 @@ for service in "${services[@]}"; do
         fi
     fi
 
-    # Ensure database variables and APP_KEY placeholder exist in the .env
+    # Ensure database variables exist in the .env
     if ! grep -q "DB_CONNECTION=" .env; then
         echo -e "\nDB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=ygmarket_account\nDB_USERNAME=ygmarket_account\nDB_PASSWORD='Ygaccount@2.0##2026'\n" >> .env
     fi
+
+    # Ensure ecosystem SSO URL variables exist in .env (critical to prevent localhost redirects!)
+    if ! grep -q "YG_ACCOUNT_URL=" .env; then
+        echo -e "\nYG_ACCOUNT_URL=https://account.ygxone.com\nYG_ACCOUNT_API_URL=https://account.ygxone.com/api\nYG_MAIL_URL=https://mail.ygxone.com\nYG_DRIVE_URL=https://drive.ygxone.com\nYG_MASTER_URL=https://master.ygxone.com\n" >> .env
+    fi
+
+    # Ensure APP_KEY placeholder exists in .env
     if ! grep -q "APP_KEY=" .env; then
         echo -e "\nAPP_KEY=" >> .env
     fi
@@ -145,9 +152,12 @@ for service in "${services[@]}"; do
         sed -i 's/DB_USERNAME=.*/DB_USERNAME=ygmarket_account/g' .env || true
         sed -i "s/DB_PASSWORD=.*/DB_PASSWORD='Ygaccount@2.0##2026'/g" .env || true
 
-        # Handle service integrations and SSO URLs
+        # Handle service integrations and SSO URLs (Force secure production URLs)
         sed -i 's|YG_ACCOUNT_URL=.*|YG_ACCOUNT_URL=https://account.ygxone.com|g' .env || true
         sed -i 's|YG_ACCOUNT_API_URL=.*|YG_ACCOUNT_API_URL=https://account.ygxone.com/api|g' .env || true
+        sed -i 's|YG_MAIL_URL=.*|YG_MAIL_URL=https://mail.ygxone.com|g' .env || true
+        sed -i 's|YG_DRIVE_URL=.*|YG_DRIVE_URL=https://drive.ygxone.com|g' .env || true
+        sed -i 's|YG_MASTER_URL=.*|YG_MASTER_URL=https://master.ygxone.com|g' .env || true
         
         write_success "Production URLs, Database credentials, and Session SSO configured successfully."
     else

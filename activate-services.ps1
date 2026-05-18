@@ -92,6 +92,22 @@ DB_PASSWORD='Ygaccount@2.0##2026'
         $envContent = $envContent + $dbGaps
         Set-Content $envFile -Value $envContent -NoNewline
     }
+
+    # Ensure ecosystem SSO URL variables exist (prevents localhost redirections)
+    if ($envContent -notmatch "YG_ACCOUNT_URL=") {
+        $ssoGaps = @"
+
+YG_ACCOUNT_URL=https://account.ygxone.com
+YG_ACCOUNT_API_URL=https://account.ygxone.com/api
+YG_MAIL_URL=https://mail.ygxone.com
+YG_DRIVE_URL=https://drive.ygxone.com
+YG_MASTER_URL=https://master.ygxone.com
+
+"@
+        $envContent = $envContent + $ssoGaps
+        Set-Content $envFile -Value $envContent -NoNewline
+    }
+
     if ($envContent -notmatch "APP_KEY=") {
         $envContent = $envContent + "`nAPP_KEY=`n"
         Set-Content $envFile -Value $envContent -NoNewline
@@ -185,9 +201,12 @@ foreach ($service in $services) {
         $envContent = $envContent -replace "DB_USERNAME=.*", "DB_USERNAME=ygmarket_account"
         $envContent = $envContent -replace "DB_PASSWORD=.*", "DB_PASSWORD='Ygaccount@2.0##2026'"
 
-        # Handle service integrations and SSO URLs
+        # Handle service integrations and SSO URLs (Force secure production URLs)
         $envContent = $envContent -replace "YG_ACCOUNT_URL=.*", "YG_ACCOUNT_URL=https://account.ygxone.com"
         $envContent = $envContent -replace "YG_ACCOUNT_API_URL=.*", "YG_ACCOUNT_API_URL=https://account.ygxone.com/api"
+        $envContent = $envContent -replace "YG_MAIL_URL=.*", "YG_MAIL_URL=https://mail.ygxone.com"
+        $envContent = $envContent -replace "YG_DRIVE_URL=.*", "YG_DRIVE_URL=https://drive.ygxone.com"
+        $envContent = $envContent -replace "YG_MASTER_URL=.*", "YG_MASTER_URL=https://master.ygxone.com"
         
         Set-Content $envFile -Value $envContent -NoNewline
         Write-Success "Production URLs, Database credentials, and Session SSO configured successfully."
