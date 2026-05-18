@@ -59,10 +59,14 @@ class DashboardController extends Controller
             return 0;
         }
 
-        return $quota->mail_used_bytes + 
-               $quota->drive_used_bytes + 
-               $quota->docs_used_bytes + 
-               $quota->meet_used_bytes;
+        if (isset($quota->used_bytes)) {
+            return $quota->used_bytes;
+        }
+
+        return ($quota->mail_used_bytes ?? 0) + 
+               ($quota->drive_used_bytes ?? 0) + 
+               ($quota->docs_used_bytes ?? 0) + 
+               ($quota->meet_used_bytes ?? 0);
     }
 
     /**
