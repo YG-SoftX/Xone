@@ -32,4 +32,15 @@ class SearchController extends Controller
 
         return response()->json(['results' => $mails]);
     }
+
+    /**
+     * Unified search across Mail module (used by central search).
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function globalSearch(\Illuminate\Http\Request $request)
+    {
+        $this->search($request);
+    }
 }

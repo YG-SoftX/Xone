@@ -2,90 +2,132 @@
 
 @section('title', 'Dashboard')
 
-<div class="stats">
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['total_users']) }}</div>
-        <div class="label">Total Users</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-red-600">{{ number_format($stats['total_users']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Total Users</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['total_emails']) }}</div>
-        <div class="label">Total Emails</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-blue-600">{{ number_format($stats['total_emails']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Total Emails</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['inbox_count']) }}</div>
-        <div class="label">Inbox</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-emerald-600">{{ number_format($stats['inbox_count']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Inbox</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['sent_count']) }}</div>
-        <div class="label">Sent</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-purple-600">{{ number_format($stats['sent_count']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Sent</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['trash_count']) }}</div>
-        <div class="label">Trash</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-orange-600">{{ number_format($stats['trash_count']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Trash</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['attachments_count']) }}</div>
-        <div class="label">Attachments</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-cyan-600">{{ number_format($stats['attachments_count']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Attachments</div>
     </div>
-    <div class="stat-card">
-        <div class="value" style="color: {{ $stats['failed_jobs'] > 0 ? '#f87171' : '#34d399' }}">{{ number_format($stats['failed_jobs']) }}</div>
-        <div class="label">Failed Jobs</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold {{ $stats['failed_jobs'] > 0 ? 'text-red-600' : 'text-emerald-600' }}">{{ number_format($stats['failed_jobs']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Failed Jobs</div>
     </div>
-    <div class="stat-card">
-        <div class="value">{{ number_format($stats['pending_jobs']) }}</div>
-        <div class="label">Pending Jobs</div>
+    <div class="stat-card bg-white border border-gray-200 rounded-xl p-5">
+        <div class="text-2xl font-bold text-yellow-600">{{ number_format($stats['pending_jobs']) }}</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mt-1">Pending Jobs</div>
     </div>
 </div>
 
-<h2 style="font-size:18px;margin-bottom:16px;">Recent Users</h2>
-<table>
-    <thead><tr><th>Name</th><th>Email</th><th>Created</th></tr></thead>
-    <tbody>
-        @forelse($recentUsers as $user)
-            <tr>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>{{ $user->created_at->diffForHumans() }}</td>
-            </tr>
-        @empty
-            <tr><td colspan="3" style="color:#64748b">No users yet</td></tr>
-        @endforelse
-    </tbody>
-</table>
+<div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <i class="fas fa-users text-gray-400"></i> Recent Users
+    </h2>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-100">
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($recentUsers as $user)
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 text-sm text-gray-900">{{ $user->name }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-600">{{ $user->email }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-500">{{ $user->created_at->diffForHumans() }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="3" class="py-8 text-center text-sm text-gray-400">No users yet</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h2 style="font-size:18px;margin:24px 0 16px;">Recent Emails</h2>
-<table>
-    <thead><tr><th>From</th><th>To</th><th>Subject</th><th>Folder</th><th>Date</th></tr></thead>
-    <tbody>
-        @forelse($recentMails as $mail)
-            <tr>
-                <td>{{ $mail->from }}</td>
-                <td>{{ $mail->to }}</td>
-                <td>{{ Str::limit($mail->subject, 40) }}</td>
-                <td>
-                    <span class="badge {{ $mail->folder === 'sent' ? 'badge-success' : ($mail->folder === 'trash' ? 'badge-danger' : 'badge-warning') }}">
-                        {{ ucfirst($mail->folder) }}
-                    </span>
-                </td>
-                <td>{{ $mail->created_at->diffForHumans() }}</td>
-            </tr>
-        @empty
-            <tr><td colspan="5" style="color:#64748b">No emails yet</td></tr>
-        @endforelse
-    </tbody>
-</table>
+<div class="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <i class="fas fa-envelope text-gray-400"></i> Recent Emails
+    </h2>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-100">
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">From</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">To</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Folder</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($recentMails as $mail)
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 text-sm text-gray-900">{{ $mail->from }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-600">{{ $mail->to }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-700">{{ Str::limit($mail->subject, 40) }}</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {{ $mail->folder === 'sent' ? 'bg-emerald-50 text-emerald-700' : '' }}
+                                {{ $mail->folder === 'trash' ? 'bg-red-50 text-red-700' : '' }}
+                                {{ $mail->folder === 'inbox' ? 'bg-blue-50 text-blue-700' : '' }}
+                                {{ $mail->folder === 'spam' ? 'bg-yellow-50 text-yellow-700' : '' }}
+                                {{ !in_array($mail->folder, ['sent','trash','inbox','spam']) ? 'bg-gray-50 text-gray-700' : '' }}">
+                                {{ ucfirst($mail->folder) }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-500">{{ $mail->created_at->diffForHumans() }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="py-8 text-center text-sm text-gray-400">No emails yet</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h2 style="font-size:18px;margin:24px 0 16px;">Top Senders</h2>
-<table>
-    <thead><tr><th>Email</th><th>Sent Count</th></tr></thead>
-    <tbody>
-        @forelse($topSenders as $sender)
-            <tr>
-                <td>{{ $sender->from }}</td>
-                <td>{{ number_format($sender->count) }}</td>
-            </tr>
-        @empty
-            <tr><td colspan="2" style="color:#64748b">No sent emails yet</td></tr>
-        @endforelse
-    </tbody>
-</table>
+<div class="bg-white border border-gray-200 rounded-xl p-6">
+    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <i class="fas fa-rocket text-gray-400"></i> Top Senders
+    </h2>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-100">
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sent Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($topSenders as $sender)
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 text-sm text-gray-900">{{ $sender->from }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-700 font-semibold">{{ number_format($sender->count) }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="2" class="py-8 text-center text-sm text-gray-400">No sent emails yet</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>

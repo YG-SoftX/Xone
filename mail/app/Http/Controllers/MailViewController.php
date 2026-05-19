@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-
 class MailViewController extends Controller
 {
     public function __construct(
@@ -94,8 +92,20 @@ class MailViewController extends Controller
             $email->update(['read' => true]);
         }
 
+        $unreadCounts = [
+            'inbox' => Mail::where('user_id', $user->id)->where('folder', 'inbox')->where('read', false)->count(),
+            'sent' => 0,
+            'trash' => Mail::where('user_id', $user->id)->where('folder', 'trash')->count(),
+            'spam' => Mail::where('user_id', $user->id)->where('folder', 'spam')->count(),
+            'starred' => Mail::where('user_id', $user->id)->where('is_starred', true)->count(),
+        ];
+
         return view('mail.show', [
             'email' => $email,
+            'currentFolder' => 'inbox',
+            'unreadCounts' => $unreadCounts,
+            'quota' => null,
+            'searchQuery' => '',
         ]);
     }
 
@@ -243,6 +253,48 @@ class MailViewController extends Controller
     /**
      * Search emails.
      */
+    /**
+     * Reply to an email.
+     */
+    public function reply(Request $request, $id)
+    {
+        $request->validate([
+            'body' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+        $original = Mail::where('id', $id)->where('user_id', $user->id)->firstOrFail();
+
+        DB::transaction(function () use ($request, $user, $original) {
+            $mailRecord = Mail::create([
+                'user_id' => $user->id,
+                'to' => $original->from,
+                'subject' => 'Re: ' . $original->subject,
+                'body' => $request->body,
+                'from' => $user->email,
+                'folder' => 'sent',
+                'read' => true,
+            ]);
+
+            SendEmail::dispatch(
+                to: $original->from,
+                subject: $mailRecord->subject,
+                body: $request->body,
+                fromEmail: $user->email,
+                attachments: [],
+                mailRecordId: $mailRecord->id
+            );
+
+            $this->spamProtection->recordEmailSent($user->id);
+        });
+
+        return redirect()->route('mail.inbox', ['folder' => 'sent'])
+            ->with('success', 'Reply sent successfully!');
+    }
+
+    /**
+     * Search emails.
+     */
     public function search(Request $request)
     {
         $user = Auth::user();
@@ -257,18 +309,25 @@ class MailViewController extends Controller
                     ->orWhere('to', 'like', "%{$q}%");
             })
             ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
+            ->paginate(25);
 
         if ($request->wantsJson()) {
-            return response()->json($results);
+            return response()->json($results->items());
         }
+
+        $unreadCounts = [
+            'inbox' => Mail::where('user_id', $user->id)->where('folder', 'inbox')->where('read', false)->count(),
+            'sent' => 0,
+            'trash' => Mail::where('user_id', $user->id)->where('folder', 'trash')->count(),
+            'spam' => Mail::where('user_id', $user->id)->where('folder', 'spam')->count(),
+            'starred' => Mail::where('user_id', $user->id)->where('is_starred', true)->count(),
+        ];
 
         return view('mail.inbox', [
             'emails' => $results,
             'currentFolder' => 'search',
             'searchQuery' => $q,
-            'unreadCounts' => [],
+            'unreadCounts' => $unreadCounts,
             'quota' => null,
         ]);
     }

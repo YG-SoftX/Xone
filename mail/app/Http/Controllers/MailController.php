@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail as MailFacade;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\OutgoingMail;
-use Inertia\Inertia;
+use App\Jobs\SendEmail;
+use Illuminate\Support\Facades\DB;
 
 class MailController extends Controller
 {
@@ -23,25 +24,6 @@ class MailController extends Controller
     public function __construct(protected SpamProtection $spamProtection, YgAccountEventPublisher $eventPublisher)
     {
         $this->eventPublisher = $eventPublisher;
-    }
-
-    public function index(Request $request)
-    {
-        if (!Auth::check()) {
-            $accountUrl = config('services.yg_account.url', 'http://localhost:8000');
-            $callbackUrl = url('/sso/callback');
-            return redirect($accountUrl . '/sso/initiate?service=YG+Mail&callback=' . urlencode($callbackUrl));
-        }
-
-        $user = Auth::user();
-
-        return Inertia::render('YG/Mail', [
-            'initialEmails' => Mail::where('user_id', $user->id)
-                ->where('folder', '!=', 'deleted')
-                ->with('attachments:id,mail_id,file_name,file_size,mime_type')
-                ->orderBy('created_at', 'desc')
-                ->get()
-        ]);
     }
 
     // GET /api/mail/inbox
@@ -71,7 +53,7 @@ class MailController extends Controller
 
         $user = Auth::user();
 
-        // Spam protection checks (quota + rate limit + blocked domains + keyword scan)
+        // Spam protection checks
         $validation = $this->spamProtection->validateEmail(
             $user->id,
             $request->to,
@@ -82,82 +64,85 @@ class MailController extends Controller
             return response()->json(['status' => 'error', 'message' => $validation['reason']], 429);
         }
 
-        // Handle attachments
-        $attachmentPaths = [];
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('uploads', 'local');
-                $attachmentPaths[] = [
-                    'path' => Storage::disk('local')->path($path),
-                    'name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                ];
+        // Use DB transaction for atomicity
+        return DB::transaction(function () use ($request, $user) {
+            // Handle attachments
+            $attachmentPaths = [];
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('uploads', 'local');
+                    $attachmentPaths[] = [
+                        'path' => Storage::disk('local')->path($path),
+                        'name' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getMimeType(),
+                    ];
+                }
             }
-        }
 
-        // Queue the email for async sending
-        $mailRecord = Mail::create([
-            'user_id' => $user->id,
-            'to' => $request->to,
-            'subject' => $request->subject,
-            'body' => $request->body,
-            'from' => $user->email,
-            'folder' => 'sent',
-            'read' => true,
-        ]);
-
-        // Trigger AI processing in background
-        CategorizeEmailJob::dispatch($mailRecord->id);
-        AnalyzeEmailSentimentJob::dispatch($mailRecord->id);
-
-        SendEmail::dispatch(
-            to: $request->to,
-            subject: $request->subject,
-            body: $request->body,
-            fromEmail: $user->email,
-            attachments: $attachmentPaths,
-            mailRecordId: $mailRecord->id
-        );
-
-        // Record the email for quota tracking
-        $this->spamProtection->recordEmailSent($user->id);
-
-        // Store attachment records linked to the mail record
-        foreach ($attachmentPaths as $attData) {
-            $attachment = Attachment::create([
-                'mail_id'   => $mailRecord->id,
-                'file_name' => $attData['name'],
-                'file_path' => $attData['path'],
-                'mime_type' => $attData['mime_type'],
-                'file_size' => file_exists($attData['path']) ? filesize($attData['path']) : 0,
+            // Create mail record
+            $mailRecord = Mail::create([
+                'user_id' => $user->id,
+                'to' => $request->to,
+                'subject' => $request->subject,
+                'body' => $request->body,
+                'from' => $user->email,
+                'folder' => 'sent',
+                'read' => true,
             ]);
 
-            // Publish attachment upload event for unified storage sync
-            $this->eventPublisher->publishAttachmentUploaded(
-                $attachment->id,
-                $user->id,
-                $attData['name'],
-                $attData['mime_type'],
-                $attachment->file_size,
-                $attData['path'],
-                $mailRecord->id
+            // Trigger AI processing in background
+            CategorizeEmailJob::dispatch($mailRecord->id);
+            AnalyzeEmailSentimentJob::dispatch($mailRecord->id);
+
+            // Queue actual send
+            SendEmail::dispatch(
+                to: $request->to,
+                subject: $request->subject,
+                body: $request->body,
+                fromEmail: $user->email,
+                attachments: $attachmentPaths,
+                mailRecordId: $mailRecord->id
             );
-        }
 
-        // Publish email sent event for cross-module sync
-        $this->eventPublisher->publishEmailSent(
-            $mailRecord->id,
-            $user->id,
-            $request->subject,
-            [$request->to],
-            $request->body
-        );
+            // Record quota usage
+            $this->spamProtection->recordEmailSent($user->id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Email queued for sending',
-            'mail' => $mailRecord,
-        ]);
+            // Store attachment records
+            foreach ($attachmentPaths as $attData) {
+                $attachment = Attachment::create([
+                    'mail_id'   => $mailRecord->id,
+                    'file_name' => $attData['name'],
+                    'file_path' => $attData['path'],
+                    'mime_type' => $attData['mime_type'],
+                    'file_size' => file_exists($attData['path']) ? filesize($attData['path']) : 0,
+                ]);
+
+                $this->eventPublisher->publishAttachmentUploaded(
+                    $attachment->id,
+                    $user->id,
+                    $attData['name'],
+                    $attData['mime_type'],
+                    $attachment->file_size,
+                    $attData['path'],
+                    $mailRecord->id
+                );
+            }
+
+            // Publish email sent event
+            $this->eventPublisher->publishEmailSent(
+                $mailRecord->id,
+                $user->id,
+                $request->subject,
+                [$request->to],
+                $request->body
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Email queued for sending',
+                'mail' => $mailRecord,
+            ]);
+        });
     }
 
     // PATCH /api/mail/{id}/read

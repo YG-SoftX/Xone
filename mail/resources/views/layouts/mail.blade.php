@@ -1,261 +1,234 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <title>@yield('title', 'Secure Triage') — YGXONE</title>
-    
-    <!-- Fonts: High-Fidelity Typography -->
+
+    <title>@yield('title', 'Inbox') — YGXONE Mail</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Icons: FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Core Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         :root {
-            --yg-bg: #020617;
-            --yg-glass: rgba(255, 255, 255, 0.03);
-            --yg-border: rgba(255, 255, 255, 0.08);
-            --yg-accent-blue: #3b82f6;
-            --yg-accent-purple: #a855f7;
-            --yg-accent-red: #ef4444;
+            --yg-primary: #dc2626;
+            --yg-primary-hover: #b91c1c;
+            --yg-primary-light: #fef2f2;
+            --yg-primary-bg: #fee2e2;
         }
 
         body {
-            background-color: var(--yg-bg) !important;
             font-family: 'Inter', sans-serif;
-            color: #f8fafc;
-            overflow-x: hidden;
+            background: #f9fafb;
+            color: #111827;
         }
 
-        .premium-glass {
-            background: var(--yg-glass);
-            border: 1px solid var(--yg-border);
-            backdrop-filter: blur(16px);
+        .email-row:hover .hover-actions {
+            display: flex !important;
         }
 
-        .sidebar-item-active {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 3px solid var(--yg-accent-blue);
-            color: white !important;
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+        .sidebar-link:hover {
+            background: #f3f4f6;
+            color: #111827 !important;
+        }
+        .sidebar-link.active {
+            background: var(--yg-primary-light);
+            color: var(--yg-primary) !important;
+            font-weight: 600;
         }
 
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white !important;
-        }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--yg-bg); }
-        ::-webkit-scrollbar-thumb { background: var(--yg-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         [x-cloak] { display: none !important; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-red { background: #fef2f2; color: #dc2626; }
+        .badge-green { background: #f0fdf4; color: #16a34a; }
+        .badge-yellow { background: #fefce8; color: #ca8a04; }
+        .badge-gray { background: #f3f4f6; color: #6b7280; }
+        .badge-blue { background: #eff6ff; color: #2563eb; }
     </style>
     @stack('head')
 </head>
-<body class="antialiased selection:bg-blue-500/30">
-    <div class="flex h-screen overflow-hidden">
-        
-        <!-- Universal Sidebar: The Backbone of the Empire -->
-        <aside class="hidden md:flex flex-col w-72 premium-glass border-r border-white/5 z-50">
-            <div class="p-8">
-                <a href="/" class="flex items-center space-x-3 group">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-cube text-white"></i>
+<body class="antialiased">
+    <div class="flex h-screen overflow-hidden" x-data="mailLayout()">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 z-50 flex-shrink-0" x-data="{ mobileOpen: false }">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-100">
+                <a href="{{ route('mail.inbox') }}" class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        <i class="fas fa-envelope"></i>
                     </div>
-                    <span class="text-2xl font-black text-white tracking-tighter uppercase">{{ __("YGXONE") }}</span>
+                    <div>
+                        <span class="text-lg font-bold text-gray-900 tracking-tight">YGXONE</span>
+                        <span class="text-red-600 font-bold">Mail</span>
+                    </div>
                 </a>
             </div>
 
-            <!-- Compose Portal Button -->
-            <div class="px-6 mb-6">
-                <button onclick="openComposeModal()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-blue-600/20 uppercase tracking-widest text-xs">
-                    <i class="fas fa-plus mr-2"></i> {{ __("New Triage") }}
-                </button>
+            <!-- Compose Button -->
+            <div class="px-4 py-4">
+                <a href="{{ route('mail.inbox') }}?compose=1"
+                   class="flex items-center justify-center gap-2 w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all text-sm">
+                    <i class="fas fa-pen"></i> Compose
+                </a>
             </div>
 
-            <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-4 mb-4">{{ __("Secure Folders") }}</p>
-                
-                <a href="{{ route('mail.inbox') }}" class="flex items-center px-4 py-4 rounded-2xl text-gray-400 font-bold transition-all sidebar-item {{ request()->routeIs('mail.inbox') ? 'sidebar-item-active' : '' }}">
-                    <i class="fas fa-inbox w-8 text-lg"></i>
-                    <span class="text-sm tracking-tight">{{ __("Inbox") }}</span>
+            <!-- Folders -->
+            <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto">
+                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Folders</p>
+
+                <a href="{{ route('mail.inbox', ['folder' => 'inbox']) }}"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 {{ $currentFolder === 'inbox' ? 'active' : '' }}">
+                    <i class="fas fa-inbox w-5 text-center text-sm"></i>
+                    <span class="flex-1">Inbox</span>
+                    @if(($unreadCounts['inbox'] ?? 0) > 0)
+                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['inbox'] }}</span>
+                    @endif
                 </a>
 
-                <a href="#" class="flex items-center px-4 py-4 rounded-2xl text-gray-400 font-bold transition-all sidebar-item">
-                    <i class="fas fa-paper-plane w-8 text-lg"></i>
-                    <span class="text-sm tracking-tight">{{ __("Sent") }}</span>
+                <a href="{{ route('mail.inbox', ['folder' => 'sent']) }}"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 {{ $currentFolder === 'sent' ? 'active' : '' }}">
+                    <i class="fas fa-paper-plane w-5 text-center text-sm"></i>
+                    <span>Sent</span>
                 </a>
 
-                <a href="#" class="flex items-center px-4 py-4 rounded-2xl text-gray-400 font-bold transition-all sidebar-item">
-                    <i class="fas fa-star w-8 text-lg"></i>
-                    <span class="text-sm tracking-tight">{{ __("Starred") }}</span>
+                <a href="{{ route('mail.inbox', ['folder' => 'starred']) }}"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 {{ $currentFolder === 'starred' ? 'active' : '' }}">
+                    <i class="fas fa-star w-5 text-center text-sm"></i>
+                    <span>Starred</span>
+                    @if(($unreadCounts['starred'] ?? 0) > 0)
+                        <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['starred'] }}</span>
+                    @endif
                 </a>
 
-                <div class="pt-8">
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-4 mb-4">{{ __("Ecosystem Bridge") }}</p>
-                    <a href="https://account.ygxone.com/dashboard" class="flex items-center px-4 py-4 rounded-2xl text-gray-400 font-bold transition-all sidebar-item">
-                        <i class="fas fa-th-large w-8 text-lg text-blue-400"></i>
-                        <span class="text-sm tracking-tight">{{ __("Command Center") }}</span>
-                    </a>
-                    <a href="https://pay.ygxone.com" class="flex items-center px-4 py-4 rounded-2xl text-gray-400 font-bold transition-all sidebar-item">
-                        <i class="fas fa-wallet w-8 text-lg text-purple-400"></i>
-                        <span class="text-sm tracking-tight">{{ __("YG Pay Authority") }}</span>
-                    </a>
-                </div>
+                <a href="{{ route('mail.inbox', ['folder' => 'spam']) }}"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 {{ $currentFolder === 'spam' ? 'active' : '' }}">
+                    <i class="fas fa-shield-halved w-5 text-center text-sm"></i>
+                    <span>Spam</span>
+                    @if(($unreadCounts['spam'] ?? 0) > 0)
+                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['spam'] }}</span>
+                    @endif
+                </a>
+
+                <a href="{{ route('mail.inbox', ['folder' => 'trash']) }}"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 {{ $currentFolder === 'trash' ? 'active' : '' }}">
+                    <i class="fas fa-trash-can w-5 text-center text-sm"></i>
+                    <span>Trash</span>
+                    @if(($unreadCounts['trash'] ?? 0) > 0)
+                        <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['trash'] }}</span>
+                    @endif
+                </a>
             </nav>
 
-            <!-- Sidebar Footer: Status -->
-            <div class="p-6 border-t border-white/5 bg-black/20 mt-auto">
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-black border border-white/10 shadow-lg">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                        </div>
-                        <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#020617] rounded-full"></div>
+            <!-- User -->
+            <div class="p-4 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-black text-white truncate">{{ auth()->user()->name }}</p>
-                        <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">{{ __("Sovereign Elite") }}</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
                     </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="text-xs text-gray-400 hover:text-red-600 transition-colors" title="Sign out">
+                            <i class="fas fa-right-from-bracket"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Workspace -->
+        <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            
-            @php $service_key = 'mail'; @endphp
+            <!-- Top Bar -->
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0">
+                <div class="flex items-center flex-1 gap-4">
+                    <!-- Mobile menu toggle -->
+                    <button class="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg" @click="mobileOpen = !mobileOpen">
+                        <i class="fas fa-bars"></i>
+                    </button>
 
-            <!-- Universal Header: The Command Bar -->
-            <header class="h-20 premium-glass border-b border-white/5 flex items-center justify-between px-8 z-40">
-                <div class="flex items-center flex-1 space-x-8">
-                    <!-- Global Search -->
-                    <div class="relative w-full max-w-xl">
-                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        <input type="text" placeholder="Search secure triage..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-6 text-sm text-white placeholder-gray-600 focus:border-blue-500/50 outline-none transition-all">
+                    <!-- Search -->
+                    <div class="relative flex-1 max-w-lg" x-data="{ search: '{{ $searchQuery ?? '' }}' }">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <form action="{{ route('mail.search') }}" method="GET">
+                            <input type="text" name="q" x-model="search"
+                                   placeholder="Search emails..."
+                                   class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-red-300 focus:ring-1 focus:ring-red-200 outline-none transition-all">
+                        </form>
                     </div>
-
-                    <!-- Dynamic Header Menu (Managed from YG Master) -->
-                    <nav class="hidden lg:flex items-center space-x-6">
-                        @php
-                            $headerItems = \App\Models\UniversalNavigationItem::forService($service_key)->header()->get();
-                        @endphp
-                        @foreach($headerItems as $item)
-                            <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
-                                @if($item->icon) <i class="{{ $item->icon }} text-xs"></i> @endif
-                                {{ $item->label }}
-                            </a>
-                        @endforeach
-                    </nav>
                 </div>
 
-                <div class="flex items-center space-x-6 ml-8">
-                    <!-- Notifications -->
-                    <button class="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all">
-                        <i class="fas fa-bell"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                    </button>
+                <div class="flex items-center gap-3">
+                    @if(isset($quota) && $quota)
+                        <span class="hidden md:flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                            <i class="fas fa-chart-bar text-gray-400"></i>
+                            {{ $quota->daily_sent }}/{{ $quota->daily_limit }}
+                        </span>
+                    @endif
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors">
-                            {{ __("Exit Empire") }}
+                        <button type="submit" class="hidden md:block text-xs font-medium text-gray-500 hover:text-red-600 transition-colors">
+                            Sign Out
                         </button>
                     </form>
                 </div>
             </header>
 
-            <!-- Workspace Content area -->
-            <main class="flex-1 overflow-hidden relative flex flex-col">
+            <!-- Page Content -->
+            <main class="flex-1 overflow-hidden relative flex flex-col bg-gray-50">
+                @if(session('success'))
+                    <div class="mx-4 md:mx-6 mt-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="mx-4 md:mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <div class="flex-1 overflow-y-auto">
                     @yield('mail-content')
                 </div>
-
-                <!-- Dynamic Footer (Managed from YG Master) -->
-                <footer class="p-8 border-t border-white/5 bg-black/20">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div class="flex items-center space-x-6">
-                            @php
-                                $footerItems = \App\Models\UniversalNavigationItem::forService($service_key)->footer()->get();
-                            @endphp
-                            @foreach($footerItems as $item)
-                                <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
-                                    {{ $item->label }}
-                                </a>
-                            @endforeach
-                        </div>
-                        <p class="text-[10px] font-black text-gray-700 uppercase tracking-[0.3em]">
-                            &copy; {{ date('Y') }} {{ __("YGXONE EMPIRE. ALL AUTHORITY RESERVED.") }}
-                        </p>
-                    </div>
-                </footer>
             </main>
         </div>
     </div>
 
-    <!-- High-Fidelity Compose Modal -->
-    <div id="compose-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-2xl">
-        <div class="bg-[#020617] w-full max-w-2xl rounded-[3rem] border border-white/10 shadow-3xl flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-            
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between px-8 py-6 border-b border-white/5">
-                <h3 class="text-xl font-black text-white uppercase tracking-tight">{{ __("New Secure Triage") }}</h3>
-                <button onclick="closeComposeModal()" class="text-gray-500 hover:text-white transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Modal Content -->
-            <form id="compose-form" method="POST" action="{{ route('mail.send') }}" class="flex-1 overflow-y-auto p-8 space-y-6">
-                @csrf
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 block">Authority Recipient</label>
-                        <input type="email" name="to" required placeholder="name@ygxone.com" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-blue-500/50 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 block">Subject Line</label>
-                        <input type="text" name="subject" required placeholder="Executive Summary" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-blue-500/50 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 block">Secret Content</label>
-                        <textarea name="body" rows="10" placeholder="Initialize encrypted communication..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-blue-500/50 outline-none transition resize-none"></textarea>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Modal Footer -->
-            <div class="px-8 py-6 border-t border-white/5 bg-black/20 flex justify-between items-center">
-                <button type="button" onclick="closeComposeModal()" class="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors">Abort</button>
-                <button type="submit" form="compose-form" class="px-10 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-2xl shadow-blue-600/30 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-xs">
-                    {{ __("Transmit Authority") }}
-                </button>
-            </div>
-        </div>
-    </div>
-
     @stack('scripts')
+
     <script>
-    function openComposeModal() {
-        document.getElementById('compose-modal').classList.remove('hidden');
-    }
-    function closeComposeModal() {
-        if(confirm('Abort this secure triage? Content will be purged.')) {
-            document.getElementById('compose-modal').classList.add('hidden');
-            document.getElementById('compose-form').reset();
-        }
+    function mailLayout() {
+        return {
+            mobileOpen: false,
+        };
     }
     </script>
 </body>

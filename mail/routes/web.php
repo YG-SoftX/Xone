@@ -2,22 +2,19 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\MailViewController;
 use App\Http\Controllers\SsoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // Admin routes (must be before wildcard routes)
 require __DIR__ . '/admin.php';
 
 // SSO routes
 Route::get('/sso/initiate', function (\Illuminate\Http\Request $request) {
-    // Redirect to YG Account SSO initiation
     $accountUrl = config('services.yg_account.url', 'http://localhost:8000');
     $callback = url('/sso/callback');
     $service = 'YG Mail';
-
-    // If this request came from a third-party app, pass along the client_id
     $clientId = $request->query('client_id');
     $queryParams = http_build_query([
         'service' => $service,
@@ -26,15 +23,35 @@ Route::get('/sso/initiate', function (\Illuminate\Http\Request $request) {
     if ($clientId) {
         $queryParams .= '&client_id=' . urlencode($clientId);
     }
-
     return redirect($accountUrl . '/sso/initiate?' . $queryParams);
 })->name('sso.initiate');
 
-Route::get('/sso/callback', [\App\Http\Controllers\SsoController::class, 'callback'])->name('sso.callback');
+Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
 
 Route::get('/', [\App\Http\Controllers\LandingPageController::class, 'index'])->name('welcome');
 
-// Protected API routes — all require authentication
+// ========================
+// Mail Frontend (Blade Views)
+// ========================
+Route::middleware(['auth'])->prefix('mail')->name('mail.')->group(function () {
+    Route::get('/', [MailViewController::class, 'inbox'])->name('inbox');
+    Route::get('/poll', [MailViewController::class, 'poll'])->name('poll');
+    Route::get('/search', [MailViewController::class, 'search'])->name('search');
+
+    // Email actions
+    Route::post('/send', [MailViewController::class, 'send'])->name('send');
+    Route::post('/{id}/star', [MailViewController::class, 'toggleStar'])->name('star');
+    Route::post('/{id}/delete', [MailViewController::class, 'delete'])->name('delete');
+    Route::post('/{id}/move', [MailViewController::class, 'moveToFolder'])->name('move');
+    Route::get('/{id}', [MailViewController::class, 'show'])->name('show');
+
+    // Reply within email detail
+    Route::post('/{id}/reply', [MailViewController::class, 'reply'])->name('reply');
+});
+
+// ========================
+// Legacy API Routes (for backward compatibility)
+// ========================
 Route::middleware(['auth'])->prefix('api')->group(function () {
     Route::get('/mail/inbox', [MailController::class, 'getInbox']);
     Route::post('/mail/send', [MailController::class, 'send'])->middleware('throttle:30,1');
@@ -46,7 +63,7 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return view('app')->with('title', 'Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

@@ -2,37 +2,33 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class AiService
 {
-    private $brain;
-    private $textGenerator;
-
-    public function __construct()
+    /**
+     * Attempt to call YG Account AI Service for text generation.
+     * Falls back gracefully if the service is unavailable.
+     */
+    private function callAiApi(string $prompt, array $options = []): ?string
     {
-        $this->initializeAi();
-    }
-
-    private function initializeAi()
-    {
-        $aiPath = base_path('../yg-ai/core');
-        
-        // Include core AI files from yg-ai
-        require_once $aiPath . '/Transformer.php';
-        require_once $aiPath . '/Tokenizer.php';
-        require_once $aiPath . '/Retriever.php';
-        require_once $aiPath . '/ModelStore.php';
-        require_once $aiPath . '/Brain.php';
-        require_once $aiPath . '/TextGenerator.php';
-
         try {
-            $store = new \ModelStore(base_path('../yg-ai/data/models'));
-            $this->brain = new \Brain('mail_ai', $store);
-            $this->textGenerator = new \TextGenerator($this->brain);
+            $ygAccountUrl = config('services.yg_account.url', 'http://localhost:8000');
+            $response = Http::timeout(5)->post($ygAccountUrl . '/api/ai/complete', [
+                'prompt' => $prompt,
+                'max_tokens' => $options['max_tokens'] ?? 100,
+                'temperature' => $options['temperature'] ?? 0.5,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('text') ?? $response->json('result');
+            }
         } catch (\Exception $e) {
-            Log::error('YG-AI Initialization failed: ' . $e->getMessage());
+            Log::debug('AI service unavailable: ' . $e->getMessage());
         }
+
+        return null;
     }
 
     /**
@@ -40,12 +36,10 @@ class AiService
      */
     public function summarize(string $body): string
     {
-        if (!$this->textGenerator) return "AI service unavailable.";
-
         $prompt = "Summarize this email in 3 bullet points: " . strip_tags($body);
-        $result = $this->textGenerator->complete($prompt, ['max_tokens' => 100, 'temperature' => 0.5]);
-        
-        return $result['text'] ?? "Unable to summarize.";
+        $result = $this->callAiApi($prompt, ['max_tokens' => 100, 'temperature' => 0.5]);
+
+        return $result ?? "AI service unavailable.";
     }
 
     /**
@@ -53,16 +47,16 @@ class AiService
      */
     public function suggestReplies(string $body): array
     {
-        if (!$this->textGenerator) return [];
-
         $prompt = "Based on this email: \"" . strip_tags($body) . "\", suggest 3 short reply options. 1. Formal 2. Casual 3. Action-oriented.";
-        $result = $this->textGenerator->bestOf($prompt, 3, ['max_tokens' => 80]);
+        $result = $this->callAiApi($prompt, ['max_tokens' => 150, 'temperature' => 0.7]);
 
-        // Clean up and split the AI output
-        $text = $result['best'] ?? '';
-        $options = preg_split('/\d\./', $text, -1, PREG_SPLIT_NO_EMPTY);
-        
-        return array_slice(array_map('trim', $options), 0, 3);
+        if ($result) {
+            // Clean up and split the output
+            $options = preg_split('/\d\./', $result, -1, PREG_SPLIT_NO_EMPTY);
+            return array_slice(array_map('trim', $options), 0, 3);
+        }
+
+        return [];
     }
 
     /**
@@ -70,11 +64,9 @@ class AiService
      */
     public function analyzeSentiment(string $body): string
     {
-        if (!$this->textGenerator) return "Neutral";
-
         $prompt = "The sentiment of this email is (Friendly/Urgent/Frustrated/Neutral): " . strip_tags($body);
-        $result = $this->textGenerator->complete($prompt, ['max_tokens' => 5]);
-        
-        return trim($result['text'] ?? "Neutral");
+        $result = $this->callAiApi($prompt, ['max_tokens' => 5, 'temperature' => 0.3]);
+
+        return trim($result ?? "Neutral");
     }
 }

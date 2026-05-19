@@ -4,38 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login — YG Mail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 40px; width: 400px; }
-        .login-card h1 { font-size: 24px; margin-bottom: 8px; }
-        .login-card p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input[type="email"], input[type="password"] { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #e2e8f0; font-size: 14px; margin-bottom: 16px; outline: none; }
-        input:focus { border-color: #3b82f6; }
-        .btn { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .btn:hover { background: #2563eb; }
-        .error { background: #7f1d1d; border: 1px solid #ef4444; color: #fca5a5; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <h1>🛡️ YG Mail Admin</h1>
-        <p>Sign in to manage the mail service.</p>
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 w-full max-w-md shadow-lg">
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-sm">
+                <i class="fas fa-envelope text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">YG Mail Admin</h1>
+            <p class="text-sm text-gray-500 mt-1">Sign in to manage the mail service.</p>
+        </div>
 
         @if ($errors->any())
-            <div class="error">{{ $errors->first('email') }}</div>
+            <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                {{ $errors->first('email') }}
+            </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login') }}">
+        <form method="POST" action="{{ route('admin.login') }}" class="space-y-5">
             @csrf
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+            <div>
+                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition">
+            </div>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <div>
+                <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                <input type="password" id="password" name="password" required
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition">
+            </div>
 
-            <button type="submit" class="btn">Sign In</button>
+            <button type="submit"
+                    class="w-full py-3 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                <i class="fas fa-lock-open mr-2"></i> Sign In
+            </button>
         </form>
     </div>
 </body>
