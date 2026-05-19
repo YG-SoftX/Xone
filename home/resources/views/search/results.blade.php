@@ -297,7 +297,7 @@
                 <div class="p-5 rounded-2xl bg-gradient-to-br from-white to-[var(--yg-surface)] border border-[var(--yg-border)]">
                     <h4 class="text-xs font-bold text-[var(--yg-text-dim)] uppercase tracking-widest mb-4">YG Ecosystem</h4>
                     <div class="space-y-2">
-                        @foreach($activeApps->take(5) as $app)
+                        @foreach(array_slice($activeApps, 0, 5) as $app)
                         <a href="{{ $app['url'] }}" target="_blank"
                            class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[var(--yg-surface)] transition-all duration-200 group">
                             <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm"
