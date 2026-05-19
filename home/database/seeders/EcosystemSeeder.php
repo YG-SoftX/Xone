@@ -99,7 +99,6 @@ class EcosystemSeeder extends Seeder
                 'powered_by_text'  => 'Powered by',
                 'copyright'        => 'YGXONE Sovereign Intelligence Platform',
             ]),
-            'background_gradient' => null,
             'created_at'         => now(),
             'updated_at'         => now(),
         ]);
