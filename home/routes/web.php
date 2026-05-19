@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EcosystemController;
 use App\Http\Controllers\SSOController;
 
 // Include authentication routes
@@ -36,6 +37,11 @@ Route::get('/search/lucky', [SearchController::class, 'feelingLucky'])
     ->middleware('throttle:30,1')
     ->name('search.lucky');
 
+
+// Ecosystem API routes (public — consumed by frontend JS)
+Route::get('/api/ecosystem/apps', [EcosystemController::class, 'apps'])->name('ecosystem.apps');
+Route::get('/api/ecosystem/health', [EcosystemController::class, 'health'])->name('ecosystem.health');
+Route::get('/api/ecosystem/theme', [EcosystemController::class, 'theme'])->name('ecosystem.theme');
 
 // SSO routes (public)
 // Note: /callback must be GET — the account service issues a redirect (not a POST)
@@ -103,6 +109,14 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/sync-modules', [AdminController::class, 'syncModules'])
         ->middleware('throttle:3,1') // 3 requests per minute
         ->name('admin.sync');
+    // Ecosystem admin routes
+    Route::get('/ecosystem/stats', [EcosystemController::class, 'stats'])
+        ->name('admin.ecosystem.stats');
+    Route::post('/ecosystem/clear-cache', [EcosystemController::class, 'clearCache'])
+        ->middleware('throttle:5,1')
+        ->name('admin.ecosystem.clear');
+    Route::get('/ecosystem/theme-preview', [EcosystemController::class, 'themePreview'])
+        ->name('admin.ecosystem.theme-preview');
 });
 
 require __DIR__.'/api.php';

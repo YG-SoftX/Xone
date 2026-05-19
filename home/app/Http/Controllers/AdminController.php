@@ -76,13 +76,20 @@ class AdminController extends Controller
                 ->limit(10)
                 ->get(['url', 'result_type', 'click_count', 'impression_count']);
             
+            // Pass ecosystem data for admin dashboard
+            $ecoService = app(\App\Services\EcosystemService::class);
+            $allApps = $ecoService->getAllApps();
+            $ecosystemEngine = config('services.master_panel.url', 'https://master.ygxone.com/admin');
+            
             return view('admin.dashboard', compact(
                 'stats',
                 'trendingQueries',
                 'zeroResultQueries',
                 'indexedByService',
                 'searchVolumeData',
-                'topClickedResults'
+                'topClickedResults',
+                'allApps',
+                'ecosystemEngine'
             ));
         } catch (\Exception $e) {
             \Log::error('Admin dashboard failed', ['error' => $e->getMessage()]);

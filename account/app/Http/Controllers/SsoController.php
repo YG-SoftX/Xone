@@ -6,8 +6,10 @@ use App\Models\ThirdPartyApp;
 use App\Models\ThirdPartyAuthLog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SsoController extends Controller
@@ -110,55 +112,92 @@ class SsoController extends Controller
      */
     public function validateToken(Request $request)
     {
-        $token = $request->query('token');
-        $clientId = $request->query('client_id');
-
-        if (!$token) {
-            return response()->json(['error' => 'No token provided'], 400);
-        }
-
-        $encryptedData = Cache::pull("sso_token_{$token}");
-
-        if (!$encryptedData) {
-            return response()->json(['error' => 'Invalid or expired token'], 401);
-        }
-
         try {
+            $token = $request->query('token');
+            $clientId = $request->query('client_id');
+
+            if (!$token) {
+                return response()->json(['error' => 'No token provided'], 400);
+            }
+
+            $encryptedData = Cache::pull("sso_token_{$token}");
+
+            if (!$encryptedData) {
+                return response()->json(['error' => 'Invalid or expired token'], 401);
+            }
+
             $data = Crypt::decryptString($encryptedData);
             $userData = json_decode($data, true);
 
-        if ($clientId) {
-            $app = ThirdPartyApp::where('client_id', $clientId)->first();
-
-            if ($app) {
-                if (!$app->is_active) {
-                    return response()->json(['error' => 'App is deactivated'], 403);
-                }
-
-                // Accept secret via header only — never query params (they land in logs)
-                $clientSecret = $request->header('X-Client-Secret');
-                if (!$clientSecret || !hash_equals((string) $app->client_secret, $clientSecret)) {
-                    return response()->json(['error' => 'Invalid client secret.'], 401);
-                }
-
-                $app->recordAuthEvent(
-                    'sso_validated',
-                    (int) $userData['id'],
-                    $request->ip(),
-                    $request->userAgent(),
-                    ['token_used' => $token]
-                );
+            if (!is_array($userData) || !isset($userData['id'])) {
+                return response()->json(['error' => 'Invalid token payload'], 401);
             }
-        }
+
+            if ($clientId) {
+                $app = ThirdPartyApp::where('client_id', $clientId)->first();
+
+                if ($app) {
+                    if (!$app->is_active) {
+                        return response()->json(['error' => 'App is deactivated'], 403);
+                    }
+
+                    // Accept secret via header only — never query params (they land in logs)
+                    $clientSecret = $request->header('X-Client-Secret');
+                    if (!$clientSecret || !hash_equals((string) $app->client_secret, $clientSecret)) {
+                        return response()->json(['error' => 'Invalid client secret.'], 401);
+                    }
+
+                    $app->recordAuthEvent(
+                        'sso_validated',
+                        (int) $userData['id'],
+                        $request->ip(),
+                        $request->userAgent(),
+                        ['token_used' => $token]
+                    );
+                }
+            }
 
             return response()->json([
-                'id' => $userData['id'],
-                'name' => $userData['name'],
-                'email' => $userData['email'],
+                'id'    => $userData['id'],
+                'name'  => $userData['name'] ?? 'User',
+                'email' => $userData['email'] ?? '',
             ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('SSO validate cache query failed', [
+                'error' => $e->getMessage(),
+                'token_prefix' => substr($token ?? '', 0, 8) . '...',
+            ]);
+            return response()->json(['error' => 'Token validation temporarily unavailable (cache error)'], 503);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Invalid token data'], 401);
+            Log::warning('SSO token validation failed', [
+                'error' => $e->getMessage(),
+                'token_prefix' => substr($token ?? '', 0, 8) . '...',
+            ]);
+            return response()->json(['error' => 'Invalid or expired token'], 401);
         }
+    }
+
+    /**
+     * Handle SSO logout — clear session and redirect back to the calling service.
+     *
+     * Called by YG services when a user logs out of their app.
+     * e.g. GET /sso/logout?redirect=https://ygxone.com
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $redirect = $request->query('redirect', url('/'));
+
+        // Prevent open redirect: only allow trusted domains
+        if ($redirect !== url('/') && !$this->isAllowedCallback($redirect)) {
+            $redirect = url('/');
+        }
+
+        return redirect($redirect);
     }
 
     /**

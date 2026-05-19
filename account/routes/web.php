@@ -19,6 +19,8 @@ Route::get('/', function () {
 
 // SSO routes (public)
 Route::get('/sso/initiate', [\App\Http\Controllers\SsoController::class, 'initiate'])->name('sso.initiate');
+Route::get('/sso/logout', [\App\Http\Controllers\SsoController::class, 'logout'])->name('sso.logout');
+Route::post('/sso/logout', [\App\Http\Controllers\SsoController::class, 'logout'])->name('sso.logout.post');
 
 require __DIR__ . '/auth.php';
 
