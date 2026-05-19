@@ -59,11 +59,11 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
     Route::delete('/mail/{id}', [MailController::class, 'delete'])->middleware('throttle:30,1');
     Route::get('/mail/search', [MailController::class, 'search'])->middleware('throttle:30,1');
     Route::get('/mail/attachment/{id}/download', [MailController::class, 'downloadAttachment'])->name('mail.attachment.download');
-    Route::post('/backup', [MailController::class, 'backup'])->middleware('throttle:10,1');
+    Route::post('/backup', [MailController::class, 'backup'])->middleware('throttle:10,1')->name('api.backup');
 });
 
 Route::get('/dashboard', function () {
-    return view('app')->with('title', 'Dashboard');
+    return redirect()->route('mail.inbox');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

@@ -139,14 +139,17 @@
                     </div>
 
                     <nav class="hidden lg:flex items-center space-x-6">
-                        @php
-                            $headerItems = \App\Models\UniversalNavigationItem::forService($service_key)->header()->get();
-                        @endphp
-                        @foreach($headerItems as $item)
-                            <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">
-                                {{ $item->label }}
-                            </a>
-                        @endforeach
+                        @if(class_exists('\App\Models\UniversalNavigationItem'))
+                            @php $headerItems = \App\Models\UniversalNavigationItem::forService($service_key)->header()->get(); @endphp
+                            @foreach($headerItems as $item)
+                                <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">
+                                    {{ $item->label }}
+                                </a>
+                            @endforeach
+                        @else
+                            <a href="https://account.ygxone.com" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">ACCOUNT</a>
+                            <a href="https://pay.ygxone.com" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">YG PAY</a>
+                        @endif
                     </nav>
                 </div>
 
@@ -168,14 +171,17 @@
                 <footer class="p-8 border-t border-white/5 bg-black/20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div class="flex items-center space-x-6">
-                            @php
-                                $footerItems = \App\Models\UniversalNavigationItem::forService($service_key)->footer()->get();
-                            @endphp
-                            @foreach($footerItems as $item)
-                                <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
-                                    {{ $item->label }}
-                                </a>
-                            @endforeach
+                            @if(class_exists('\App\Models\UniversalNavigationItem'))
+                                @php $footerItems = \App\Models\UniversalNavigationItem::forService($service_key)->footer()->get(); @endphp
+                                @foreach($footerItems as $item)
+                                    <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
+                                        {{ $item->label }}
+                                    </a>
+                                @endforeach
+                            @else
+                                <a href="https://account.ygxone.com/dashboard" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">ACCOUNT</a>
+                                <a href="https://ygxone.com" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">HOME</a>
+                            @endif
                         </div>
                         <p class="text-[10px] font-black text-gray-700 uppercase tracking-[0.3em]">
                             &copy; {{ date('Y') }} {{ __("YGXONE EMPIRE. ALL AUTHORITY RESERVED.") }}

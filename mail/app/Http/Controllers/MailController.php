@@ -257,12 +257,20 @@ class MailController extends Controller
         $fileObj = new \Illuminate\Http\File(Storage::path($tempPath));
         $drive->upload($fileObj, 'mail-backup');
 
-        return response()->json([
-            'status' => 'success',
-            'message' => "Successfully backed up {$mails->count()} emails to Sovereign YG Drive",
-            'count' => $mails->count(),
-            'filename' => $filename,
-        ]);
+        // Return appropriate response based on request type
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => "Successfully backed up {$mails->count()} emails to Sovereign YG Drive",
+                'count' => $mails->count(),
+                'filename' => $filename,
+            ]);
+        }
+
+        return redirect()->route('mail.inbox')->with(
+            'success',
+            "Successfully backed up {$mails->count()} emails to Sovereign YG Drive"
+        );
 
     }
 

@@ -16,6 +16,17 @@ class DashboardController extends Controller
         $user    = auth()->user();
         $apiBase = rtrim(config('services.yg_account.api_base'), '/');
 
+        // If the user's SSO token hasn't been populated yet, default to empty data
+        // rather than failing silently.
+        if (empty($user->api_token)) {
+            return view('dashboard', [
+                'user'       => $user,
+                'stats'      => [],
+                'projects'   => [],
+                'accountUrl' => config('services.yg_account.url'),
+            ]);
+        }
+
         $stats    = $this->fetch($apiBase . '/developer-console/dashboard', $user->api_token);
         $projects = $this->fetch($apiBase . '/developer-console/projects?per_page=5', $user->api_token);
 

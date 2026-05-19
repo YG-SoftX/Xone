@@ -212,11 +212,12 @@ class HomeThemeService
 
             if (!$theme) {
                 return [
-                    'colors'   => $defaultColors,
-                    'fonts'    => $defaultFonts,
-                    'logos'    => [],
-                    'settings' => $defaultSettings,
-                    'name'     => 'Default',
+                    'colors'              => $defaultColors,
+                    'fonts'               => $defaultFonts,
+                    'logos'               => [],
+                    'settings'            => $defaultSettings,
+                    'name'                => 'Default',
+                    'background_gradient' => null,
                 ];
             }
 
@@ -237,20 +238,22 @@ class HomeThemeService
                 : (is_array($theme->settings) ? $theme->settings : []);
 
             return [
-                'colors'   => array_merge($defaultColors, $colors),
-                'fonts'    => array_merge($defaultFonts, $fonts),
-                'logos'    => $logos,
-                'settings' => array_merge($defaultSettings, $settings),
-                'name'     => $theme->name ?? 'Custom',
+                'colors'              => array_merge($defaultColors, $colors),
+                'fonts'               => array_merge($defaultFonts, $fonts),
+                'logos'               => $logos,
+                'settings'            => array_merge($defaultSettings, $settings),
+                'name'                => $theme->name ?? 'Custom',
+                'background_gradient' => $theme->background_gradient ?? null,
             ];
         } catch (\Exception $e) {
             Log::warning('Failed to fetch theme from database, using defaults', ['error' => $e->getMessage()]);
             return [
-                'colors'   => $defaultColors,
-                'fonts'    => $defaultFonts,
-                'logos'    => [],
-                'settings' => $defaultSettings,
-                'name'     => 'Default',
+                'colors'              => $defaultColors,
+                'fonts'               => $defaultFonts,
+                'logos'               => [],
+                'settings'            => $defaultSettings,
+                'name'                => 'Default',
+                'background_gradient' => null,
             ];
         }
     }

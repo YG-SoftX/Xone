@@ -9,194 +9,160 @@ use Illuminate\Support\Facades\Log;
 class SearchIndexerService
 {
     /**
-     * Sync all modules into the unified index
+     * Sync all modules into the unified index.
+     * Queries the shared MySQL database directly since all YGXONE modules
+     * share the same `ygmarket_account` database.
      */
     public function syncAll(): array
     {
         return [
-            'mail'     => $this->syncMail(),
-            'drive'    => $this->syncDrive(),
-            'docs'     => $this->syncDocs(),
-            'contacts' => $this->syncContacts(),
+            'mail'  => $this->syncMail(),
+            'drive' => $this->syncDrive(),
+            'docs'  => $this->syncDocs(),
+            'notes' => $this->syncNotes(),
         ];
     }
 
     /**
-     * Sync Mail messages
+     * Sync Mail messages from the shared `mails` table.
      */
     public function syncMail(): int
     {
-        $path = $this->getDbPath('YG_MAIL_DB_PATH', 'YG Mail');
-        if (!$path || !file_exists($path)) return 0;
-
         try {
-            $db = new \PDO("sqlite:{$path}");
-            $stmt = $db->query("SELECT id, user_id, subject, body, \"from\", created_at FROM mails");
-            
+            $rows = DB::table('mails')
+                ->select('id', 'user_id', 'subject', 'body', 'from', 'created_at')
+                ->get();
+
             $count = 0;
-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($rows as $item) {
+                $body = strip_tags((string) $item->body);
                 IndexedItem::updateOrCreate(
-                    ['service' => 'mail', 'source_id' => $item['id']],
+                    ['service' => 'mail', 'source_id' => (string) $item->id],
                     [
-                        'user_id' => $item['user_id'],
-                        'title'   => $item['subject'],
-                        'content' => strip_tags($item['body']),
-                        'snippet' => substr(strip_tags($item['body']), 0, 200),
-                        'url'     => "/mail/view/" . $item['id'],
+                        'user_id'  => $item->user_id ?? null,
+                        'title'    => $item->subject ?? '(No Subject)',
+                        'content'  => $body,
+                        'snippet'  => mb_substr($body, 0, 200),
+                        'url'      => null,
                         'metadata' => [
-                            'from' => $item['from'],
-                            'date' => $item['created_at'],
+                            'from' => $item->from ?? 'unknown',
+                            'date' => (string) $item->created_at,
                         ],
                     ]
                 );
                 $count++;
             }
+            Log::info("Search indexer: synced {$count} mail items");
             return $count;
         } catch (\Exception $e) {
-
             Log::error("Failed to sync mail index: " . $e->getMessage());
             return 0;
         }
     }
 
-
     /**
-     * Sync Drive files
+     * Sync Drive files from the shared `drive_files` table.
      */
     public function syncDrive(): int
     {
-        $path = $this->getDbPath('YG_DRIVE_DB_PATH', 'YG Drive');
-        if (!$path || !file_exists($path)) return 0;
-
         try {
-            $db = new \PDO("sqlite:{$path}");
-            $stmt = $db->query("SELECT id, user_id, name, description, mime_type, size_bytes FROM drive_files");
-            
+            $rows = DB::table('drive_files')
+                ->select('id', 'user_id', 'name', 'description', 'mime_type', 'size', 'created_at')
+                ->where('is_trashed', false)
+                ->get();
+
             $count = 0;
-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($rows as $item) {
                 IndexedItem::updateOrCreate(
-                    ['service' => 'drive', 'source_id' => $item['id']],
+                    ['service' => 'drive', 'source_id' => (string) $item->id],
                     [
-                        'user_id' => $item['user_id'],
-                        'title'   => $item['name'],
-                        'content' => $item['description'],
-                        'snippet' => $item['description'] ?: $item['mime_type'],
-                        'url'     => "/drive/files/" . $item['id'],
+                        'user_id'  => $item->user_id,
+                        'title'    => $item->name,
+                        'content'  => $item->description ?? '',
+                        'snippet'  => $item->description ? mb_substr($item->description, 0, 200) : $item->mime_type,
+                        'url'      => null,
                         'metadata' => [
-                            'mime_type' => $item['mime_type'],
-                            'size'      => $item['size_bytes'],
+                            'mime_type' => $item->mime_type,
+                            'size'      => $item->size,
                         ],
                     ]
                 );
                 $count++;
             }
+            Log::info("Search indexer: synced {$count} drive items");
             return $count;
         } catch (\Exception $e) {
-
             Log::error("Failed to sync drive index: " . $e->getMessage());
             return 0;
         }
     }
 
     /**
-     * Sync Docs
+     * Sync DocX documents from the shared `documents` table.
      */
     public function syncDocs(): int
     {
-        $path = $this->getDbPath('YG_DOCX_DB_PATH', 'YG DocX');
-        if (!$path || !file_exists($path)) return 0;
-
         try {
-            $db = new \PDO("sqlite:{$path}");
-            $stmt = $db->query("SELECT id, user_id, title, content FROM documents");
-            
+            $rows = DB::table('documents')
+                ->select('id', 'user_id', 'title', 'content', 'created_at')
+                ->whereNull('deleted_at')
+                ->get();
+
             $count = 0;
-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($rows as $item) {
+                $content = strip_tags((string) $item->content);
                 IndexedItem::updateOrCreate(
-                    ['service' => 'docs', 'source_id' => $item['id']],
+                    ['service' => 'docs', 'source_id' => (string) $item->id],
                     [
-                        'user_id' => $item['user_id'],
-                        'title'   => $item['title'],
-                        'content' => strip_tags($item['content']),
-                        'snippet' => substr(strip_tags($item['content']), 0, 200),
-                        'url'     => "/docs/edit/" . $item['id'],
+                        'user_id'  => $item->user_id,
+                        'title'    => $item->title ?? '(Untitled)',
+                        'content'  => $content,
+                        'snippet'  => mb_substr($content, 0, 200),
+                        'url'      => null,
                     ]
                 );
                 $count++;
             }
+            Log::info("Search indexer: synced {$count} doc items");
             return $count;
         } catch (\Exception $e) {
-
             Log::error("Failed to sync docs index: " . $e->getMessage());
             return 0;
         }
     }
 
     /**
-     * Sync Contacts
+     * Sync Notes from the shared `notes` table.
      */
-    public function syncContacts(): int
+    public function syncNotes(): int
     {
-        $path = $this->getDbPath('YG_CONTACTS_DB_PATH', 'YG Contacts');
-        if (!$path || !file_exists($path)) return 0;
-
         try {
-            $db = new \PDO("sqlite:{$path}");
-            $stmt = $db->query("SELECT id, user_id, first_name, last_name, email, phone, company FROM contacts");
-            
+            $rows = DB::table('notes')
+                ->select('id', 'user_id', 'title', 'content', 'created_at')
+                ->where('is_deleted', false)
+                ->whereNull('deleted_at')
+                ->get();
+
             $count = 0;
-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $name = "{$item['first_name']} {$item['last_name']}";
+            foreach ($rows as $item) {
+                $content = strip_tags((string) $item->content);
                 IndexedItem::updateOrCreate(
-                    ['service' => 'contacts', 'source_id' => $item['id']],
+                    ['service' => 'notes', 'source_id' => (string) $item->id],
                     [
-                        'user_id' => $item['user_id'],
-                        'title'   => $name,
-                        'content' => "{$name} {$item['email']} {$item['phone']} {$item['company']}",
-                        'snippet' => "{$item['email']} | {$item['company']}",
-                        'url'     => "/contacts/view/" . $item['id'],
-                        'metadata' => [
-                            'email' => $item['email'],
-                            'phone' => $item['phone'],
-                        ],
+                        'user_id'  => $item->user_id,
+                        'title'    => $item->title ?? '(Untitled Note)',
+                        'content'  => $content,
+                        'snippet'  => mb_substr($content, 0, 200),
+                        'url'      => null,
                     ]
                 );
                 $count++;
             }
+            Log::info("Search indexer: synced {$count} note items");
             return $count;
         } catch (\Exception $e) {
-
-            Log::error("Failed to sync contacts index: " . $e->getMessage());
+            Log::error("Failed to sync notes index: " . $e->getMessage());
             return 0;
         }
     }
-
-    /**
-     * Resolve DB path from env or relative to base
-     */
-    private function getDbPath(string $envKey, string $dirName): ?string
-    {
-        $path = config('database.' . strtolower($envKey), env($envKey));
-
-        if (!$path) {
-            $path = "../{$dirName}/database/database.sqlite";
-        }
-
-        // Resolve to absolute path and verify it stays within expected directory
-        $absolutePath = realpath(base_path($path));
-
-        if (!$absolutePath) {
-            $absolutePath = realpath(base_path(str_replace('../', '', $path)));
-        }
-
-        // Security: ensure path ends with .sqlite and doesn't escape base
-        if (!$absolutePath
-            || !str_ends_with($absolutePath, '.sqlite')
-            || !str_contains($absolutePath, 'database')) {
-            return null;
-        }
-
-        return file_exists($absolutePath) ? $absolutePath : null;
-    }
 }
-

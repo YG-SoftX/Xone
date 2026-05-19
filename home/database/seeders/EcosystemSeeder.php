@@ -70,9 +70,7 @@ class EcosystemSeeder extends Seeder
         $existing = DB::table('themes')->count();
         if ($existing > 0) {
             return; // Already seeded
-        }
-
-        DB::table('themes')->insert([
+        }            DB::table('themes')->insert([
             'service'            => 'yg-xone',
             'name'               => 'Default Light',
             'is_active'          => true,
@@ -99,6 +97,7 @@ class EcosystemSeeder extends Seeder
                 'powered_by_text'  => 'Powered by',
                 'copyright'        => 'YGXONE Sovereign Intelligence Platform',
             ]),
+            'background_gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             'created_at'         => now(),
             'updated_at'         => now(),
         ]);

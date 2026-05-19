@@ -7,8 +7,7 @@
     <title inertia>YG Xcel</title>
     @routes
     @viteReactRefresh
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    @vite('resources/js/app.jsx')
     @inertiaHead
 </head>
 <body class="antialiased">@inertia</body>

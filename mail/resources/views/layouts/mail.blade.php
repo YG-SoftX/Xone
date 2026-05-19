@@ -140,6 +140,21 @@
                         <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['trash'] }}</span>
                     @endif
                 </a>
+
+                <!-- Backup divider -->
+                <div class="pt-4 pb-1 px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Actions</div>
+
+                <form method="POST" action="{{ route('api.backup') }}"
+                      x-data="{ loading: false }"
+                      @submit.prevent="if(!confirm('Export all your emails and attachments as a backup? This may take a moment.')) return; loading = true; $el.submit()">
+                    @csrf
+                    <button type="submit"
+                            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 w-full text-left"
+                            :class="{ 'opacity-50 pointer-events-none': loading }">
+                        <i class="fas fa-database w-5 text-center text-sm" :class="{ 'fa-spinner fa-spin': loading }"></i>
+                        <span x-text="loading ? 'Backing up...' : 'Backup to Drive'"></span>
+                    </button>
+                </form>
             </nav>
 
             <!-- User -->
