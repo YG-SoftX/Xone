@@ -19,7 +19,7 @@ class SupportArticleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
-    protected static ?string $navigationGroup = 'Ecosystem Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Ecosystem Management';
 
     protected static ?string $navigationLabel = 'Knowledge Base';
 
