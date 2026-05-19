@@ -10,9 +10,7 @@
                     :color="$action['color']"
                     :icon="$action['icon']"
                     wire:click="{{ $action['action'] }}"
-                    @if(isset($action['requiresConfirmation']))
-                        x-on:click.prevent="$dispatch('open-modal', { id: 'confirm-{{ $action['action'] }}' })"
-                    @endif
+                    x-on:click="{{ isset($action['requiresConfirmation']) ? \"\$dispatch('open-modal', { id: 'confirm-{$action['action']}' })\" : '' }}"
                 >
                     {{ $action['label'] }}
                 </x-filament::button>

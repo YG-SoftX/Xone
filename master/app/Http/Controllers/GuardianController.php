@@ -44,9 +44,9 @@ class GuardianController extends Controller
             ->first();
 
         return view('guardian.dashboard', compact(
-            'financialStats', 
-            'sovereigntyStats', 
-            'safetyActivity', 
+            'financialStats',
+            'sovereigntyStats',
+            'safetyActivity',
             'sentinelStats',
             'trainingStats'
         ));
@@ -58,13 +58,13 @@ class GuardianController extends Controller
         return \Illuminate\Support\Facades\Cache::remember('guardian_financial_stats', 300, function () {
             $mrr = DB::table('pay_subscriptions')->where('status', 'active')->sum('amount');
             $totalVolume = DB::table('pay_transactions')->where('status', 'completed')->sum('amount');
-            
+
             $active = DB::table('pay_subscriptions')->where('status', 'active')->count();
             $cancelled = DB::table('pay_subscriptions')
                 ->whereIn('status', ['cancelled', 'expired'])
                 ->where('updated_at', '>=', now()->subDays(30))
                 ->count();
-            
+
             $churnRate = ($active + $cancelled) > 0 ? ($cancelled / ($active + $cancelled)) * 100 : 0;
 
             return [
