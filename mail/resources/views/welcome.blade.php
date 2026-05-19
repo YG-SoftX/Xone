@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $settings->brand_name ?? config('app.name') }} - Sovereign Communication</title>
+    <title>{{ optional($settings)->brand_name ?? config('app.name') }} - Sovereign Communication</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -52,7 +52,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                     </svg>
                 </div>
-                <span class="text-xl font-bold text-gray-900">{{ $settings->brand_name ?? config('app.name') }}</span>
+                <span class="text-xl font-bold text-gray-900">{{ optional($settings)->brand_name ?? config('app.name') }}</span>
             </div>
             <div class="flex items-center gap-4">
                 <a href="{{ route('sso.initiate') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition">
@@ -74,21 +74,21 @@
             <div class="relative">
                 <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-100 mb-8">
                     <span class="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
-                    {{ $settings->site_description ?? 'Encrypted & Sovereign Communication' }}
+                    {{ optional($settings)->site_description ?? 'Encrypted & Sovereign Communication' }}
                 </span>
 
                 <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] text-gray-900 mb-6">
-                    {{ $settings->hero_title ?? 'Sovereign<br>Communication' }}
+                    {{ optional($settings)->hero_title ?? 'Sovereign<br>Communication' }}
                 </h1>
 
                 <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed mb-12">
-                    {{ $settings->hero_subtitle ?? 'End-to-end encrypted email with AI-powered features, unified across your YGXONE ecosystem.' }}
+                    {{ optional($settings)->hero_subtitle ?? 'End-to-end encrypted email with AI-powered features, unified across your YGXONE ecosystem.' }}
                 </p>
 
                 <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
                     <a href="{{ route('sso.initiate') }}"
                        class="gradient-primary px-8 py-4 rounded-2xl text-lg font-bold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-3">
-                        {{ $settings->cta_text ?? 'Start Mailing' }}
+                        {{ optional($settings)->cta_text ?? 'Start Mailing' }}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>

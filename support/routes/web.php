@@ -35,5 +35,5 @@ Route::middleware('auth')->group(function () {
 
     // ── System Status ───────────────────────────────────────────────────────────
     Route::get('/status',                [StatusController::class, 'index'])->name('status.index');
-    Route::post('/status/refresh',       [StatusController::class, 'refresh'])->name('status.refresh');
+    Route::get('/status/refresh',        [StatusController::class, 'refresh'])->name('status.refresh');
 });

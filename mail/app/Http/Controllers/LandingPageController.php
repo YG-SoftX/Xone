@@ -13,13 +13,10 @@ class LandingPageController extends Controller
             return redirect('/dashboard');
         }
 
-        // For demo, we just take the first setting or default
+        // Use settings from DB if available, otherwise use defaults
         $settings = MailSetting::first();
         
-        if (!$settings || !$settings->show_landing_page) {
-            return redirect('/admin');
-        }
-
+        // Always show landing page — if no DB settings, defaults are used in the view
         return view('welcome', compact('settings'));
     }
 }

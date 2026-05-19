@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: table may already exist from the support module
+        if (Schema::hasTable('support_tickets')) {
+            return;
+        }
+
         Schema::create('support_tickets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

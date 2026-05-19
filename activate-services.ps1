@@ -2,7 +2,7 @@
 # 🚀 YGXONE Service Activation Script (PowerShell)
 # =============================================================================
 # Purpose: Instantly activates all modules in your ecosystem
-# Modules: home, account, developer, master, docx, xcel
+# Modules: home, account, developer, master, docx, xcel, mail, support, drive, notes, chat, calendar, contacts, console
 # =============================================================================
 
 $ErrorActionPreference = "Stop"
@@ -24,7 +24,7 @@ function Write-Info($text) {
 
 Write-Header "YGXONE MASTER SERVICE ACTIVATION ENGINE"
 
-$services = @("home", "account", "developer", "master", "docx", "xcel")
+$services = @("home", "account", "developer", "master", "docx", "xcel", "mail", "support", "drive", "notes", "chat", "calendar", "contacts", "console")
 $rootPath = Get-Location
 
 # Check if we are running in cPanel environment
@@ -101,7 +101,13 @@ YG_ACCOUNT_URL=https://account.ygxone.com
 YG_ACCOUNT_API_URL=https://account.ygxone.com/api
 YG_MAIL_URL=https://mail.ygxone.com
 YG_DRIVE_URL=https://drive.ygxone.com
+YG_NOTES_URL=https://notes.ygxone.com
+YG_CHAT_URL=https://chat.ygxone.com
+YG_CALENDAR_URL=https://calendar.ygxone.com
+YG_CONTACTS_URL=https://contacts.ygxone.com
 YG_MASTER_URL=https://master.ygxone.com
+YG_SUPPORT_URL=https://support.ygxone.com
+YG_CONSOLE_URL=https://console.ygxone.com
 
 "@
         $envContent = $envContent + $ssoGaps
@@ -206,7 +212,13 @@ foreach ($service in $services) {
         $envContent = $envContent -replace "YG_ACCOUNT_API_URL=.*", "YG_ACCOUNT_API_URL=https://account.ygxone.com/api"
         $envContent = $envContent -replace "YG_MAIL_URL=.*", "YG_MAIL_URL=https://mail.ygxone.com"
         $envContent = $envContent -replace "YG_DRIVE_URL=.*", "YG_DRIVE_URL=https://drive.ygxone.com"
+        $envContent = $envContent -replace "YG_NOTES_URL=.*", "YG_NOTES_URL=https://notes.ygxone.com"
+        $envContent = $envContent -replace "YG_CHAT_URL=.*", "YG_CHAT_URL=https://chat.ygxone.com"
+        $envContent = $envContent -replace "YG_CALENDAR_URL=.*", "YG_CALENDAR_URL=https://calendar.ygxone.com"
+        $envContent = $envContent -replace "YG_CONTACTS_URL=.*", "YG_CONTACTS_URL=https://contacts.ygxone.com"
         $envContent = $envContent -replace "YG_MASTER_URL=.*", "YG_MASTER_URL=https://master.ygxone.com"
+        $envContent = $envContent -replace "YG_SUPPORT_URL=.*", "YG_SUPPORT_URL=https://support.ygxone.com"
+        $envContent = $envContent -replace "YG_CONSOLE_URL=.*", "YG_CONSOLE_URL=https://console.ygxone.com"
         
         Set-Content $envFile -Value $envContent -NoNewline
         Write-Success "Production URLs, Database credentials, and Session SSO configured successfully."

@@ -3,7 +3,7 @@
 # 🚀 YGXONE Service Activation Script (Linux/cPanel Bash)
 # =============================================================================
 # Purpose: Instantly activates all modules in your ecosystem on cPanel
-# Modules: home, account, developer, master, docx, xcel
+# Modules: home, account, developer, master, docx, xcel, mail, support, drive, notes, chat, calendar, contacts, console
 # Usage: chmod +x activate-services.sh && ./activate-services.sh
 # =============================================================================
 
@@ -32,7 +32,7 @@ write_info() {
 
 write_header "YGXONE MASTER SERVICE ACTIVATION ENGINE (cPanel)"
 
-services=("home" "account" "developer" "master" "docx" "xcel" "mail")
+services=("home" "account" "developer" "master" "docx" "xcel" "mail" "support" "drive" "notes" "chat" "calendar" "contacts" "console")
 root_path=$(pwd)
 
 # Verify if we are running in cPanel/production environment
@@ -58,7 +58,13 @@ if [ "$IS_PRODUCTION" == "true" ]; then
             cp -rf Xone-main/master/* master/ 2>/dev/null || true
             cp -rf Xone-main/docx/* docx/ 2>/dev/null || true
             cp -rf Xone-main/xcel/* xcel/ 2>/dev/null || true
-            cp -rf Xone-main/mail/* mail/ 2>/dev/null || true
+            cp -rf Xone-main/support/* support/ 2>/dev/null || true
+            cp -rf Xone-main/drive/* drive/ 2>/dev/null || true
+            cp -rf Xone-main/notes/* notes/ 2>/dev/null || true
+            cp -rf Xone-main/chat/* chat/ 2>/dev/null || true
+            cp -rf Xone-main/calendar/* calendar/ 2>/dev/null || true
+            cp -rf Xone-main/contacts/* contacts/ 2>/dev/null || true
+            cp -rf Xone-main/console/* console/ 2>/dev/null || true
             rm -rf Xone-main xone-latest.zip
             write_success "Codebase successfully updated to latest GitHub main release!"
         else
@@ -105,7 +111,7 @@ for service in "${services[@]}"; do
 
     # Ensure ecosystem SSO URL variables exist in .env (critical to prevent localhost redirects!)
     if ! grep -q "YG_ACCOUNT_URL=" .env; then
-        echo -e "\nYG_ACCOUNT_URL=https://account.ygxone.com\nYG_ACCOUNT_API_URL=https://account.ygxone.com/api\nYG_MAIL_URL=https://mail.ygxone.com\nYG_DRIVE_URL=https://drive.ygxone.com\nYG_MASTER_URL=https://master.ygxone.com\n" >> .env
+        echo -e "\nYG_ACCOUNT_URL=https://account.ygxone.com\nYG_ACCOUNT_API_URL=https://account.ygxone.com/api\nYG_MAIL_URL=https://mail.ygxone.com\nYG_DRIVE_URL=https://drive.ygxone.com\nYG_NOTES_URL=https://notes.ygxone.com\nYG_CHAT_URL=https://chat.ygxone.com\nYG_CALENDAR_URL=https://calendar.ygxone.com\nYG_CONTACTS_URL=https://contacts.ygxone.com\nYG_MASTER_URL=https://master.ygxone.com\nYG_SUPPORT_URL=https://support.ygxone.com\nYG_CONSOLE_URL=https://console.ygxone.com\n" >> .env
     fi
 
     # Ensure APP_KEY placeholder exists in .env
@@ -195,7 +201,13 @@ for service in "${services[@]}"; do
         sed -i 's|YG_ACCOUNT_API_BASE=.*|YG_ACCOUNT_API_BASE=https://account.ygxone.com/api|g' .env || true
         sed -i 's|YG_MAIL_URL=.*|YG_MAIL_URL=https://mail.ygxone.com|g' .env || true
         sed -i 's|YG_DRIVE_URL=.*|YG_DRIVE_URL=https://drive.ygxone.com|g' .env || true
+        sed -i 's|YG_NOTES_URL=.*|YG_NOTES_URL=https://notes.ygxone.com|g' .env || true
+        sed -i 's|YG_CHAT_URL=.*|YG_CHAT_URL=https://chat.ygxone.com|g' .env || true
+        sed -i 's|YG_CALENDAR_URL=.*|YG_CALENDAR_URL=https://calendar.ygxone.com|g' .env || true
+        sed -i 's|YG_CONTACTS_URL=.*|YG_CONTACTS_URL=https://contacts.ygxone.com|g' .env || true
         sed -i 's|YG_MASTER_URL=.*|YG_MASTER_URL=https://master.ygxone.com|g' .env || true
+        sed -i 's|YG_SUPPORT_URL=.*|YG_SUPPORT_URL=https://support.ygxone.com|g' .env || true
+        sed -i 's|YG_CONSOLE_URL=.*|YG_CONSOLE_URL=https://console.ygxone.com|g' .env || true
         
         write_success "Production URLs, Database credentials, and Session SSO configured successfully."
     else
