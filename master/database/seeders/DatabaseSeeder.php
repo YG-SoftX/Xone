@@ -16,38 +16,43 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = env('ADMIN_PASSWORD', '');
-        $generateRandom = false;
-
-        if (empty($password)) {
-            $password = 'YGXmaster@' . substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(8))), 0, 8);
-            $generateRandom = true;
-        }
-
-        $user = User::firstOrCreate(
+        // 1. Create Master Admin
+        User::updateOrCreate(
             ['email' => 'admin@ygxone.com'],
             [
-                'name' => 'YGX Super Admin',
-                'password' => Hash::make($password),
+                'name' => 'YG Master Administrator',
+                'password' => Hash::make('YgMaster@2026!Secure'),
                 'role' => 'super_admin',
                 'status' => 'active',
                 'timezone' => 'UTC',
+                'email_verified_at' => now(),
             ]
         );
 
-        if ($generateRandom && $user->wasRecentlyCreated) {
-            $this->command->warn('');
-            $this->command->info('╔══════════════════════════════════════════════════════════╗');
-            $this->command->info('║  ⚠️  NO ADMIN_PASSWORD SET IN .env                       ║');
-            $this->command->info('║  A random password was generated for first-time login:   ║');
-            $this->command->info('║                                                          ║');
-            $this->command->info("║  👤 Email:    admin@ygxone.com                             ║");
-            $this->command->info("║  🔑 Password: {$password}                           ║");
-            $this->command->info('║                                                          ║');
-            $this->command->info('║  ⚡  Add ADMIN_PASSWORD=your_secure_password to .env     ║');
-            $this->command->info('╚══════════════════════════════════════════════════════════╝');
-            $this->command->warn('');
-        }
+        // 2. Create Regular User
+        User::updateOrCreate(
+            ['email' => 'user@ygxone.com'],
+            [
+                'name' => 'Standard User',
+                'password' => Hash::make('Password123!'),
+                'role' => 'user',
+                'status' => 'active',
+                'timezone' => 'UTC',
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $this->command->info('╔══════════════════════════════════════════════════════════╗');
+        $this->command->info('║  ✅  TEST ACCOUNTS CREATED                                ║');
+        $this->command->info('║                                                          ║');
+        $this->command->info('║  👑 MASTER ADMIN:                                        ║');
+        $this->command->info("║  👤 Email:    admin@ygxone.com                           ║");
+        $this->command->info("║  🔑 Password: YgMaster@2026!Secure                       ║");
+        $this->command->info('║                                                          ║');
+        $this->command->info('║  👤 REGULAR USER:                                        ║');
+        $this->command->info("║  👤 Email:    user@ygxone.com                            ║");
+        $this->command->info("║  🔑 Password: Password123!                               ║");
+        $this->command->info('╚══════════════════════════════════════════════════════════╝');
 
         // Seed additional data
         $this->call([
