@@ -1,39 +1,30 @@
-{{-- 
-  YGXONE Main Layout — Dynamic & Theme-Aware
-  Controlled from Master Panel via app_modules & themes tables
---}}
+
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="appState()" x-init="init()">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" x-data="appState()" x-init="init()">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="{{ $themeService?->getTheme()['colors']['primary'] ?? '#2563eb' }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <meta name="theme-color" content="<?php echo e($themeService?->getTheme()['colors']['primary'] ?? '#2563eb'); ?>">
     
-    {{-- PWA Manifest --}}
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="YGXONE">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <title><?php echo $__env->yieldContent('title', 'YGXONE — Sovereign Intelligence Portal'); ?></title>
     
-    <title>@yield('title', 'YGXONE — Sovereign Intelligence Portal')</title>
     
-    {{-- Theme CSS Variables (Dynamic — Set from Master Panel) --}}
-    {!! $themeService?->getCssVariablesTag() ?? '' !!}
+    <?php echo $themeService?->getCssVariablesTag() ?? ''; ?>
+
     
-    {{-- Fonts --}}
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    {{-- Icons: FontAwesome --}}
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    {{-- Alpine.js --}}
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
     
-    {{-- Tailwind CSS --}}
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -225,42 +216,22 @@
         [x-cloak] { display: none !important; }
     </style>
     
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body class="antialiased">
-
-    {{-- PWA Install Prompt (floating button, controlled by master admin config) --}}
-    @php
-        try {
-            $pwaEnabled = app(\App\Services\BrowserConfigService::class)->bool('pwa_install_enabled', true);
-        } catch (\Exception $e) {
-            $pwaEnabled = true;
-        }
-    @endphp
-    @if($pwaEnabled)
-    <div id="pwa-install-prompt" style="display:none" class="fixed bottom-4 right-4 z-[9999]">
-        <button id="pwa-install-btn" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white text-sm font-bold shadow-lg hover:opacity-90 transition-all animate-fade-in-up">
-            <i class="fas fa-download text-xs"></i>
-            <span>Install App</span>
-        </button>
-        <button id="pwa-dismiss-btn" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 transition-colors text-[10px]">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
     <div class="bg-ambient"></div>
 
-    {{-- Admin Bar (visible to admins only) --}}
-    @if(auth()->check() && (
+    
+    <?php if(auth()->check() && (
         in_array(auth()->user()->email, array_filter(explode(',', env('ADMIN_EMAILS', '')))) ||
         in_array((string) auth()->id(), array_filter(explode(',', env('ADMIN_USER_IDS', ''))))
-    ))
+    )): ?>
     <div class="bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white px-4 py-2 text-xs font-semibold z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <span><i class="fas fa-shield-alt mr-2"></i>Admin Mode</span>
                 <span class="opacity-60">|</span>
-                <a href="{{ route('admin.dashboard') }}" class="hover:underline flex items-center gap-1.5">
+                <a href="<?php echo e(route('admin.dashboard')); ?>" class="hover:underline flex items-center gap-1.5">
                     <i class="fas fa-chart-line text-[10px]"></i> Dashboard
                 </a>
                 <a href="https://master.ygxone.com/admin" target="_blank" class="hover:underline flex items-center gap-1.5">
@@ -272,18 +243,18 @@
                     <span class="live-dot"></span>
                     <span>Live</span>
                 </span>
-                <span class="opacity-40">{{ now()->format('H:i:s') }}</span>
+                <span class="opacity-40"><?php echo e(now()->format('H:i:s')); ?></span>
             </div>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
-    {{-- Main Content --}}
+    
     <main class="flex-1">
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
-    {{-- Global Alpine State --}}
+    
     <script>
         function appState() {
             return {
@@ -332,63 +303,7 @@
         }
     </script>
 
-    @stack('scripts')
-
-    {{-- Service Worker Registration --}}
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js', { scope: '/' })
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-    </script>
-
-    {{-- PWA Install Prompt --}}
-    <script>
-        let deferredPrompt = null;
-        const installPrompt = document.getElementById('pwa-install-prompt');
-        const installBtn = document.getElementById('pwa-install-btn');
-        const dismissBtn = document.getElementById('pwa-dismiss-btn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (installPrompt) {
-                installPrompt.style.display = 'block';
-            }
-        });
-
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log('PWA install:', outcome);
-                deferredPrompt = null;
-                if (installPrompt) installPrompt.style.display = 'none';
-            });
-        }
-
-        if (dismissBtn) {
-            dismissBtn.addEventListener('click', () => {
-                if (installPrompt) {
-                    installPrompt.style.display = 'none';
-                    sessionStorage.setItem('pwa_install_dismissed', '1');
-                }
-            });
-        }
-
-        // Don't show if previously dismissed this session
-        if (sessionStorage.getItem('pwa_install_dismissed') === '1') {
-            if (installPrompt) installPrompt.style.display = 'none';
-        }
-
-        // Hide prompt if app is already in standalone mode
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            if (installPrompt) installPrompt.style.display = 'none';
-        }
-    </script>
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
+<?php /**PATH D:\YG SoftX\Xone\home\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -7,6 +7,7 @@ use App\Http\Controllers\SsoController;
 use App\Models\Organization;
 use App\Models\DeviceActivityLog;
 use App\Models\User;
+use App\Models\UserDevice;
 use App\Services\DeviceFingerprintService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -136,15 +137,7 @@ class RegisteredUserController extends Controller
                 ['balance' => 0.00, 'currency' => 'USD']
             );
 
-            // Log device activity
-            DeviceActivityLog::create([
-                'user_id' => $user->id,
-                'activity_type' => 'registration',
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'device_fingerprint' => json_encode($deviceFingerprint),
-                'occurred_at' => now(),
-            ]);
+            $this->registerDevice($user, $deviceFingerprint, $request);
 
             DB::commit();
 
@@ -251,6 +244,8 @@ class RegisteredUserController extends Controller
                 ['user_id' => $adminUser->id],
                 ['balance' => 0.00, 'currency' => 'USD']
             );
+
+            $this->registerDevice($adminUser, $deviceFingerprint, $request);
 
             DB::commit();
 
@@ -388,6 +383,47 @@ class RegisteredUserController extends Controller
             'enterprise' => 10000,
             default => 100,
         };
+    }
+
+    /**
+     * Register device and log device activity during registration.
+     */
+    private function registerDevice(User $user, array $fingerprint, Request $request): void
+    {
+        $data = [
+            'user_id' => $user->id,
+            'device_name' => ($fingerprint['platform'] ?? 'Unknown') . ' - ' . ($fingerprint['browser'] ?? 'Unknown') . ' (' . ($fingerprint['device_type'] ?? 'desktop') . ')',
+            'device_type' => $fingerprint['device_type'] ?? 'desktop',
+            'os' => $fingerprint['platform'] ?? null,
+            'browser' => $fingerprint['browser'] ?? null,
+            'ip_address' => $request->ip(),
+            'canvas_fingerprint' => $fingerprint['canvas_fingerprint'] ?? null,
+            'webgl_fingerprint' => $fingerprint['webgl_fingerprint'] ?? null,
+            'fonts_hash' => $fingerprint['fonts_hash'] ?? null,
+            'screen_resolution' => $fingerprint['screen_resolution'] ?? null,
+            'color_depth' => $fingerprint['color_depth'] ?? null,
+            'pixel_ratio' => $fingerprint['pixel_ratio'] ?? null,
+            'timezone' => $fingerprint['timezone'] ?? null,
+            'language' => $fingerprint['language'] ?? null,
+            'touch_support' => $fingerprint['touch_support'] ?? false,
+            'latitude' => $fingerprint['latitude'] ?? null,
+            'longitude' => $fingerprint['longitude'] ?? null,
+            'first_seen_at' => now(),
+            'last_active_at' => now(),
+            'login_count' => 1,
+        ];
+        $data['device_id'] = UserDevice::generateFingerprint($data);
+        $device = UserDevice::create($data);
+
+        DeviceActivityLog::create([
+            'device_id' => $device->id,
+            'user_id' => $user->id,
+            'activity_type' => 'registration',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'metadata' => $fingerprint,
+            'occurred_at' => now(),
+        ]);
     }
 
     private function getDefaultFeaturesForPlan(string $plan): array

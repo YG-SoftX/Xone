@@ -3,7 +3,7 @@
         'name' => 'ygxone/support',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '49f810df7adad414d2a631cc5f55395f95b0a4a1',
+        'reference' => 'a85fc09b78c95a57a86a7f10db35d8024135995a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -1307,7 +1307,7 @@
         'ygxone/support' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '49f810df7adad414d2a631cc5f55395f95b0a4a1',
+            'reference' => 'a85fc09b78c95a57a86a7f10db35d8024135995a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

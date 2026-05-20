@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BrowserProxyService;
 use App\Services\UnifiedSearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -233,6 +234,100 @@ class SearchController extends Controller
         return collect($results)->sum(fn ($r) => is_array($r) ? count($r) : 0);
     }
     
+    // ────────────────────────────────────────────────────────────────────
+    //  Agentic Browser Methods
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * Agentic browser home page — shows the browser UI with omnibox,
+     * ecosystem grid, and AI agent panel.
+     */
+    public function browser(Request $request)
+    {
+        $url = $request->input('url', '');
+        $pageTitle = null;
+
+        // If a URL is provided, pre-fetch the title for the tab
+        if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+            try {
+                $proxy = app(BrowserProxyService::class);
+                $result = $proxy->fetch($url);
+                $pageTitle = $result['title'] ?? null;
+            } catch (\Exception $e) {
+                Log::warning("Browser: Failed to pre-fetch title for {$url}");
+            }
+        }
+
+        return view('search.browser', [
+            'pageTitle' => $pageTitle,
+        ]);
+    }
+
+    /**
+     * Proxy endpoint — fetches a URL through BrowserProxyService and returns
+     * the rewritten HTML content for rendering in the browser iframe.
+     */
+    public function browse(Request $request)
+    {
+        $targetUrl = $request->input('url', '');
+
+        if (empty($targetUrl)) {
+            return response('No URL provided.', 400);
+        }
+
+        // Redirect search queries (no dots, no protocol) to the ecosystem search
+        if (!str_contains($targetUrl, '.') && !str_starts_with($targetUrl, 'http') && !str_starts_with($targetUrl, 'localhost')) {
+            return redirect()->route('search.index', ['q' => $targetUrl]);
+        }
+
+        try {
+            $proxy = app(BrowserProxyService::class);
+            $result = $proxy->fetch($targetUrl);
+
+            return response($result['content'], $result['statusCode'])
+                ->header('Content-Type', $result['contentType'])
+                ->header('X-Frame-Options', 'SAMEORIGIN')
+                ->header('X-YG-Proxy-URL', $result['url'])
+                ->header('X-YG-Proxy-Title', $result['title'] ?? '');
+
+        } catch (\Exception $e) {
+            Log::error("Browser proxy failed for {$targetUrl}: " . $e->getMessage());
+            return response('<html><body style="text-align:center;padding:60px;font-family:sans-serif;"><h2>Unable to load page</h2><p style="color:#666;">The page could not be loaded. Please check the URL and try again.</p><a href="' . route('browser.home') . '" style="color:#2563eb;">Back to YGXONE Browser</a></body></html>', 502)
+                ->header('Content-Type', 'text/html');
+        }
+    }
+
+    /**
+     * Resource proxy — fetches images, CSS, JS, fonts through the proxy
+     * so they load correctly in the sandboxed iframe.
+     */
+    public function browseResource(Request $request)
+    {
+        $resourceUrl = $request->input('url', '');
+
+        if (empty($resourceUrl)) {
+            return response('No resource URL provided.', 400);
+        }
+
+        try {
+            $proxy = app(BrowserProxyService::class);
+            $result = $proxy->fetchResource($resourceUrl);
+
+            if ($result['statusCode'] >= 400 || empty($result['content'])) {
+                return response('', $result['statusCode'] ?: 404);
+            }
+
+            return response($result['content'], $result['statusCode'])
+                ->header('Content-Type', $result['contentType'])
+                ->header('Content-Length', $result['contentLength'])
+                ->header('Cache-Control', 'public, max-age=3600');
+
+        } catch (\Exception $e) {
+            Log::error("Browser resource proxy failed: " . $e->getMessage());
+            return response('', 500);
+        }
+    }
+
     /**
      * Boost result ranking based on clicks
      */

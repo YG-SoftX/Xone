@@ -1,0 +1,759 @@
+﻿diff --git a/developer/app/Http/Controllers/DashboardController.php b/developer/app/Http/Controllers/DashboardController.php
+index b983efbe..aad3b10f 100644
+--- a/developer/app/Http/Controllers/DashboardController.php
++++ b/developer/app/Http/Controllers/DashboardController.php
+@@ -16,6 +16,17 @@ public function index(): View
+         $user    = auth()->user();
+         $apiBase = rtrim(config('services.yg_account.api_base'), '/');
+ 
++        // If the user's SSO token hasn't been populated yet, default to empty data
++        // rather than failing silently.
++        if (empty($user->api_token)) {
++            return view('dashboard', [
++                'user'       => $user,
++                'stats'      => [],
++                'projects'   => [],
++                'accountUrl' => config('services.yg_account.url'),
++            ]);
++        }
++
+         $stats    = $this->fetch($apiBase . '/developer-console/dashboard', $user->api_token);
+         $projects = $this->fetch($apiBase . '/developer-console/projects?per_page=5', $user->api_token);
+ 
+diff --git a/docx/resources/views/layouts/app.blade.php b/docx/resources/views/layouts/app.blade.php
+index 592c100d..df7324e9 100644
+--- a/docx/resources/views/layouts/app.blade.php
++++ b/docx/resources/views/layouts/app.blade.php
+@@ -1,30 +1,203 @@
+ <!DOCTYPE html>
+-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
++<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta name="csrf-token" content="{{ csrf_token() }}">
+     
+-    <title>@yield('title', 'YG DocX') - YG Ecosystem</title>
++    <title>@yield('title', 'YG DocX') — YGXONE</title>
+     
+-    <!-- Tailwind CSS -->
+-    <script src="https://cdn.tailwindcss.com"></script>
++    <!-- Fonts -->
++    <link rel="preconnect" href="https://fonts.googleapis.com">
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
++    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+     
+-    <!-- Font Awesome -->
++    <!-- Icons -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     
+     <!-- Quill.js for Rich Text Editor -->
+     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+     
+-    <!-- Alpine.js for Interactivity -->
++    <!-- Alpine.js -->
++    <script src="https://cdn.tailwindcss.com"></script>
+     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+-    
++
++    <style>
++        :root {
++            --yg-bg: #0a0a0f;
++            --yg-surface: #12121a;
++            --yg-glass: rgba(255, 255, 255, 0.03);
++            --yg-border: rgba(255, 255, 255, 0.08);
++            --yg-accent: #6366f1;
++            --yg-accent-glow: rgba(99, 102, 241, 0.2);
++        }
++
++        body {
++            background-color: var(--yg-bg) !important;
++            font-family: 'Inter', sans-serif;
++            color: #f1f5f9;
++            overflow-x: hidden;
++        }
++
++        .glass-panel {
++            background: var(--yg-glass);
++            border: 1px solid var(--yg-border);
++            backdrop-filter: blur(16px);
++        }
++
++        .nav-item-active {
++            background: rgba(99, 102, 241, 0.1);
++            border-left: 3px solid var(--yg-accent);
++            color: white !important;
++        }
++
++        .nav-item:hover {
++            background: rgba(255, 255, 255, 0.05);
++            color: white !important;
++        }
++
++        ::-webkit-scrollbar { width: 6px; }
++        ::-webkit-scrollbar-track { background: var(--yg-bg); }
++        ::-webkit-scrollbar-thumb { background: var(--yg-border); border-radius: 10px; }
++
++        [x-cloak] { display: none !important; }
++    </style>
+     @stack('styles')
+ </head>
+-<body class="bg-gray-50 antialiased">
+-    @yield('content')
+-    
++<body class="antialiased selection:bg-indigo-500/30">
++    <div class="flex h-screen overflow-hidden">
++        
++        <!-- Sidebar -->
++        <aside class="hidden md:flex flex-col w-72 glass-panel border-r border-white/5 z-50">
++            <!-- Brand -->
++            <div class="p-6">
++                <a href="/" class="flex items-center space-x-3 group">
++                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
++                        <i class="fas fa-file-alt text-white"></i>
++                    </div>
++                    <span class="text-xl font-black text-white tracking-tighter uppercase">YG DOCX</span>
++                </a>
++            </div>
++
++            <!-- New Document Button -->
++            <div class="px-6 mb-4">
++                <a href="{{ route('documents.create') }}" 
++                   class="flex items-center justify-center w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest text-xs gap-2">
++                    <i class="fas fa-plus"></i> New Document
++                </a>
++            </div>
++
++            <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
++                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-4 mb-3">Documents</p>
++                
++                <a href="{{ route('home') }}" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item {{ request()->routeIs('home') ? 'nav-item-active' : '' }}">
++                    <i class="fas fa-file-lines w-8 text-lg"></i>
++                    <span class="text-sm">My Documents</span>
++                </a>
++
++                <a href="{{ route('home') }}?type=draft" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                    <i class="fas fa-pen w-8 text-lg"></i>
++                    <span class="text-sm">Drafts</span>
++                </a>
++
++                <a href="{{ route('home') }}?type=published" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                    <i class="fas fa-check-circle w-8 text-lg"></i>
++                    <span class="text-sm">Published</span>
++                </a>
++
++                <a href="{{ route('folders.index') }}" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                    <i class="fas fa-folder w-8 text-lg"></i>
++                    <span class="text-sm">Folders</span>
++                </a>
++
++                <a href="{{ route('templates.index') }}" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                    <i class="fas fa-copy w-8 text-lg"></i>
++                    <span class="text-sm">Templates</span>
++                </a>
++
++                <div class="pt-6 mt-4 border-t border-white/5">
++                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-4 mb-3">Ecosystem Bridge</p>
++                    <a href="https://account.ygxone.com/dashboard" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                        <i class="fas fa-th-large w-8 text-lg text-indigo-400"></i>
++                        <span class="text-sm">Command Center</span>
++                    </a>
++                    <a href="https://pay.ygxone.com" class="flex items-center px-4 py-3 rounded-xl text-gray-400 font-semibold transition-all nav-item">
++                        <i class="fas fa-wallet w-8 text-lg text-purple-400"></i>
++                        <span class="text-sm">YG Pay</span>
++                    </a>
++                </div>
++            </nav>
++
++            <!-- User Footer -->
++            <div class="p-4 border-t border-white/5 bg-black/20 mt-auto">
++                <div class="flex items-center space-x-3">
++                    <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold border border-white/10 shadow-lg text-sm">
++                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
++                    </div>
++                    <div class="flex-1 min-w-0">
++                        <p class="text-xs font-bold text-white truncate">{{ auth()->user()->name ?? 'User' }}</p>
++                        <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Document Editor</p>
++                    </div>
++                </div>
++            </div>
++        </aside>
++
++        <!-- Main Content Area -->
++        <div class="flex-1 flex flex-col overflow-hidden relative">
++            
++            <!-- Top Bar -->
++            <header class="h-16 glass-panel border-b border-white/5 flex items-center justify-between px-6 z-40">
++                <div class="flex items-center flex-1">
++                    <div class="relative w-full max-w-md">
++                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
++                        <input type="text" placeholder="Search documents..." 
++                               class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-600 focus:border-indigo-500/50 outline-none transition-all"
++                               x-on:input.debounce.300ms="window.location.href = '{{ route('home') }}?search=' + encodeURIComponent($event.target.value)">
++                    </div>
++                </div>
++
++                <div class="flex items-center space-x-4">
++                    <div class="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
++                        <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
++                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Synced</span>
++                    </div>
++                </div>
++            </header>
++
++            <!-- Page Content -->
++            <main class="flex-1 overflow-hidden">
++                <div class="h-full overflow-y-auto p-6">
++                    @if(session('success'))
++                        <div class="mb-6 px-4 py-3 rounded-lg text-sm bg-green-500/10 text-green-400 border border-green-500/20">
++                            {{ session('success') }}
++                        </div>
++                    @endif
++                    @if(session('error'))
++                        <div class="mb-6 px-4 py-3 rounded-lg text-sm bg-red-500/10 text-red-400 border border-red-500/20">
++                            {{ session('error') }}
++                        </div>
++                    @endif
++                    @yield('content')
++                </div>
++            </main>
++
++            <!-- Footer -->
++            <footer class="p-4 border-t border-white/5 bg-black/20">
++                <div class="flex justify-between items-center">
++                    <div class="flex items-center space-x-4">
++                        <a href="https://ygxone.com" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">Home</a>
++                        <a href="https://account.ygxone.com" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">Account</a>
++                        <a href="https://mail.ygxone.com" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">Mail</a>
++                    </div>
++                    <p class="text-[10px] font-black text-gray-700 uppercase tracking-[0.3em]">
++                        &copy; {{ date('Y') }} YGXONE EMPIRE. ALL AUTHORITY RESERVED.
++                    </p>
++                </div>
++            </footer>
++        </div>
++    </div>
++
+     @stack('scripts')
+ </body>
+ </html>
+diff --git a/home/app/Services/HomeThemeService.php b/home/app/Services/HomeThemeService.php
+index 7544148b..8023a5f2 100644
+--- a/home/app/Services/HomeThemeService.php
++++ b/home/app/Services/HomeThemeService.php
+@@ -212,11 +212,12 @@ class HomeThemeService
+ 
+             if (!$theme) {
+                 return [
+-                    'colors'   => $defaultColors,
+-                    'fonts'    => $defaultFonts,
+-                    'logos'    => [],
+-                    'settings' => $defaultSettings,
+-                    'name'     => 'Default',
++                    'colors'              => $defaultColors,
++                    'fonts'               => $defaultFonts,
++                    'logos'               => [],
++                    'settings'            => $defaultSettings,
++                    'name'                => 'Default',
++                    'background_gradient' => null,
+                 ];
+             }
+ 
+@@ -237,20 +238,22 @@ class HomeThemeService
+                 : (is_array($theme->settings) ? $theme->settings : []);
+ 
+             return [
+-                'colors'   => array_merge($defaultColors, $colors),
+-                'fonts'    => array_merge($defaultFonts, $fonts),
+-                'logos'    => $logos,
+-                'settings' => array_merge($defaultSettings, $settings),
+-                'name'     => $theme->name ?? 'Custom',
++                'colors'              => array_merge($defaultColors, $colors),
++                'fonts'               => array_merge($defaultFonts, $fonts),
++                'logos'               => $logos,
++                'settings'            => array_merge($defaultSettings, $settings),
++                'name'                => $theme->name ?? 'Custom',
++                'background_gradient' => $theme->background_gradient ?? null,
+             ];
+         } catch (\Exception $e) {
+             Log::warning('Failed to fetch theme from database, using defaults', ['error' => $e->getMessage()]);
+             return [
+-                'colors'   => $defaultColors,
+-                'fonts'    => $defaultFonts,
+-                'logos'    => [],
+-                'settings' => $defaultSettings,
+-                'name'     => 'Default',
++                'colors'              => $defaultColors,
++                'fonts'               => $defaultFonts,
++                'logos'               => [],
++                'settings'            => $defaultSettings,
++                'name'                => 'Default',
++                'background_gradient' => null,
+             ];
+         }
+     }
+diff --git a/home/app/Services/SearchIndexerService.php b/home/app/Services/SearchIndexerService.php
+index da468ab7..19ee7890 100644
+--- a/home/app/Services/SearchIndexerService.php
++++ b/home/app/Services/SearchIndexerService.php
+@@ -9,194 +9,160 @@ use Illuminate\Support\Facades\Log;
+ class SearchIndexerService
+ {
+     /**
+-     * Sync all modules into the unified index
++     * Sync all modules into the unified index.
++     * Queries the shared MySQL database directly since all YGXONE modules
++     * share the same `ygmarket_account` database.
+      */
+     public function syncAll(): array
+     {
+         return [
+-            'mail'     => $this->syncMail(),
+-            'drive'    => $this->syncDrive(),
+-            'docs'     => $this->syncDocs(),
+-            'contacts' => $this->syncContacts(),
++            'mail'  => $this->syncMail(),
++            'drive' => $this->syncDrive(),
++            'docs'  => $this->syncDocs(),
++            'notes' => $this->syncNotes(),
+         ];
+     }
+ 
+     /**
+-     * Sync Mail messages
++     * Sync Mail messages from the shared `mails` table.
+      */
+     public function syncMail(): int
+     {
+-        $path = $this->getDbPath('YG_MAIL_DB_PATH', 'YG Mail');
+-        if (!$path || !file_exists($path)) return 0;
+-
+         try {
+-            $db = new \PDO("sqlite:{$path}");
+-            $stmt = $db->query("SELECT id, user_id, subject, body, \"from\", created_at FROM mails");
+-            
++            $rows = DB::table('mails')
++                ->select('id', 'user_id', 'subject', 'body', 'from', 'created_at')
++                ->get();
++
+             $count = 0;
+-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
++            foreach ($rows as $item) {
++                $body = strip_tags((string) $item->body);
+                 IndexedItem::updateOrCreate(
+-                    ['service' => 'mail', 'source_id' => $item['id']],
++                    ['service' => 'mail', 'source_id' => (string) $item->id],
+                     [
+-                        'user_id' => $item['user_id'],
+-                        'title'   => $item['subject'],
+-                        'content' => strip_tags($item['body']),
+-                        'snippet' => substr(strip_tags($item['body']), 0, 200),
+-                        'url'     => "/mail/view/" . $item['id'],
++                        'user_id'  => $item->user_id ?? null,
++                        'title'    => $item->subject ?? '(No Subject)',
++                        'content'  => $body,
++                        'snippet'  => mb_substr($body, 0, 200),
++                        'url'      => null,
+                         'metadata' => [
+-                            'from' => $item['from'],
+-                            'date' => $item['created_at'],
++                            'from' => $item->from ?? 'unknown',
++                            'date' => (string) $item->created_at,
+                         ],
+                     ]
+                 );
+                 $count++;
+             }
++            Log::info("Search indexer: synced {$count} mail items");
+             return $count;
+         } catch (\Exception $e) {
+-
+             Log::error("Failed to sync mail index: " . $e->getMessage());
+             return 0;
+         }
+     }
+ 
+-
+     /**
+-     * Sync Drive files
++     * Sync Drive files from the shared `drive_files` table.
+      */
+     public function syncDrive(): int
+     {
+-        $path = $this->getDbPath('YG_DRIVE_DB_PATH', 'YG Drive');
+-        if (!$path || !file_exists($path)) return 0;
+-
+         try {
+-            $db = new \PDO("sqlite:{$path}");
+-            $stmt = $db->query("SELECT id, user_id, name, description, mime_type, size_bytes FROM drive_files");
+-            
++            $rows = DB::table('drive_files')
++                ->select('id', 'user_id', 'name', 'description', 'mime_type', 'size', 'created_at')
++                ->where('is_trashed', false)
++                ->get();
++
+             $count = 0;
+-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
++            foreach ($rows as $item) {
+                 IndexedItem::updateOrCreate(
+-                    ['service' => 'drive', 'source_id' => $item['id']],
++                    ['service' => 'drive', 'source_id' => (string) $item->id],
+                     [
+-                        'user_id' => $item['user_id'],
+-                        'title'   => $item['name'],
+-                        'content' => $item['description'],
+-                        'snippet' => $item['description'] ?: $item['mime_type'],
+-                        'url'     => "/drive/files/" . $item['id'],
++                        'user_id'  => $item->user_id,
++                        'title'    => $item->name,
++                        'content'  => $item->description ?? '',
++                        'snippet'  => $item->description ? mb_substr($item->description, 0, 200) : $item->mime_type,
++                        'url'      => null,
+                         'metadata' => [
+-                            'mime_type' => $item['mime_type'],
+-                            'size'      => $item['size_bytes'],
++                            'mime_type' => $item->mime_type,
++                            'size'      => $item->size,
+                         ],
+                     ]
+                 );
+                 $count++;
+             }
++            Log::info("Search indexer: synced {$count} drive items");
+             return $count;
+         } catch (\Exception $e) {
+-
+             Log::error("Failed to sync drive index: " . $e->getMessage());
+             return 0;
+         }
+     }
+ 
+     /**
+-     * Sync Docs
++     * Sync DocX documents from the shared `documents` table.
+      */
+     public function syncDocs(): int
+     {
+-        $path = $this->getDbPath('YG_DOCX_DB_PATH', 'YG DocX');
+-        if (!$path || !file_exists($path)) return 0;
+-
+         try {
+-            $db = new \PDO("sqlite:{$path}");
+-            $stmt = $db->query("SELECT id, user_id, title, content FROM documents");
+-            
++            $rows = DB::table('documents')
++                ->select('id', 'user_id', 'title', 'content', 'created_at')
++                ->whereNull('deleted_at')
++                ->get();
++
+             $count = 0;
+-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
++            foreach ($rows as $item) {
++                $content = strip_tags((string) $item->content);
+                 IndexedItem::updateOrCreate(
+-                    ['service' => 'docs', 'source_id' => $item['id']],
++                    ['service' => 'docs', 'source_id' => (string) $item->id],
+                     [
+-                        'user_id' => $item['user_id'],
+-                        'title'   => $item['title'],
+-                        'content' => strip_tags($item['content']),
+-                        'snippet' => substr(strip_tags($item['content']), 0, 200),
+-                        'url'     => "/docs/edit/" . $item['id'],
++                        'user_id'  => $item->user_id,
++                        'title'    => $item->title ?? '(Untitled)',
++                        'content'  => $content,
++                        'snippet'  => mb_substr($content, 0, 200),
++                        'url'      => null,
+                     ]
+                 );
+                 $count++;
+             }
++            Log::info("Search indexer: synced {$count} doc items");
+             return $count;
+         } catch (\Exception $e) {
+-
+             Log::error("Failed to sync docs index: " . $e->getMessage());
+             return 0;
+         }
+     }
+ 
+     /**
+-     * Sync Contacts
++     * Sync Notes from the shared `notes` table.
+      */
+-    public function syncContacts(): int
++    public function syncNotes(): int
+     {
+-        $path = $this->getDbPath('YG_CONTACTS_DB_PATH', 'YG Contacts');
+-        if (!$path || !file_exists($path)) return 0;
+-
+         try {
+-            $db = new \PDO("sqlite:{$path}");
+-            $stmt = $db->query("SELECT id, user_id, first_name, last_name, email, phone, company FROM contacts");
+-            
++            $rows = DB::table('notes')
++                ->select('id', 'user_id', 'title', 'content', 'created_at')
++                ->where('is_deleted', false)
++                ->whereNull('deleted_at')
++                ->get();
++
+             $count = 0;
+-            while ($item = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+-                $name = "{$item['first_name']} {$item['last_name']}";
++            foreach ($rows as $item) {
++                $content = strip_tags((string) $item->content);
+                 IndexedItem::updateOrCreate(
+-                    ['service' => 'contacts', 'source_id' => $item['id']],
++                    ['service' => 'notes', 'source_id' => (string) $item->id],
+                     [
+-                        'user_id' => $item['user_id'],
+-                        'title'   => $name,
+-                        'content' => "{$name} {$item['email']} {$item['phone']} {$item['company']}",
+-                        'snippet' => "{$item['email']} | {$item['company']}",
+-                        'url'     => "/contacts/view/" . $item['id'],
+-                        'metadata' => [
+-                            'email' => $item['email'],
+-                            'phone' => $item['phone'],
+-                        ],
++                        'user_id'  => $item->user_id,
++                        'title'    => $item->title ?? '(Untitled Note)',
++                        'content'  => $content,
++                        'snippet'  => mb_substr($content, 0, 200),
++                        'url'      => null,
+                     ]
+                 );
+                 $count++;
+             }
++            Log::info("Search indexer: synced {$count} note items");
+             return $count;
+         } catch (\Exception $e) {
+-
+-            Log::error("Failed to sync contacts index: " . $e->getMessage());
++            Log::error("Failed to sync notes index: " . $e->getMessage());
+             return 0;
+         }
+     }
+-
+-    /**
+-     * Resolve DB path from env or relative to base
+-     */
+-    private function getDbPath(string $envKey, string $dirName): ?string
+-    {
+-        $path = config('database.' . strtolower($envKey), env($envKey));
+-
+-        if (!$path) {
+-            $path = "../{$dirName}/database/database.sqlite";
+-        }
+-
+-        // Resolve to absolute path and verify it stays within expected directory
+-        $absolutePath = realpath(base_path($path));
+-
+-        if (!$absolutePath) {
+-            $absolutePath = realpath(base_path(str_replace('../', '', $path)));
+-        }
+-
+-        // Security: ensure path ends with .sqlite and doesn't escape base
+-        if (!$absolutePath
+-            || !str_ends_with($absolutePath, '.sqlite')
+-            || !str_contains($absolutePath, 'database')) {
+-            return null;
+-        }
+-
+-        return file_exists($absolutePath) ? $absolutePath : null;
+-    }
+ }
+-
+diff --git a/home/database/seeders/EcosystemSeeder.php b/home/database/seeders/EcosystemSeeder.php
+index 4fda8ae0..af27f719 100644
+--- a/home/database/seeders/EcosystemSeeder.php
++++ b/home/database/seeders/EcosystemSeeder.php
+@@ -70,9 +70,7 @@ class EcosystemSeeder extends Seeder
+         $existing = DB::table('themes')->count();
+         if ($existing > 0) {
+             return; // Already seeded
+-        }
+-
+-        DB::table('themes')->insert([
++        }            DB::table('themes')->insert([
+             'service'            => 'yg-xone',
+             'name'               => 'Default Light',
+             'is_active'          => true,
+@@ -99,6 +97,7 @@ class EcosystemSeeder extends Seeder
+                 'powered_by_text'  => 'Powered by',
+                 'copyright'        => 'YGXONE Sovereign Intelligence Platform',
+             ]),
++            'background_gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+             'created_at'         => now(),
+             'updated_at'         => now(),
+         ]);
+diff --git a/home/routes/console.php b/home/routes/console.php
+index 3c9adf1a..c9d5f4e0 100644
+--- a/home/routes/console.php
++++ b/home/routes/console.php
+@@ -1,8 +1,20 @@
+ <?php
+ 
++use Illuminate\Support\Facades\Schedule;
+ use Illuminate\Foundation\Inspiring;
+ use Illuminate\Support\Facades\Artisan;
+ 
+ Artisan::command('inspire', function () {
+     $this->comment(Inspiring::quote());
+ })->purpose('Display an inspiring quote');
++
++/*
++|--------------------------------------------------------------------------
++| Scheduled Tasks
++|--------------------------------------------------------------------------
++|
++| Sync ecosystem module data into the unified search index every hour
++| so search results stay up to date with newly created content.
++|
++*/
++Schedule::command('search:sync')->hourly();
+diff --git a/mail/app/Http/Controllers/MailController.php b/mail/app/Http/Controllers/MailController.php
+index 07265f92..4615df05 100644
+--- a/mail/app/Http/Controllers/MailController.php
++++ b/mail/app/Http/Controllers/MailController.php
+@@ -257,12 +257,20 @@ class MailController extends Controller
+         $fileObj = new \Illuminate\Http\File(Storage::path($tempPath));
+         $drive->upload($fileObj, 'mail-backup');
+ 
+-        return response()->json([
+-            'status' => 'success',
+-            'message' => "Successfully backed up {$mails->count()} emails to Sovereign YG Drive",
+-            'count' => $mails->count(),
+-            'filename' => $filename,
+-        ]);
++        // Return appropriate response based on request type
++        if ($request->wantsJson() || $request->expectsJson()) {
++            return response()->json([
++                'status' => 'success',
++                'message' => "Successfully backed up {$mails->count()} emails to Sovereign YG Drive",
++                'count' => $mails->count(),
++                'filename' => $filename,
++            ]);
++        }
++
++        return redirect()->route('mail.inbox')->with(
++            'success',
++            "Successfully backed up {$mails->count()} emails to Sovereign YG Drive"
++        );
+ 
+     }
+ 
+diff --git a/mail/resources/views/layouts/mail.blade.php b/mail/resources/views/layouts/mail.blade.php
+index f3b7d559..54e93921 100644
+--- a/mail/resources/views/layouts/mail.blade.php
++++ b/mail/resources/views/layouts/mail.blade.php
+@@ -140,6 +140,21 @@
+                         <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $unreadCounts['trash'] }}</span>
+                     @endif
+                 </a>
++
++                <!-- Backup divider -->
++                <div class="pt-4 pb-1 px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Actions</div>
++
++                <form method="POST" action="{{ route('api.backup') }}"
++                      x-data="{ loading: false }"
++                      @submit.prevent="if(!confirm('Export all your emails and attachments as a backup? This may take a moment.')) return; loading = true; $el.submit()">
++                    @csrf
++                    <button type="submit"
++                            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 w-full text-left"
++                            :class="{ 'opacity-50 pointer-events-none': loading }">
++                        <i class="fas fa-database w-5 text-center text-sm" :class="{ 'fa-spinner fa-spin': loading }"></i>
++                        <span x-text="loading ? 'Backing up...' : 'Backup to Drive'"></span>
++                    </button>
++                </form>
+             </nav>
+ 
+             <!-- User -->
+diff --git a/mail/routes/web.php b/mail/routes/web.php
+index f9aa7def..cf345cf6 100644
+--- a/mail/routes/web.php
++++ b/mail/routes/web.php
+@@ -59,11 +59,11 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
+     Route::delete('/mail/{id}', [MailController::class, 'delete'])->middleware('throttle:30,1');
+     Route::get('/mail/search', [MailController::class, 'search'])->middleware('throttle:30,1');
+     Route::get('/mail/attachment/{id}/download', [MailController::class, 'downloadAttachment'])->name('mail.attachment.download');
+-    Route::post('/backup', [MailController::class, 'backup'])->middleware('throttle:10,1');
++    Route::post('/backup', [MailController::class, 'backup'])->middleware('throttle:10,1')->name('api.backup');
+ });
+ 
+ Route::get('/dashboard', function () {
+-    return view('app')->with('title', 'Dashboard');
++    return redirect()->route('mail.inbox');
+ })->middleware(['auth', 'verified'])->name('dashboard');
+ 
+ Route::middleware('auth')->group(function () {
+diff --git a/xcel/resources/views/app.blade.php b/xcel/resources/views/app.blade.php
+index c49fbb6b..3d3b23f4 100644
+--- a/xcel/resources/views/app.blade.php
++++ b/xcel/resources/views/app.blade.php
+@@ -7,8 +7,7 @@
+     <title inertia>YG Xcel</title>
+     @routes
+     @viteReactRefresh
+-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+-    <script src="{{ asset('js/app.js') }}" defer></script>
++    @vite('resources/js/app.jsx')
+     @inertiaHead
+ </head>
+ <body class="antialiased">@inertia</body>
+diff --git a/xcel/resources/views/layouts/app.blade.php b/xcel/resources/views/layouts/app.blade.php
+index 638bcbf2..8bf73f5a 100644
+--- a/xcel/resources/views/layouts/app.blade.php
++++ b/xcel/resources/views/layouts/app.blade.php
+@@ -139,14 +139,17 @@
+                     </div>
+ 
+                     <nav class="hidden lg:flex items-center space-x-6">
+-                        @php
+-                            $headerItems = \App\Models\UniversalNavigationItem::forService($service_key)->header()->get();
+-                        @endphp
+-                        @foreach($headerItems as $item)
+-                            <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">
+-                                {{ $item->label }}
+-                            </a>
+-                        @endforeach
++                        @if(class_exists('\App\Models\UniversalNavigationItem'))
++                            @php $headerItems = \App\Models\UniversalNavigationItem::forService($service_key)->header()->get(); @endphp
++                            @foreach($headerItems as $item)
++                                <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">
++                                    {{ $item->label }}
++                                </a>
++                            @endforeach
++                        @else
++                            <a href="https://account.ygxone.com" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">ACCOUNT</a>
++                            <a href="https://pay.ygxone.com" class="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-[0.2em] transition-colors">YG PAY</a>
++                        @endif
+                     </nav>
+                 </div>
+ 
+@@ -168,14 +171,17 @@
+                 <footer class="p-8 border-t border-white/5 bg-black/20">
+                     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                         <div class="flex items-center space-x-6">
+-                            @php
+-                                $footerItems = \App\Models\UniversalNavigationItem::forService($service_key)->footer()->get();
+-                            @endphp
+-                            @foreach($footerItems as $item)
+-                                <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
+-                                    {{ $item->label }}
+-                                </a>
+-                            @endforeach
++                            @if(class_exists('\App\Models\UniversalNavigationItem'))
++                                @php $footerItems = \App\Models\UniversalNavigationItem::forService($service_key)->footer()->get(); @endphp
++                                @foreach($footerItems as $item)
++                                    <a href="{{ $item->url }}" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
++                                        {{ $item->label }}
++                                    </a>
++                                @endforeach
++                            @else
++                                <a href="https://account.ygxone.com/dashboard" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">ACCOUNT</a>
++                                <a href="https://ygxone.com" class="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">HOME</a>
++                            @endif
+                         </div>
+                         <p class="text-[10px] font-black text-gray-700 uppercase tracking-[0.3em]">
+                             &copy; {{ date('Y') }} {{ __("YGXONE EMPIRE. ALL AUTHORITY RESERVED.") }}

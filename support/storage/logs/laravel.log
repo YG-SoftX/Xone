@@ -1,0 +1,509 @@
+[2026-05-19 22:57:16] local.ERROR: The D:\YG SoftX\Xone\support\bootstrap\cache directory must be present and writable. {"exception":"[object] (Exception(code: 0): The D:\\YG SoftX\\Xone\\support\\bootstrap\\cache directory must be present and writable. at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php:179)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(132): Illuminate/Foundation/PackageManifest->write()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(108): Illuminate/Foundation/PackageManifest->build()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(90): Illuminate/Foundation/PackageManifest->getManifest()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(79): Illuminate/Foundation/PackageManifest->config()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate/Foundation/PackageManifest->aliases()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate/Foundation/Bootstrap/RegisterFacades->bootstrap()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(494): Illuminate/Foundation/Application->bootstrapWith()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate/Foundation/Console/Kernel->bootstrap()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#9 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#10 {main}
+"} 
+[2026-05-19 22:57:18] local.ERROR: The D:\YG SoftX\Xone\support\bootstrap\cache directory must be present and writable. {"exception":"[object] (Exception(code: 0): The D:\\YG SoftX\\Xone\\support\\bootstrap\\cache directory must be present and writable. at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php:179)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(132): Illuminate/Foundation/PackageManifest->write()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(108): Illuminate/Foundation/PackageManifest->build()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(90): Illuminate/Foundation/PackageManifest->getManifest()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(79): Illuminate/Foundation/PackageManifest->config()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate/Foundation/PackageManifest->aliases()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate/Foundation/Bootstrap/RegisterFacades->bootstrap()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(494): Illuminate/Foundation/Application->bootstrapWith()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate/Foundation/Console/Kernel->bootstrap()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#9 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#10 {main}
+"} 
+[2026-05-19 22:57:43] local.ERROR: Target class [Database\Seeders\DatabaseSeedersKnowledgeBaseSeeder] does not exist. {"exception":"[object] (Illuminate\\Contracts\\Container\\BindingResolutionException(code: 0): Target class [Database\\Seeders\\DatabaseSeedersKnowledgeBaseSeeder] does not exist. at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php:1124)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(933): Illuminate/Container/Container->build()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate/Container/Container->resolve()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate/Foundation/Application->resolve()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate/Container/Container->make()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(99): Illuminate/Foundation/Application->make()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Console/Seeds/SeedCommand->getSeeder()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#14 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#16 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#17 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#18 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#21 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#22 {main}
+
+[previous exception] [object] (ReflectionException(code: -1): Class \"Database\\Seeders\\DatabaseSeedersKnowledgeBaseSeeder\" does not exist at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php:1122)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(1122): ReflectionClass->__construct()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(933): Illuminate/Container/Container->build()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate/Container/Container->resolve()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate/Foundation/Application->resolve()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate/Container/Container->make()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(99): Illuminate/Foundation/Application->make()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Console/Seeds/SeedCommand->getSeeder()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#15 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#17 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#18 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#19 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#22 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#23 {main}
+"} 
+[2026-05-19 22:57:54] local.ERROR: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: select exists (select 1 from information_schema.tables where table_schema = schema() and table_name = 'migrations' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: select exists (select 1 from information_schema.tables where table_schema = schema() and table_name = 'migrations' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(357): Illuminate/Database/Connection->select()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(374): Illuminate/Database/Connection->selectOne()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(176): Illuminate/Database/Connection->scalar()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/DatabaseMigrationRepository.php(185): Illuminate/Database/Schema/Builder->hasTable()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(758): Illuminate/Database/Migrations/DatabaseMigrationRepository->repositoryExists()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(164): Illuminate/Database/Migrations/Migrator->repositoryExists()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(328): Illuminate/Database/Console/Migrations/MigrateCommand->Illuminate/Database/Console/Migrations/{closure}()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(164): retry()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(140): Illuminate/Database/Console/Migrations/MigrateCommand->repositoryExists()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate/Database/Console/Migrations/MigrateCommand->prepareDatabase()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(671): Illuminate/Database/Console/Migrations/MigrateCommand->Illuminate/Database/Console/Migrations/{closure}()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate/Database/Migrations/Migrator->usingConnection()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate/Database/Console/Migrations/MigrateCommand->runMigrations()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Migrations/MigrateCommand->handle()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#23 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#25 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#26 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#27 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#30 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#31 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(85): Illuminate/Database/Connectors/Connector->createPdoConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(48): Illuminate/Database/Connectors/Connector->tryAgainIfCausedByLostConnection()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect()
+#5 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1295): Illuminate/Database/Connection->getPdo()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(525): Illuminate/Database/Connection->getReadPdo()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(420): Illuminate/Database/Connection->getPdoForSelect()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/Connection->Illuminate/Database/{closure}()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(357): Illuminate/Database/Connection->select()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(374): Illuminate/Database/Connection->selectOne()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(176): Illuminate/Database/Connection->scalar()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/DatabaseMigrationRepository.php(185): Illuminate/Database/Schema/Builder->hasTable()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(758): Illuminate/Database/Migrations/DatabaseMigrationRepository->repositoryExists()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(164): Illuminate/Database/Migrations/Migrator->repositoryExists()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(328): Illuminate/Database/Console/Migrations/MigrateCommand->Illuminate/Database/Console/Migrations/{closure}()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(164): retry()
+#23 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(140): Illuminate/Database/Console/Migrations/MigrateCommand->repositoryExists()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate/Database/Console/Migrations/MigrateCommand->prepareDatabase()
+#25 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(671): Illuminate/Database/Console/Migrations/MigrateCommand->Illuminate/Database/Console/Migrations/{closure}()
+#26 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate/Database/Migrations/Migrator->usingConnection()
+#27 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate/Database/Console/Migrations/MigrateCommand->runMigrations()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Migrations/MigrateCommand->handle()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#30 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#31 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#32 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#33 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#34 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#35 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#36 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#37 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#38 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#39 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#40 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#41 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#42 {main}
+"} 
+[2026-05-19 22:58:16] local.ERROR: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: insert into `articles` (`title`, `slug`, `type`, `category`, `published`, `sort_order`, `content`, `updated_at`, `created_at`) values (Welcome to YGXone — Getting Started Guide, welcome-to-ygxone, article, getting-started, 1, 1, Welcome to YGXone! Your all-in-one productivity ecosystem.
+
+YGXone brings together Mail, Documents (DocX), Spreadsheets (Xcel), and more into a single, seamless experience. This guide will help you get started.
+
+## Creating Your Account
+
+1. Visit account.ygxone.com and click "Sign Up"
+2. Enter your name, email, and create a secure password
+3. Verify your email address
+4. You're in! You can now access all YGXone services
+
+## Navigating the Ecosystem
+
+- **Home** (ygxone.com): Your launchpad — search across all apps, view recent files, and see what's new
+- **Mail** (mail.ygxone.com): Professional email with smart folders and search
+- **DocX** (docs.ygxone.com): Create and edit rich documents
+- **Xcel** (xcel.ygxone.com): Build spreadsheets with formulas and formatting
+
+## Need Help?
+
+Use the support portal (support.ygxone.com) to create tickets, browse the knowledge base, and get answers to common questions., 2026-05-19 22:58:08, 2026-05-19 22:58:08)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: insert into `articles` (`title`, `slug`, `type`, `category`, `published`, `sort_order`, `content`, `updated_at`, `created_at`) values (Welcome to YGXone — Getting Started Guide, welcome-to-ygxone, article, getting-started, 1, 1, Welcome to YGXone! Your all-in-one productivity ecosystem.
+
+YGXone brings together Mail, Documents (DocX), Spreadsheets (Xcel), and more into a single, seamless experience. This guide will help you get started.
+
+## Creating Your Account
+
+1. Visit account.ygxone.com and click \"Sign Up\"
+2. Enter your name, email, and create a secure password
+3. Verify your email address
+4. You're in! You can now access all YGXone services
+
+## Navigating the Ecosystem
+
+- **Home** (ygxone.com): Your launchpad — search across all apps, view recent files, and see what's new
+- **Mail** (mail.ygxone.com): Professional email with smart folders and search
+- **DocX** (docs.ygxone.com): Create and edit rich documents
+- **Xcel** (xcel.ygxone.com): Build spreadsheets with formulas and formatting
+
+## Need Help?
+
+Use the support portal (support.ygxone.com) to create tickets, browse the knowledge base, and get answers to common questions., 2026-05-19 22:58:08, 2026-05-19 22:58:08)) at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(42): Illuminate/Database/Connection->run()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php(35): Illuminate/Database/MySqlConnection->insert()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4170): Illuminate/Database/Query/Processors/MySqlProcessor->processInsertGetId()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(2237): Illuminate/Database/Query/Builder->insertGetId()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1436): Illuminate/Database/Eloquent/Builder->__call()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1401): Illuminate/Database/Eloquent/Model->insertAndSetId()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1240): Illuminate/Database/Eloquent/Model->performInsert()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1219): Illuminate/Database/Eloquent/Model->save()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(393): Illuminate/Database/Eloquent/Builder->Illuminate/Database/Eloquent/{closure}()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1218): tap()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php(23): Illuminate/Database/Eloquent/Builder->create()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2544): Illuminate/Database/Eloquent/Model->forwardCallTo()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2560): Illuminate/Database/Eloquent/Model->__call()
+#16 D:/YG SoftX/Xone/support/database/seeders/KnowledgeBaseSeeder.php(13): Illuminate/Database/Eloquent/Model::__callStatic()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Database/Seeders/KnowledgeBaseSeeder->run()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(184): Illuminate/Container/Container->call()
+#23 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(193): Illuminate/Database/Seeder->Illuminate/Database/{closure}()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Seeder->__invoke()
+#25 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#26 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#27 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#30 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#31 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#32 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#33 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#34 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#35 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#36 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#37 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#38 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#39 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#40 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#41 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(85): Illuminate/Database/Connectors/Connector->createPdoConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(48): Illuminate/Database/Connectors/Connector->tryAgainIfCausedByLostConnection()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect()
+#5 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(47): Illuminate/Database/Connection->getPdo()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/MySqlConnection->Illuminate/Database/{closure}()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(42): Illuminate/Database/Connection->run()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php(35): Illuminate/Database/MySqlConnection->insert()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4170): Illuminate/Database/Query/Processors/MySqlProcessor->processInsertGetId()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(2237): Illuminate/Database/Query/Builder->insertGetId()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1436): Illuminate/Database/Eloquent/Builder->__call()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1401): Illuminate/Database/Eloquent/Model->insertAndSetId()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1240): Illuminate/Database/Eloquent/Model->performInsert()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1219): Illuminate/Database/Eloquent/Model->save()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(393): Illuminate/Database/Eloquent/Builder->Illuminate/Database/Eloquent/{closure}()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1218): tap()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php(23): Illuminate/Database/Eloquent/Builder->create()
+#23 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2544): Illuminate/Database/Eloquent/Model->forwardCallTo()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2560): Illuminate/Database/Eloquent/Model->__call()
+#25 D:/YG SoftX/Xone/support/database/seeders/KnowledgeBaseSeeder.php(13): Illuminate/Database/Eloquent/Model::__callStatic()
+#26 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Database/Seeders/KnowledgeBaseSeeder->run()
+#27 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#30 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#31 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(184): Illuminate/Container/Container->call()
+#32 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(193): Illuminate/Database/Seeder->Illuminate/Database/{closure}()
+#33 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Seeder->__invoke()
+#34 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#35 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#36 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#37 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#38 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#39 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#40 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#41 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#42 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#43 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#44 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#45 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#46 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#47 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#48 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#49 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#50 {main}
+"} 
+[2026-05-19 22:58:39] local.ERROR: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: insert into `articles` (`title`, `slug`, `type`, `category`, `published`, `sort_order`, `content`, `updated_at`, `created_at`) values (Welcome to YGXone — Getting Started Guide, welcome-to-ygxone, article, getting-started, 1, 1, Welcome to YGXone! Your all-in-one productivity ecosystem.
+
+YGXone brings together Mail, Documents (DocX), Spreadsheets (Xcel), and more into a single, seamless experience. This guide will help you get started.
+
+## Creating Your Account
+
+1. Visit account.ygxone.com and click "Sign Up"
+2. Enter your name, email, and create a secure password
+3. Verify your email address
+4. You're in! You can now access all YGXone services
+
+## Navigating the Ecosystem
+
+- **Home** (ygxone.com): Your launchpad — search across all apps, view recent files, and see what's new
+- **Mail** (mail.ygxone.com): Professional email with smart folders and search
+- **DocX** (docs.ygxone.com): Create and edit rich documents
+- **Xcel** (xcel.ygxone.com): Build spreadsheets with formulas and formatting
+
+## Need Help?
+
+Use the support portal (support.ygxone.com) to create tickets, browse the knowledge base, and get answers to common questions., 2026-05-19 22:58:30, 2026-05-19 22:58:30)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: ygmarket_account, SQL: insert into `articles` (`title`, `slug`, `type`, `category`, `published`, `sort_order`, `content`, `updated_at`, `created_at`) values (Welcome to YGXone — Getting Started Guide, welcome-to-ygxone, article, getting-started, 1, 1, Welcome to YGXone! Your all-in-one productivity ecosystem.
+
+YGXone brings together Mail, Documents (DocX), Spreadsheets (Xcel), and more into a single, seamless experience. This guide will help you get started.
+
+## Creating Your Account
+
+1. Visit account.ygxone.com and click \"Sign Up\"
+2. Enter your name, email, and create a secure password
+3. Verify your email address
+4. You're in! You can now access all YGXone services
+
+## Navigating the Ecosystem
+
+- **Home** (ygxone.com): Your launchpad — search across all apps, view recent files, and see what's new
+- **Mail** (mail.ygxone.com): Professional email with smart folders and search
+- **DocX** (docs.ygxone.com): Create and edit rich documents
+- **Xcel** (xcel.ygxone.com): Build spreadsheets with formulas and formatting
+
+## Need Help?
+
+Use the support portal (support.ygxone.com) to create tickets, browse the knowledge base, and get answers to common questions., 2026-05-19 22:58:30, 2026-05-19 22:58:30)) at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(42): Illuminate/Database/Connection->run()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php(35): Illuminate/Database/MySqlConnection->insert()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4170): Illuminate/Database/Query/Processors/MySqlProcessor->processInsertGetId()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(2237): Illuminate/Database/Query/Builder->insertGetId()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1436): Illuminate/Database/Eloquent/Builder->__call()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1401): Illuminate/Database/Eloquent/Model->insertAndSetId()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1240): Illuminate/Database/Eloquent/Model->performInsert()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1219): Illuminate/Database/Eloquent/Model->save()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(393): Illuminate/Database/Eloquent/Builder->Illuminate/Database/Eloquent/{closure}()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1218): tap()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php(23): Illuminate/Database/Eloquent/Builder->create()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2544): Illuminate/Database/Eloquent/Model->forwardCallTo()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2560): Illuminate/Database/Eloquent/Model->__call()
+#16 D:/YG SoftX/Xone/support/database/seeders/KnowledgeBaseSeeder.php(13): Illuminate/Database/Eloquent/Model::__callStatic()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Database/Seeders/KnowledgeBaseSeeder->run()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(184): Illuminate/Container/Container->call()
+#23 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(193): Illuminate/Database/Seeder->Illuminate/Database/{closure}()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Seeder->__invoke()
+#25 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#26 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#27 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#30 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#31 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#32 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#33 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#34 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#35 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#36 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#37 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#38 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#39 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#40 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#41 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(85): Illuminate/Database/Connectors/Connector->createPdoConnection()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(48): Illuminate/Database/Connectors/Connector->tryAgainIfCausedByLostConnection()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect()
+#5 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(47): Illuminate/Database/Connection->getPdo()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/MySqlConnection->Illuminate/Database/{closure}()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(999): Illuminate/Database/Connection->runQueryCallback()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(978): Illuminate/Database/Connection->tryAgainIfCausedByLostConnection()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Connection.php(796): Illuminate/Database/Connection->handleQueryException()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php(42): Illuminate/Database/Connection->run()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php(35): Illuminate/Database/MySqlConnection->insert()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4170): Illuminate/Database/Query/Processors/MySqlProcessor->processInsertGetId()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(2237): Illuminate/Database/Query/Builder->insertGetId()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1436): Illuminate/Database/Eloquent/Builder->__call()
+#17 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1401): Illuminate/Database/Eloquent/Model->insertAndSetId()
+#18 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(1240): Illuminate/Database/Eloquent/Model->performInsert()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1219): Illuminate/Database/Eloquent/Model->save()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/helpers.php(393): Illuminate/Database/Eloquent/Builder->Illuminate/Database/Eloquent/{closure}()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1218): tap()
+#22 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php(23): Illuminate/Database/Eloquent/Builder->create()
+#23 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2544): Illuminate/Database/Eloquent/Model->forwardCallTo()
+#24 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php(2560): Illuminate/Database/Eloquent/Model->__call()
+#25 D:/YG SoftX/Xone/support/database/seeders/KnowledgeBaseSeeder.php(13): Illuminate/Database/Eloquent/Model::__callStatic()
+#26 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Database/Seeders/KnowledgeBaseSeeder->run()
+#27 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#28 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#29 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#30 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#31 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(184): Illuminate/Container/Container->call()
+#32 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Seeder.php(193): Illuminate/Database/Seeder->Illuminate/Database/{closure}()
+#33 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Seeder->__invoke()
+#34 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#35 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#36 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#37 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#38 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#39 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#40 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#41 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#42 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#43 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#44 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#45 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#46 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#47 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#48 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#49 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#50 {main}
+"} 
+[2026-05-19 22:59:03] local.ERROR: The "--force" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--force\" option does not exist. at D:/YG SoftX/Xone/support/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/symfony/console/Input/ArgvInput.php(155): Symfony/Component/Console/Input/ArgvInput->addLongOption()
+#1 D:/YG SoftX/Xone/support/vendor/symfony/console/Input/ArgvInput.php(88): Symfony/Component/Console/Input/ArgvInput->parseLongOption()
+#2 D:/YG SoftX/Xone/support/vendor/symfony/console/Input/ArgvInput.php(77): Symfony/Component/Console/Input/ArgvInput->parseToken()
+#3 D:/YG SoftX/Xone/support/vendor/symfony/console/Input/Input.php(53): Symfony/Component/Console/Input/ArgvInput->parse()
+#4 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(295): Symfony/Component/Console/Input/Input->bind()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#6 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#7 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#8 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#11 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#12 {main}
+"} 
+[2026-05-19 22:59:16] local.ERROR: Target class [Database\Seeders\DatabaseSeedersDatabaseSeeder] does not exist. {"exception":"[object] (Illuminate\\Contracts\\Container\\BindingResolutionException(code: 0): Target class [Database\\Seeders\\DatabaseSeedersDatabaseSeeder] does not exist. at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php:1124)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(933): Illuminate/Container/Container->build()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate/Container/Container->resolve()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate/Foundation/Application->resolve()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate/Container/Container->make()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(99): Illuminate/Foundation/Application->make()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Console/Seeds/SeedCommand->getSeeder()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#14 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#15 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#16 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#17 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#18 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#19 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#21 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#22 {main}
+
+[previous exception] [object] (ReflectionException(code: -1): Class \"Database\\Seeders\\DatabaseSeedersDatabaseSeeder\" does not exist at D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php:1122)
+[stacktrace]
+#0 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(1122): ReflectionClass->__construct()
+#1 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(933): Illuminate/Container/Container->build()
+#2 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate/Container/Container->resolve()
+#3 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate/Foundation/Application->resolve()
+#4 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate/Container/Container->make()
+#5 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(99): Illuminate/Foundation/Application->make()
+#6 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(71): Illuminate/Database/Console/Seeds/SeedCommand->getSeeder()
+#7 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/GuardsAttributes.php(157): Illuminate/Database/Console/Seeds/SeedCommand->Illuminate/Database/Console/Seeds/{closure}()
+#8 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Database/Console/Seeds/SeedCommand.php(70): Illuminate/Database/Eloquent/Model::unguarded()
+#9 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Database/Console/Seeds/SeedCommand->handle()
+#10 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#11 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#12 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#13 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call()
+#14 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call()
+#15 D:/YG SoftX/Xone/support/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute()
+#16 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run()
+#17 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run()
+#18 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand()
+#19 D:/YG SoftX/Xone/support/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun()
+#20 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run()
+#21 D:/YG SoftX/Xone/support/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle()
+#22 D:/YG SoftX/Xone/support/artisan(16): Illuminate/Foundation/Application->handleCommand()
+#23 {main}
+"} 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EcosystemController;
@@ -16,6 +17,25 @@ require __DIR__.'/auth.php';
 Route::get('/test', function() { return 'ok'; });
 Route::get('/', [SearchController::class, 'index'])->name('search.home');
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+
+// ── Agentic Browser routes ──
+Route::get('/browser', [SearchController::class, 'browser'])->name('browser.home');
+Route::get('/browse', [SearchController::class, 'browse'])
+    ->middleware('throttle:120,1')  // Prevent open-proxy abuse
+    ->name('browser.proxy');
+Route::get('/browse/resource', [SearchController::class, 'browseResource'])
+    ->middleware('throttle:300,1')  // Higher limit: images/CSS/JS are numerous
+    ->name('browser.resource');
+
+// ── AI Agent routes ──
+Route::get('/agent/settings', [AgentController::class, 'settings'])->name('agent.settings');
+Route::post('/agent/settings', [AgentController::class, 'saveSettings'])->name('agent.settings.save');
+Route::post('/agent/run', [AgentController::class, 'run'])
+    ->middleware('throttle:30,1')  // 30 agent runs per minute
+    ->name('agent.run');
+Route::get('/agent/status', [AgentController::class, 'status'])
+    ->middleware('throttle:60,1')
+    ->name('agent.status');
 
 // Autocomplete — throttled to prevent scraping
 Route::get('/api/search/suggestions', [SearchController::class, 'suggestions'])
