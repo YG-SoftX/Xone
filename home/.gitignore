@@ -1,10 +1,18 @@
-# Laravel/Vite
+# YGXONE Browser - Git Ignore File
+# Prevents committing runtime files, dependencies, and sensitive data
+
+# ────────────────────────────────────────────────────────────────────
+#  Laravel Framework
+# ────────────────────────────────────────────────────────────────────
+/vendor/
 /node_modules/
-/public/build/
+
+# Compiled files
 /public/hot
 /public/storage
 /storage/*.key
-/vendor
+
+# Environment files (SENSITIVE - contains passwords/API keys)
 .env
 .env.backup
 .env.production
@@ -12,20 +20,94 @@
 Homestead.json
 Homestead.yaml
 auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
 
-# Compiled assets
-*.js.map
-*.css.map
+# IDE files
+/.fleet/
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Logs
+# ────────────────────────────────────────────────────────────────────
+#  Laravel Storage & Cache (Runtime-generated)
+# ────────────────────────────────────────────────────────────────────
+bootstrap/cache/*.php
+!bootstrap/cache/.gitkeep
+
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+
+storage/framework/testing/*
+!storage/framework/testing/.gitkeep
+
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+
+storage/logs/*
+!storage/logs/.gitkeep
+
+storage/app/*
+!storage/app/.gitkeep
+!storage/app/public/.gitkeep
+
+# ────────────────────────────────────────────────────────────────────
+#  Logs & Error Files
+# ────────────────────────────────────────────────────────────────────
 *.log
-storage/logs/*.log
+npm-debug.log
+yarn-error.log
+error_log
+ai/error_log
+ai/portal/error_log
+collect/error_log
+console/error_log
+mail/public/error_log
+master/error_log
+master/public/error_log
+notes/error_log
+
+# ────────────────────────────────────────────────────────────────────
+#  Build Output
+# ────────────────────────────────────────────────────────────────────
+/dist/
+/build/
+/public/build/
+/mix-manifest.json
+/hot
+
+# Compiled assets
+*.js.map
+*.css.map
+
+# ────────────────────────────────────────────────────────────────────
+#  Testing
+# ────────────────────────────────────────────────────────────────────
+/.phpunit.result.cache
+coverage/
+.php_cs.cache
+
+# ────────────────────────────────────────────────────────────────────
+#  Temporary Files
+# ────────────────────────────────────────────────────────────────────
+.ea-php-cli.cache
+*.tmp
+*.temp
+.cache/
+
+# ────────────────────────────────────────────────────────────────────
+#  Payment Module (If sensitive)
+# ────────────────────────────────────────────────────────────────────
+/pay/
+
+# ────────────────────────────────────────────────────────────────────
+#  Support Directory (If contains local configs)
+# ────────────────────────────────────────────────────────────────────
+support/.htaccess
