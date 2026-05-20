@@ -171,6 +171,41 @@ class BrowserSettings extends Page
                             ->default('AI-powered agentic browser — browse anything, automate everything')
                             ->helperText('Description shown in app install dialog'),
                     ])->columns(2),
+
+                Forms\Components\Section::make('Splash Screen')
+                    ->description('Customize the PWA launch splash screen (iOS + Android)')
+                    ->icon('heroicon-o-sparkles')
+                    ->schema([
+                        Forms\Components\Toggle::make('splash_enabled')
+                            ->label('Enable Custom Splash Screen')
+                            ->default(true)
+                            ->helperText('Show a branded splash screen while the PWA loads'),
+
+                        Forms\Components\TextInput::make('splash_title')
+                            ->label('Splash Title')
+                            ->default('YGXONE')
+                            ->helperText('Large heading text on the splash screen'),
+
+                        Forms\Components\TextInput::make('splash_subtitle')
+                            ->label('Splash Subtitle')
+                            ->default('AI-Powered Agentic Browser')
+                            ->helperText('Smaller text below the title'),
+
+                        Forms\Components\TextInput::make('splash_logo_url')
+                            ->label('Splash Logo URL')
+                            ->placeholder('Leave empty for default YG logo')
+                            ->helperText('Absolute URL to a logo image. SVG recommended. Falls back to CSS-rendered logo.'),
+
+                        Forms\Components\ColorPicker::make('splash_bg_color')
+                            ->label('Splash Background')
+                            ->default('#0f172a')
+                            ->helperText('Background color of the splash screen overlay'),
+
+                        Forms\Components\ColorPicker::make('splash_spinner_color')
+                            ->label('Spinner Color')
+                            ->default('#2563eb')
+                            ->helperText('Color of the loading spinner'),
+                    ])->columns(2),
             ])
             ->statePath('data');
     }
@@ -263,6 +298,12 @@ class BrowserSettings extends Page
             'pwa_name'               => 'YGXONE Browser',
             'pwa_short_name'         => 'YGXONE',
             'pwa_description'        => 'AI-powered agentic browser — browse anything, automate everything',
+            'splash_enabled'         => true,
+            'splash_title'           => 'YGXONE',
+            'splash_subtitle'        => 'AI-Powered Agentic Browser',
+            'splash_logo_url'        => '',
+            'splash_bg_color'        => '#0f172a',
+            'splash_spinner_color'   => '#2563eb',
         ];
     }
 }

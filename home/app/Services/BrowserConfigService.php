@@ -115,17 +115,46 @@ class BrowserConfigService
     }
 
     /**
-     * PWA manifest data.
+     * PWA manifest data (for dynamic manifest generation).
      */
     public function pwaManifest(): array
     {
         return [
-            'name'            => $this->get('pwa_name', 'YGXONE Browser'),
-            'short_name'      => $this->get('pwa_short_name', 'YGXONE'),
-            'description'     => $this->get('pwa_description', 'AI-powered agentic browser'),
-            'theme_color'     => $this->get('browser_theme_color', '#2563eb'),
-            'background_color'=> $this->get('browser_bg_color', '#ffffff'),
+            'name'             => $this->get('pwa_name', 'YGXONE Browser'),
+            'short_name'       => $this->get('pwa_short_name', 'YGXONE'),
+            'description'      => $this->get('pwa_description', 'AI-powered agentic browser'),
+            'theme_color'      => $this->get('browser_theme_color', '#2563eb'),
+            'background_color' => $this->get('browser_bg_color', '#ffffff'),
+            'start_url'        => '/browser',
+            'scope'            => '/',
+            'display'          => 'standalone',
+            'orientation'      => 'any',
         ];
+    }
+
+    /**
+     * Splash screen config (fully manageable from master control).
+     */
+    public function splashConfig(): array
+    {
+        return [
+            'enabled'       => $this->bool('splash_enabled', true),
+            'title'         => $this->get('splash_title', 'YGXONE'),
+            'subtitle'      => $this->get('splash_subtitle', 'AI-Powered Agentic Browser'),
+            'logo_url'      => $this->get('splash_logo_url', ''),
+            'bg_color'      => $this->get('splash_bg_color', '#0f172a'),
+            'spinner_color' => $this->get('splash_spinner_color', '#2563eb'),
+        ];
+    }
+
+    /**
+     * Full PWA config merged (manifest + splash).
+     */
+    public function fullPwaConfig(): array
+    {
+        return array_merge($this->pwaManifest(), [
+            'splash' => $this->splashConfig(),
+        ]);
     }
 
     private function defaults(): array
@@ -147,6 +176,12 @@ class BrowserConfigService
             'pwa_name'               => 'YGXONE Browser',
             'pwa_short_name'         => 'YGXONE',
             'pwa_description'        => 'AI-powered agentic browser — browse anything, automate everything',
+            'splash_enabled'         => true,
+            'splash_title'           => 'YGXONE',
+            'splash_subtitle'        => 'AI-Powered Agentic Browser',
+            'splash_logo_url'        => '',
+            'splash_bg_color'        => '#0f172a',
+            'splash_spinner_color'   => '#2563eb',
         ];
     }
 }
