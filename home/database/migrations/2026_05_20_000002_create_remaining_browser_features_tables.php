@@ -58,7 +58,7 @@ return new class extends Migration
             $table->timestamp('expires_at')->index();
             $table->timestamps();
             
-            $table->index(['expires_at']);
+            // Removed duplicate index - expires_at already indexed above
         });
         
         // Developer Tools Session Log

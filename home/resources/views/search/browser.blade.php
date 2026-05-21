@@ -208,7 +208,6 @@
                     <span class="hidden sm:inline">AI</span>
                 </button>
                 @endif
-                @endif
 
                 {{-- Auth --}}
                 @if(auth()->check())

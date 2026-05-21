@@ -30,6 +30,7 @@ if (file_exists($envFile)) {
 }
 
 // ── Helper: read env var with fallback ────────────────────────────────
+// Note: Laravel already provides env() helper, so we skip redeclaration
 if (!function_exists('env')) {
     function env(string $key, $default = null)
     {
