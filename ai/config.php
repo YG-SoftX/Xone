@@ -30,17 +30,19 @@ if (file_exists($envFile)) {
 }
 
 // ── Helper: read env var with fallback ────────────────────────────────
-function env(string $key, $default = null)
-{
-    $val = getenv($key);
-    if ($val === false)
-        return $default;
-    // Handle string booleans from .env
-    if (strtolower($val) === 'true')
-        return true;
-    if (strtolower($val) === 'false')
-        return false;
-    return $val;
+if (!function_exists('env')) {
+    function env(string $key, $default = null)
+    {
+        $val = getenv($key);
+        if ($val === false)
+            return $default;
+        // Handle string booleans from .env
+        if (strtolower($val) === 'true')
+            return true;
+        if (strtolower($val) === 'false')
+            return false;
+        return $val;
+    }
 }
 
 // ── Helper: generate secure random string ─────────────────────────────
