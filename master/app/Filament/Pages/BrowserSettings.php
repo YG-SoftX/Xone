@@ -172,6 +172,46 @@ class BrowserSettings extends Page
                             ->helperText('Description shown in app install dialog'),
                     ])->columns(2),
 
+                Forms\Components\Section::make('Brave Shields')
+                    ->description('Privacy & security protections — ad blocking, tracker blocking, HTTPS upgrades, fingerprinting protection')
+                    ->icon('heroicon-o-shield-check')
+                    ->schema([
+                        Forms\Components\Toggle::make('shields_enabled')
+                            ->label('Enable Shields')
+                            ->default(true)
+                            ->helperText('Master toggle for all Brave-style privacy protections'),
+
+                        Forms\Components\Toggle::make('block_ads')
+                            ->label('Block Ads')
+                            ->default(true)
+                            ->helperText('Block ad networks and hide ad elements on all pages'),
+
+                        Forms\Components\Toggle::make('block_trackers')
+                            ->label('Block Trackers')
+                            ->default(true)
+                            ->helperText('Block analytics, pixel trackers, and social trackers'),
+
+                        Forms\Components\Toggle::make('https_upgrade')
+                            ->label('HTTPS Upgrades')
+                            ->default(true)
+                            ->helperText('Auto-upgrade http:// links to HTTPS when available'),
+
+                        Forms\Components\Toggle::make('block_fingerprinting')
+                            ->label('Fingerprinting Protection')
+                            ->default(true)
+                            ->helperText('Spoof browser headers, remove tracking URL params (UTM, fbclid, gclid)'),
+
+                        Forms\Components\Toggle::make('block_scripts')
+                            ->label('Block Scripts')
+                            ->default(false)
+                            ->helperText('Strip all JavaScript except essential functionality (advanced)'),
+
+                        Forms\Components\Toggle::make('speed_reader')
+                            ->label('Speed Reader')
+                            ->default(false)
+                            ->helperText('Strip CSS/JS/images — show plain readable text only (distraction-free mode)'),
+                    ])->columns(2),
+
                 Forms\Components\Section::make('Splash Screen')
                     ->description('Customize the PWA launch splash screen (iOS + Android)')
                     ->icon('heroicon-o-sparkles')
@@ -205,6 +245,11 @@ class BrowserSettings extends Page
                             ->label('Spinner Color')
                             ->default('#2563eb')
                             ->helperText('Color of the loading spinner'),
+
+                        Forms\Components\TextInput::make('splash_launch_image_url')
+                            ->label('iOS Launch Image URL')
+                            ->placeholder('Leave empty to auto-generate')
+                            ->helperText('Upload an iOS launch screen PNG (1242×2688 recommended). Auto-generates if empty.'),
                     ])->columns(2),
             ])
             ->statePath('data');
@@ -304,6 +349,14 @@ class BrowserSettings extends Page
             'splash_logo_url'        => '',
             'splash_bg_color'        => '#0f172a',
             'splash_spinner_color'   => '#2563eb',
+            'splash_launch_image_url' => '',
+            'shields_enabled'         => true,
+            'block_ads'               => true,
+            'block_trackers'          => true,
+            'https_upgrade'           => true,
+            'block_fingerprinting'    => true,
+            'block_scripts'           => false,
+            'speed_reader'            => false,
         ];
     }
 }

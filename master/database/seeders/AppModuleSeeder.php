@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 /**
  * AppModuleSeeder
  * 
- * Registers all 13 YG ecosystem services in the master control panel.
+ * Registers all 20 YG ecosystem services in the master control panel.
  */
 class AppModuleSeeder extends Seeder
 {
@@ -19,10 +19,26 @@ class AppModuleSeeder extends Seeder
     {
         $services = [
             [
+                'name' => 'YG Xone',
+                'slug' => 'yg-xone',
+                'base_url' => 'https://ygxone.com',
+                'icon' => 'heroicon-o-globe-alt',
+                'is_active' => true,
+                'is_core' => true,
+            ],
+            [
                 'name' => 'YG Account',
                 'slug' => 'yg-account',
                 'base_url' => 'https://account.ygxone.com',
                 'icon' => 'heroicon-o-users',
+                'is_active' => true,
+                'is_core' => true,
+            ],
+            [
+                'name' => 'YG Master',
+                'slug' => 'yg-master',
+                'base_url' => 'https://master.ygxone.com',
+                'icon' => 'heroicon-o-shield-check',
                 'is_active' => true,
                 'is_core' => true,
             ],
@@ -51,44 +67,20 @@ class AppModuleSeeder extends Seeder
                 'is_core' => true,
             ],
             [
+                'name' => 'YG Developer',
+                'slug' => 'yg-developer',
+                'base_url' => 'https://developer.ygxone.com',
+                'icon' => 'heroicon-o-code-bracket',
+                'is_active' => true,
+                'is_core' => true,
+            ],
+            [
                 'name' => 'YG Chat',
                 'slug' => 'yg-chat',
                 'base_url' => 'https://chat.ygxone.com',
                 'icon' => 'heroicon-o-chat-bubble-left-right',
                 'is_active' => true,
                 'is_core' => true,
-            ],
-            [
-                'name' => 'YG Pay',
-                'slug' => 'yg-pay',
-                'base_url' => 'https://pay.ygxone.com',
-                'icon' => 'heroicon-o-credit-card',
-                'is_active' => true,
-                'is_core' => true,
-            ],
-            [
-                'name' => 'YG Meet',
-                'slug' => 'yg-meet',
-                'base_url' => 'https://meet.ygxone.com',
-                'icon' => 'heroicon-o-video-camera',
-                'is_active' => true,
-                'is_core' => true,
-            ],
-            [
-                'name' => 'YG Notes',
-                'slug' => 'yg-notes',
-                'base_url' => 'https://notes.ygxone.com',
-                'icon' => 'heroicon-o-book-open',
-                'is_active' => true,
-                'is_core' => false,
-            ],
-            [
-                'name' => 'YG Xcel',
-                'slug' => 'yg-xcel',
-                'base_url' => 'https://xcel.ygxone.com',
-                'icon' => 'heroicon-o-table-cells',
-                'is_active' => true,
-                'is_core' => false,
             ],
             [
                 'name' => 'YG Calendar',
@@ -107,6 +99,30 @@ class AppModuleSeeder extends Seeder
                 'is_core' => false,
             ],
             [
+                'name' => 'YG Notes',
+                'slug' => 'yg-notes',
+                'base_url' => 'https://notes.ygxone.com',
+                'icon' => 'heroicon-o-book-open',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Meet',
+                'slug' => 'yg-meet',
+                'base_url' => 'https://meet.ygxone.com',
+                'icon' => 'heroicon-o-video-camera',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Pay',
+                'slug' => 'yg-pay',
+                'base_url' => 'https://pay.ygxone.com',
+                'icon' => 'heroicon-o-credit-card',
+                'is_active' => true,
+                'is_core' => true,
+            ],
+            [
                 'name' => 'YG AI',
                 'slug' => 'yg-ai',
                 'base_url' => 'https://ai.ygxone.com',
@@ -115,12 +131,52 @@ class AppModuleSeeder extends Seeder
                 'is_core' => false,
             ],
             [
-                'name' => 'YG Master',
-                'slug' => 'yg-master',
-                'base_url' => 'https://master.ygxone.com',
-                'icon' => 'heroicon-o-shield-check',
+                'name' => 'YG Xcel',
+                'slug' => 'yg-xcel',
+                'base_url' => 'https://xcel.ygxone.com',
+                'icon' => 'heroicon-o-table-cells',
                 'is_active' => true,
-                'is_core' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG AppStore',
+                'slug' => 'yg-appstore',
+                'base_url' => 'https://appstore.ygxone.com',
+                'icon' => 'heroicon-o-shopping-bag',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Collect',
+                'slug' => 'yg-collect',
+                'base_url' => 'https://collect.ygxone.com',
+                'icon' => 'heroicon-o-clipboard-document-list',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Console',
+                'slug' => 'yg-console',
+                'base_url' => 'https://console.ygxone.com',
+                'icon' => 'heroicon-o-command-line',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Home',
+                'slug' => 'yg-home',
+                'base_url' => 'https://home.ygxone.com',
+                'icon' => 'heroicon-o-home',
+                'is_active' => true,
+                'is_core' => false,
+            ],
+            [
+                'name' => 'YG Support',
+                'slug' => 'yg-support',
+                'base_url' => 'https://support.ygxone.com',
+                'icon' => 'heroicon-o-lifebuoy',
+                'is_active' => true,
+                'is_core' => false,
             ],
         ];
 
@@ -131,6 +187,6 @@ class AppModuleSeeder extends Seeder
             );
         }
 
-        $this->command->info("13 YG ecosystem services registered successfully!");
+        $this->command->info("20 YG ecosystem services registered successfully!");
     }
 }

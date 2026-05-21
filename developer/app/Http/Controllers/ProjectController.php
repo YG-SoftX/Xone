@@ -37,24 +37,37 @@ class ProjectController extends Controller
             return back()->withInput()->withErrors(['api' => $result['error']]);
         }
 
-        return redirect()->route('projects.show', $result['id'] ?? $result['data']['id'])
+        $projectId = $result['project']['id'] ?? $result['id'] ?? $result['data']['id'] ?? null;
+
+        return redirect()->route('projects.show', $projectId)
             ->with('success', 'Project created successfully.');
     }
 
     public function show(int $id): View
     {
-        $project     = $this->api->get("developer-console/projects/{$id}");
-        $credentials = $this->api->get("developer-console/projects/{$id}/credentials");
-        $quotas      = $this->api->get("developer-console/projects/{$id}/quotas");
-        $team        = $this->api->get("developer-console/projects/{$id}/team");
-        $webhooks    = $this->api->get("developer-console/projects/{$id}/webhooks");
+        $response = $this->api->get("developer-console/projects/{$id}");
+        
+        $project     = $response['project'] ?? $response;
+        $credentials = $project['credentials'] ?? [];
+        $quotas      = $project['quotas'] ?? [];
+        $team        = $project['members'] ?? [];
+        
+        $webhooksResponse = $this->api->get("developer-console/projects/{$id}/webhooks");
+        $webhooks = $webhooksResponse['data'] ?? $webhooksResponse;
 
-        return view('projects.show', compact('project', 'credentials', 'quotas', 'team', 'webhooks'));
+        return view('projects.show', [
+            'project'     => $project,
+            'credentials' => $credentials,
+            'quotas'      => $quotas,
+            'team'        => $team,
+            'webhooks'    => $webhooks,
+        ]);
     }
 
     public function edit(int $id): View
     {
-        $project = $this->api->get("developer-console/projects/{$id}");
+        $response = $this->api->get("developer-console/projects/{$id}");
+        $project  = $response['project'] ?? $response;
         return view('projects.edit', compact('project'));
     }
 

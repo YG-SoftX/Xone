@@ -13,7 +13,9 @@ class QuotaController extends Controller
 
     public function index(int $projectId): View
     {
-        $project = $this->api->get("developer-console/projects/{$projectId}");
+        $projectResponse = $this->api->get("developer-console/projects/{$projectId}");
+        $project         = $projectResponse['project'] ?? $projectResponse;
+        
         $quotas  = $this->api->get("developer-console/projects/{$projectId}/quotas");
         $alerts  = $this->api->get("developer-console/projects/{$projectId}/quotas/alerts");
         $usage   = $this->api->get("developer-console/projects/{$projectId}/quotas/usage");

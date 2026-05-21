@@ -2,4 +2,5 @@
 /storage/framework/sessions/*
 /storage/framework/cache/*
 .env
-node_modules/
+node_modules/nul 
+nul 

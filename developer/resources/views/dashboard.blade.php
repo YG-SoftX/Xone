@@ -11,7 +11,7 @@
         <h2 class="text-xl font-bold mb-1">Welcome back, {{ $user->name }}</h2>
         <p class="text-sm" style="color:#9b8e90">Manage your projects, credentials, and API usage from the YGXone developer console.</p>
     </div>
-    <a href="{{ $accountUrl }}/developer-console/projects/create" target="_blank"
+    <a href="{{ route('projects.create') }}"
        class="flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
        style="background:#ff003c;color:#fff">
         + New Project
@@ -44,8 +44,8 @@
 <div class="rounded-2xl overflow-hidden mb-8" style="border:1px solid rgba(255,255,255,0.06)">
     <div class="flex items-center justify-between px-6 py-4" style="background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06)">
         <h3 class="font-semibold text-sm">Recent Projects</h3>
-        <a href="{{ $accountUrl }}/developer-console/projects" target="_blank"
-           class="text-xs hover:underline" style="color:#9b8e90">View all ↗</a>
+        <a href="{{ route('projects.index') }}"
+           class="text-xs hover:underline" style="color:#9b8e90">View all</a>
     </div>
 
     @if(count($projects) > 0)
@@ -55,7 +55,7 @@
                     <div>
                         <div class="text-sm font-medium">{{ $project['name'] }}</div>
                         <div class="text-xs mt-0.5" style="color:#9b8e90">
-                            ID: {{ $project['id'] }} · Created {{ \Carbon\Carbon::parse($project['created_at'])->diffForHumans() }}
+                            ID: {{ $project['project_id'] ?? $project['id'] }} · Created {{ \Carbon\Carbon::parse($project['created_at'])->diffForHumans() }}
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -63,8 +63,8 @@
                               style="{{ $project['is_active'] ? 'background:rgba(16,185,129,0.15);color:#10b981' : 'background:rgba(156,163,175,0.1);color:#6b7280' }}">
                             {{ $project['is_active'] ? 'Active' : 'Inactive' }}
                         </span>
-                        <a href="{{ $accountUrl }}/developer-console/projects/{{ $project['id'] }}" target="_blank"
-                           class="text-xs hover:underline" style="color:#ff003c">Open ↗</a>
+                        <a href="{{ route('projects.show', $project['id']) }}"
+                           class="text-xs hover:underline" style="color:#ff003c">Open</a>
                     </div>
                 </div>
             @endforeach
@@ -73,7 +73,7 @@
         <div class="px-6 py-10 text-center">
             <div class="text-3xl mb-3">📁</div>
             <p class="text-sm mb-4" style="color:#9b8e90">No projects yet. Create your first project to get started.</p>
-            <a href="{{ $accountUrl }}/developer-console/projects/create" target="_blank"
+            <a href="{{ route('projects.create') }}"
                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
                style="background:rgba(255,0,60,0.15);color:#ff003c;border:1px solid rgba(255,0,60,0.2)">
                 + Create Project
@@ -85,12 +85,12 @@
 {{-- ── Quick links ─────────────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     @foreach([
-        ['📊','Analytics','View API usage analytics','analytics'],
-        ['🔑','Credentials','Manage API keys & OAuth clients','credentials'],
-        ['🔔','Webhooks','Configure event webhooks','webhooks'],
-        ['👥','Team','Manage project members','team'],
-    ] as [$icon,$title,$desc,$path])
-    <a href="{{ $accountUrl }}/developer-console/{{ $path }}" target="_blank"
+        ['📊','Analytics','View API usage analytics','projects.index'],
+        ['🔑','Credentials','Manage API keys & OAuth clients','projects.index'],
+        ['🔔','Webhooks','Configure event webhooks','projects.index'],
+        ['👥','Team','Manage project members','projects.index'],
+    ] as [$icon,$title,$desc,$routeName])
+    <a href="{{ route($routeName) }}"
        class="rounded-2xl p-5 hover:bg-white/5 transition-colors"
        style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)">
         <div class="text-2xl mb-3">{{ $icon }}</div>

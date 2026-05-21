@@ -157,6 +157,76 @@ return [
             'order'  => 13,
         ],
 
+        'yg-ai' => [
+            'name'   => 'YG AI',
+            'path'   => env('ECOSYSTEM_PATH_AI',        $root . '/ai'),
+            'type'   => 'laravel',
+            'url'    => env('YG_AI_URL',                'https://ai.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '🤖',
+            'order'  => 14,
+        ],
+
+        'yg-xcel' => [
+            'name'   => 'YG Xcel',
+            'path'   => env('ECOSYSTEM_PATH_XCEL',      $root . '/xcel'),
+            'type'   => 'laravel',
+            'url'    => env('YG_XCEL_URL',              'https://xcel.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '📊',
+            'order'  => 15,
+        ],
+
+        'yg-appstore' => [
+            'name'   => 'YG AppStore',
+            'path'   => env('ECOSYSTEM_PATH_APPSTORE',  $root . '/appstore'),
+            'type'   => 'laravel',
+            'url'    => env('YG_APPSTORE_URL',          'https://appstore.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '🏪',
+            'order'  => 16,
+        ],
+
+        'yg-collect' => [
+            'name'   => 'YG Collect',
+            'path'   => env('ECOSYSTEM_PATH_COLLECT',   $root . '/collect'),
+            'type'   => 'laravel',
+            'url'    => env('YG_COLLECT_URL',           'https://collect.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '📋',
+            'order'  => 17,
+        ],
+
+        'yg-console' => [
+            'name'   => 'YG Console',
+            'path'   => env('ECOSYSTEM_PATH_CONSOLE',   $root . '/console'),
+            'type'   => 'laravel',
+            'url'    => env('YG_CONSOLE_URL',           'https://console.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '🎮',
+            'order'  => 18,
+        ],
+
+        'yg-home' => [
+            'name'   => 'YG Home',
+            'path'   => env('ECOSYSTEM_PATH_HOME',      $root . '/home'),
+            'type'   => 'laravel',
+            'url'    => env('YG_HOME_URL',              'https://home.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '🏠',
+            'order'  => 19,
+        ],
+
+        'yg-support' => [
+            'name'   => 'YG Support',
+            'path'   => env('ECOSYSTEM_PATH_SUPPORT',   $root . '/support'),
+            'type'   => 'laravel',
+            'url'    => env('YG_SUPPORT_URL',           'https://support.ygxone.com'),
+            'health' => '/up',
+            'icon'   => '🛟',
+            'order'  => 20,
+        ],
+
     ],
 
 ];

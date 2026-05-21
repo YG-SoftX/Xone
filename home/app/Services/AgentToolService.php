@@ -49,6 +49,23 @@ class AgentToolService
     /** Whether DOM parsing succeeded */
     private bool $domAvailable = false;
 
+    // ── Page Cache (URL-keyed, per-session) ───────────────────────────────────
+
+    /** URL-keyed page cache: url => { html, meta, tables, links, products, prices, dom, xpath, timestamp } */
+    private array $pageCache = [];
+
+    /** Max number of cached pages (LRU eviction) */
+    private int $maxCacheEntries = 5;
+
+    /** Cache TTL in seconds (30 min) */
+    private int $cacheTtl = 1800;
+
+    /** Cache hits counter for the current session */
+    private int $cacheHits = 0;
+
+    /** Cache misses counter */
+    private int $cacheMisses = 0;
+
     public function __construct()
     {
         $this->proxy = app(BrowserProxyService::class);
@@ -200,6 +217,7 @@ TOOLS;
 
     /**
      * Navigate to a URL and capture page content.
+     * Uses URL-keyed cache to avoid re-fetching recently visited pages.
      */
     public function navigate(string $url): array
     {
@@ -207,6 +225,27 @@ TOOLS;
             return ['success' => false, 'error' => 'No URL provided.'];
         }
 
+        // Check cache first
+        $cacheKey = $this->normalizeCacheKey($url);
+        $cached = $this->getFromCache($cacheKey);
+
+        if ($cached !== null) {
+            // Restore from cache — no fetch needed
+            $this->restoreFromCache($cached);
+            $this->cacheHits++;
+
+            return [
+                'success' => true,
+                'url'     => $this->currentPageUrl,
+                'title'   => $this->pageMeta['title'],
+                'summary' => $this->pageMeta['summary'],
+                'links'   => $this->pageMeta['top_links'],
+                'forms'   => $this->pageMeta['forms'],
+                'cached'  => true,
+            ];
+        }
+
+        $this->cacheMisses++;
         $result = $this->proxy->fetch($url);
 
         if ($result['statusCode'] >= 400) {
@@ -224,6 +263,9 @@ TOOLS;
         $this->initDom();
         $this->pageMeta         = $this->extractPageMetaDom($result['content'], $result['title']);
 
+        // Eagerly populate cache with all extracted data
+        $this->storeInCache($result['url'], $result['content'], $result['title']);
+
         return [
             'success' => true,
             'url'     => $this->currentPageUrl,
@@ -231,6 +273,7 @@ TOOLS;
             'summary' => $this->pageMeta['summary'],
             'links'   => $this->pageMeta['top_links'],
             'forms'   => $this->pageMeta['forms'],
+            'cached'  => false,
         ];
     }
 
@@ -343,7 +386,7 @@ TOOLS;
 
     /**
      * Extract ALL structured data from the page as JSON.
-     * Includes: meta, headings, links, forms, tables, lists, products, prices.
+     * Uses cache for tables/links/products/prices when available.
      */
     public function extractStructured(): array
     {
@@ -351,26 +394,41 @@ TOOLS;
             return ['success' => false, 'error' => 'No page loaded. Use navigate first.'];
         }
 
-        $this->initDom();
+        $cacheKey = $this->normalizeCacheKey($this->currentPageUrl);
+        $cached = $this->pageCache[$cacheKey] ?? null;
 
         return [
             'success'   => true,
             'url'       => $this->currentPageUrl,
             'meta'      => $this->pageMeta,
-            'tables'    => $this->extractTables()['tables'] ?? [],
-            'links'     => $this->extractAllLinksDom(),
-            'products'  => $this->detectProducts(),
-            'prices'    => $this->detectPrices(),
+            'tables'    => $cached['tables'] ?? $this->extractTables()['tables'] ?? [],
+            'links'     => $cached['links'] ?? $this->extractAllLinksDom(),
+            'products'  => $cached['products'] ?? $this->detectProducts(),
+            'prices'    => $cached['prices'] ?? $this->detectPrices(),
+            'from_cache'=> $cached !== null,
         ];
     }
 
     /**
      * Extract ALL tables from the current page as JSON.
+     * Uses cache when available.
      */
     public function extractTables(): array
     {
         if (empty($this->currentPageHtml)) {
             return ['success' => false, 'error' => 'No page loaded. Use navigate first.'];
+        }
+
+        // Check cache first
+        $cacheKey = $this->normalizeCacheKey($this->currentPageUrl);
+        $cached = $this->pageCache[$cacheKey] ?? null;
+        if ($cached !== null && isset($cached['tables'])) {
+            return [
+                'success'   => true,
+                'count'     => count($cached['tables']),
+                'tables'    => $cached['tables'],
+                'from_cache'=> true,
+            ];
         }
 
         $this->initDom();
@@ -400,6 +458,7 @@ TOOLS;
 
     /**
      * Extract all links from the page, optionally filtered.
+     * Uses cache when no filter is applied.
      */
     public function extractLinks(string $filter = ''): array
     {
@@ -407,7 +466,12 @@ TOOLS;
             return ['success' => false, 'error' => 'No page loaded. Use navigate first.'];
         }
 
-        $links = $this->extractAllLinksDom();
+        // Use cache if no filter (cache stores all links)
+        $cacheKey = $this->normalizeCacheKey($this->currentPageUrl);
+        $cached = $this->pageCache[$cacheKey] ?? null;
+        $links = empty($filter) && $cached !== null
+            ? ($cached['links'] ?? $this->extractAllLinksDom())
+            : $this->extractAllLinksDom();
 
         if (!empty($filter)) {
             $filterLower = strtolower($filter);
@@ -1057,6 +1121,271 @@ TOOLS;
         }
 
         return array_slice(array_unique($prices), 0, 20);
+    }
+
+    // ── Disk-Based Page Cache ──────────────────────────────────────────────────
+
+    /** Disk cache directory */
+    private string $diskCacheDir;
+
+    /** Max disk cache entries */
+    private int $maxDiskCacheEntries = 50;
+
+    /** Disk cache TTL in seconds (10 min) */
+    private int $diskCacheTtl = 600;
+
+    /** Initialize disk cache directory */
+    private function initDiskCache(): void
+    {
+        $this->diskCacheDir = storage_path('app/agent-cache/pages');
+        if (!is_dir($this->diskCacheDir)) {
+            mkdir($this->diskCacheDir, 0755, true);
+        }
+    }
+
+    /**
+     * Store page data to disk cache (persists beyond session).
+     */
+    private function storeToDiskCache(string $url, array $data): void
+    {
+        $this->initDiskCache();
+        $key = $this->normalizeCacheKey($url);
+        $file = $this->diskCacheDir . '/' . md5($key) . '.json';
+
+        $entry = [
+            'url'       => $data['url'] ?? $url,
+            'html'      => $data['html'] ?? '',
+            'title'     => $data['title'] ?? null,
+            'meta'      => $data['meta'] ?? [],
+            'tables'    => $data['tables'] ?? [],
+            'links'     => $data['links'] ?? [],
+            'products'  => $data['products'] ?? [],
+            'prices'    => $data['prices'] ?? [],
+            'timestamp' => time(),
+        ];
+
+        file_put_contents($file, json_encode($entry, JSON_UNESCAPED_SLASHES), LOCK_EX);
+
+        // Evict old entries if over limit
+        $this->evictDiskCache();
+    }
+
+    /**
+     * Get page data from disk cache.
+     */
+    private function getFromDiskCache(string $url): ?array
+    {
+        $this->initDiskCache();
+        $key = $this->normalizeCacheKey($url);
+        $file = $this->diskCacheDir . '/' . md5($key) . '.json';
+
+        if (!file_exists($file)) {
+            return null;
+        }
+
+        // Check TTL
+        if ((time() - filemtime($file)) > $this->diskCacheTtl) {
+            @unlink($file);
+            return null;
+        }
+
+        $data = json_decode(file_get_contents($file), true);
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Evict oldest disk cache entries when over limit.
+     */
+    private function evictDiskCache(): void
+    {
+        $files = glob($this->diskCacheDir . '/*.json');
+        if (count($files) <= $this->maxDiskCacheEntries) {
+            return;
+        }
+
+        // Sort by modification time (oldest first)
+        usort($files, fn($a, $b) => filemtime($a) - filemtime($b));
+
+        // Delete oldest entries
+        $toDelete = array_slice($files, 0, count($files) - $this->maxDiskCacheEntries);
+        foreach ($toDelete as $f) {
+            @unlink($f);
+        }
+    }
+
+    /**
+     * Clear all disk cache entries.
+     */
+    public function clearDiskCache(): void
+    {
+        $this->initDiskCache();
+        foreach (glob($this->diskCacheDir . '/*.json') as $f) {
+            @unlink($f);
+        }
+    }
+
+    /**
+     * Get disk cache statistics.
+     */
+    public function getDiskCacheStats(): array
+    {
+        $this->initDiskCache();
+        $files = glob($this->diskCacheDir . '/*.json') ?: [];
+        $totalSize = 0;
+        $oldest = null;
+        $newest = null;
+
+        foreach ($files as $f) {
+            $totalSize += filesize($f);
+            $mtime = filemtime($f);
+            if ($oldest === null || $mtime < $oldest) $oldest = $mtime;
+            if ($newest === null || $mtime > $newest) $newest = $mtime;
+        }
+
+        return [
+            'entries' => count($files),
+            'total_size_bytes' => $totalSize,
+            'total_size_mb' => round($totalSize / 1048576, 2),
+            'oldest_entry' => $oldest ? date('Y-m-d H:i:s', $oldest) : null,
+            'newest_entry' => $newest ? date('Y-m-d H:i:s', $newest) : null,
+            'cache_dir' => $this->diskCacheDir,
+        ];
+    }
+
+    // ── In-Memory Page Cache (LRU) ────────────────────────────────────────────
+
+    /**
+     * Normalize a URL for cache key purposes.
+     * Strips fragments, trailing slashes, and www prefix for dedup.
+     */
+    private function normalizeCacheKey(string $url): string
+    {
+        $parsed = parse_url($url);
+        $host = strtolower($parsed['host'] ?? '');
+        if (str_starts_with($host, 'www.')) {
+            $host = substr($host, 4);
+        }
+        $path = rtrim($parsed['path'] ?? '/', '/');
+        $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+        return ($parsed['scheme'] ?? 'https') . '://' . $host . $path . $query;
+    }
+
+    /**
+     * Store page data in the in-memory cache.
+     */
+    private function storeInCache(string $url, string $html, ?string $title = null): void
+    {
+        $key = $this->normalizeCacheKey($url);
+
+        if (count($this->pageCache) >= $this->maxCacheEntries) {
+            $oldestKey = null;
+            $oldestTime = PHP_INT_MAX;
+            foreach ($this->pageCache as $k => $entry) {
+                if ($entry['timestamp'] < $oldestTime) {
+                    $oldestTime = $entry['timestamp'];
+                    $oldestKey = $k;
+                }
+            }
+            if ($oldestKey !== null) {
+                unset($this->pageCache[$oldestKey]);
+            }
+        }
+
+        $meta = $this->extractPageMetaDom($html, $title);
+        $tables = $this->extractTables()['tables'] ?? [];
+        $links = $this->extractAllLinksDom();
+        $products = $this->detectProducts();
+        $prices = $this->detectPrices();
+
+        $this->pageCache[$key] = [
+            'url'       => $url,
+            'html'      => $html,
+            'title'     => $title,
+            'meta'      => $meta,
+            'tables'    => $tables,
+            'links'     => $links,
+            'products'  => $products,
+            'prices'    => $prices,
+            'timestamp' => time(),
+        ];
+
+        // Also persist to disk cache
+        $this->storeToDiskCache($url, [
+            'url' => $url, 'html' => $html, 'title' => $title,
+            'meta' => $meta, 'tables' => $tables, 'links' => $links,
+            'products' => $products, 'prices' => $prices,
+        ]);
+    }
+
+    /**
+     * Get from in-memory cache first, then disk cache fallback.
+     */
+    private function getFromCache(string $cacheKey): ?array
+    {
+        if (isset($this->pageCache[$cacheKey])) {
+            $entry = $this->pageCache[$cacheKey];
+            if ((time() - $entry['timestamp']) > $this->cacheTtl) {
+                unset($this->pageCache[$cacheKey]);
+                return null;
+            }
+            $this->pageCache[$cacheKey]['timestamp'] = time();
+            return $entry;
+        }
+
+        // Fallback to disk cache (deserialize without re-fetching)
+        $diskData = $this->getFromDiskCache($cacheKey);
+        if ($diskData !== null) {
+            // Promote to in-memory cache
+            $this->pageCache[$cacheKey] = $diskData;
+            $this->pageCache[$cacheKey]['timestamp'] = time();
+            return $this->pageCache[$cacheKey];
+        }
+
+        return null;
+    }
+
+    /**
+     * Restore agent state from a cached entry.
+     */
+    private function restoreFromCache(array $cached): void
+    {
+        $this->currentPageHtml  = $cached['html'];
+        $this->currentPageUrl   = $cached['url'];
+        $this->pageMeta         = $cached['meta'];
+        $this->dom = null;
+        $this->xpath = null;
+        $this->domAvailable = false;
+        $this->initDom();
+    }
+
+    /**
+     * Get cache statistics (in-memory + disk).
+     */
+    public function getCacheStats(): array
+    {
+        $diskStats = $this->getDiskCacheStats();
+        return [
+            'memory' => [
+                'entries' => count($this->pageCache),
+                'hits'    => $this->cacheHits,
+                'misses'  => $this->cacheMisses,
+                'ratio'   => ($this->cacheHits + $this->cacheMisses) > 0
+                    ? round(($this->cacheHits / ($this->cacheHits + $this->cacheMisses)) * 100, 1)
+                    : 0,
+            ],
+            'disk' => $diskStats,
+        ];
+    }
+
+    /**
+     * Clear both in-memory and disk cache.
+     */
+    public function clearCache(): void
+    {
+        $this->pageCache = [];
+        $this->cacheHits = 0;
+        $this->cacheMisses = 0;
+        $this->clearDiskCache();
     }
 
     // ── Helpers Shared with Old Code ──────────────────────────────────────────

@@ -9,17 +9,28 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EcosystemController;
 use App\Http\Controllers\SSOController;
+use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\LaunchImageController;
 
 // Include authentication routes
 require __DIR__.'/auth.php';
 
 // Main search routes (Public)
 Route::get('/test', function() { return 'ok'; });
-Route::get('/', [SearchController::class, 'index'])->name('search.home');
-Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
-// ── Agentic Browser routes ──
-Route::get('/browser', [SearchController::class, 'browser'])->name('browser.home');
+// ── Agentic Browser as Homepage ──
+Route::get('/', [SearchController::class, 'browser'])->name('browser.home');
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/search-home', [SearchController::class, 'index'])->name('search.home');
+
+// ── Dynamic PWA Manifest (reads from Master Panel Browser Settings) ──
+Route::get('/site.webmanifest', [ManifestController::class, 'index'])->name('pwa.manifest');
+
+// ── iOS PWA Launch Image Generator ──
+Route::get('/icons/launch-{size}.png', [LaunchImageController::class, 'serve'])->name('pwa.launch_image');
+Route::get('/icons/launch-generate-all', [LaunchImageController::class, 'generateAll'])->name('pwa.launch_generate');
+
+// ── Agentic Browser proxy routes ──
 Route::get('/browse', [SearchController::class, 'browse'])
     ->middleware('throttle:120,1')  // Prevent open-proxy abuse
     ->name('browser.proxy');

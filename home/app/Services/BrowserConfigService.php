@@ -125,7 +125,7 @@ class BrowserConfigService
             'description'      => $this->get('pwa_description', 'AI-powered agentic browser'),
             'theme_color'      => $this->get('browser_theme_color', '#2563eb'),
             'background_color' => $this->get('browser_bg_color', '#ffffff'),
-            'start_url'        => '/browser',
+            'start_url'        => '/',
             'scope'            => '/',
             'display'          => 'standalone',
             'orientation'      => 'any',
@@ -157,6 +157,22 @@ class BrowserConfigService
         ]);
     }
 
+    /**
+     * Brave-style Shields configuration from master admin.
+     */
+    public function shieldsConfig(): array
+    {
+        return [
+            'enabled'             => $this->bool('shields_enabled', true),
+            'block_ads'           => $this->bool('block_ads', true),
+            'block_trackers'      => $this->bool('block_trackers', true),
+            'https_upgrade'       => $this->bool('https_upgrade', true),
+            'block_fingerprinting'=> $this->bool('block_fingerprinting', true),
+            'block_scripts'       => $this->bool('block_scripts', false),
+            'speed_reader'        => $this->bool('speed_reader', false),
+        ];
+    }
+
     private function defaults(): array
     {
         return [
@@ -182,6 +198,13 @@ class BrowserConfigService
             'splash_logo_url'        => '',
             'splash_bg_color'        => '#0f172a',
             'splash_spinner_color'   => '#2563eb',
+            'shields_enabled'        => true,
+            'block_ads'              => true,
+            'block_trackers'         => true,
+            'https_upgrade'          => true,
+            'block_fingerprinting'   => true,
+            'block_scripts'          => false,
+            'speed_reader'           => false,
         ];
     }
 }

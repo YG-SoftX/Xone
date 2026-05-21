@@ -44,7 +44,7 @@ class SSOController extends Controller
 
         if (! $token) {
             Log::warning('SSO callback received without a token.');
-            return redirect()->route('search.home')
+            return redirect()->route('browser.home')
                 ->with('error', 'Login failed: no token received. Please try again.');
         }
 
@@ -73,7 +73,7 @@ class SSOController extends Controller
 
                 Log::info('SSO login successful', ['user_id' => $user['id'] ?? null]);
 
-                return redirect()->route('search.home')
+                return redirect()->route('browser.home')
                     ->with('sso_success', 'Welcome back, ' . ($user['name'] ?? 'User') . '!');
             }
 
@@ -82,13 +82,13 @@ class SSOController extends Controller
                 'response' => $response->body(),
             ]);
 
-            return redirect()->route('search.home')
+            return redirect()->route('browser.home')
                 ->with('error', 'Login failed: invalid or expired token. Please try again.');
 
         } catch (\Exception $e) {
             Log::error('SSO callback exception', ['message' => $e->getMessage()]);
 
-            return redirect()->route('search.home')
+            return redirect()->route('browser.home')
                 ->with('error', 'Login failed: could not reach account service. Please try again.');
         }
     }

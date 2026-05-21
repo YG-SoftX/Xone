@@ -21,7 +21,7 @@ class SsoController extends Controller
 
         return redirect($accountUrl . '/sso/initiate?' . http_build_query([
             'callback' => $callbackUrl,
-            'service'  => 'yg-developer',
+            'service'  => 'developer',
         ]));
     }
 
@@ -48,17 +48,22 @@ class SsoController extends Controller
                 ->withErrors(['sso' => 'Unable to reach YG Account. Please try again.']);
         }
 
-        if (! $response->ok() || ! $response->json('valid')) {
+        if (! $response->ok()) {
             return redirect()->route('login')
                 ->withErrors(['sso' => 'SSO token is invalid or has expired.']);
         }
 
-        $ygUser = $response->json('user');
+        $ygUser = $response->json();
+
+        if (empty($ygUser) || isset($ygUser['error']) || ! isset($ygUser['id'])) {
+            return redirect()->route('login')
+                ->withErrors(['sso' => 'SSO token validation failed.']);
+        }
 
         $user = User::updateOrCreate(
             ['yg_account_id' => $ygUser['id']],
             [
-                'name'      => $ygUser['name'],
+                'name'      => $ygUser['name'] ?? 'User',
                 'email'     => $ygUser['email'],
                 'api_token' => $token,
                 // No local password — authentication is entirely via YG Account SSO

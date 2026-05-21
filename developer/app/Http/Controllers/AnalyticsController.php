@@ -14,7 +14,9 @@ class AnalyticsController extends Controller
     public function index(Request $request, int $projectId): View
     {
         $period  = $request->get('period', '30d');
-        $project = $this->api->get("developer-console/projects/{$projectId}");
+        
+        $projectResponse = $this->api->get("developer-console/projects/{$projectId}");
+        $project         = $projectResponse['project'] ?? $projectResponse;
 
         $overview    = $this->api->get("developer-console/projects/{$projectId}/analytics", ['period' => $period]);
         $errors      = $this->api->get("developer-console/projects/{$projectId}/analytics/errors", ['period' => $period]);

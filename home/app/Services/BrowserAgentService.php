@@ -10,17 +10,16 @@ use Illuminate\Support\Facades\Session;
  * BrowserAgentService — AI agent loop for autonomous web browsing.
  *
  * Architecture (cPanel-friendly, PHP-only):
- *   User Task → LLM (Plan) → Parse Response → Execute Tool → Feed Result → LLM → ... → Final Response
+ *   User Task → AgentLLMService (structured tools) → Execute Tool → Feed Result → LLM → ... → Final Response
  *
- * The LLM is instructed to use [[TOOL:name|arg=val]] directives.
- * Each tool result is fed back into the conversation until the LLM
- * responds without a tool call, meaning it has the final answer.
- *
+ * Uses AgentLLMService for LLM integration (OpenAI function calling,
+ * Anthropic tool use, or Ollama [[TOOL:...]] directives).
  * Max 10 tool calls per task to prevent infinite loops.
  */
 class BrowserAgentService
 {
     private AgentToolService $tools;
+    private AgentLLMService $llm;
 
     /** Max tool call iterations per task */
     private int $maxIterations = 10;
@@ -37,6 +36,7 @@ class BrowserAgentService
     public function __construct()
     {
         $this->tools = app(AgentToolService::class);
+        $this->llm = app(AgentLLMService::class);
         $this->config = $this->loadConfig();
     }
 
@@ -60,28 +60,28 @@ class BrowserAgentService
         $this->history[] = ['role' => 'user', 'content' => $task];
 
         for ($i = 0; $i < $this->maxIterations; $i++) {
-            // Call LLM
-            $llmResponse = $this->callLLM($system, $this->history);
+            // Call LLM via AgentLLMService (structured tool calling)
+            $llmResult = $this->llm->callWithTools($system, $this->history);
 
-            // Parse for tool calls
-            $toolCalls = $this->parseToolCalls($llmResponse);
+            $llmText = $llmResult['text'];
+            $toolCalls = $llmResult['toolCalls'];
+            $llmError = $llmResult['error'];
 
             // Detect API errors masquerading as final responses
-            if (empty($toolCalls) && $this->isApiError($llmResponse)) {
-                // LLM call failed — break with error
+            if (empty($toolCalls) && $llmError) {
                 $finalResponse = 'Sorry, the AI service returned an error. Please check your API key and try again.';
                 $success = false;
                 $stepLog[] = [
                     'step'     => $i + 1,
                     'type'     => 'error',
-                    'response' => $llmResponse,
+                    'response' => $llmText,
                 ];
                 break;
             }
 
             if (empty($toolCalls)) {
                 // No tool call — this is the final response
-                $finalResponse = $llmResponse;
+                $finalResponse = $llmText;
                 $success = true;
                 $stepLog[] = [
                     'step'     => $i + 1,
@@ -91,27 +91,57 @@ class BrowserAgentService
                 break;
             }
 
-            // Execute tools
+            // Execute tools — map LLM tool names to AgentToolService handlers
             $toolResults = [];
             foreach ($toolCalls as $tc) {
-                $result = $this->tools->execute($tc['tool'], $tc['args']);
-                $toolResults[] = [
-                    'tool'   => $tc['tool'],
-                    'args'   => $tc['args'],
-                    'result' => $result,
-                ];
+                $toolName = $tc['name'];
+                $args = $tc['arguments'] ?? [];
 
-                $stepLog[] = [
-                    'step'   => $i + 1,
-                    'type'   => 'tool',
-                    'tool'   => $tc['tool'],
-                    'args'   => $tc['args'],
-                    'result' => $result['success'] ?? false,
-                ];
+                // Map LLM schema tool names to AgentToolService method names
+                $method = match ($toolName) {
+                    'browse_url'      => 'navigate',
+                    'search_web'      => 'search',
+                    'click_element'   => 'click',
+                    'fill_form'       => 'type',
+                    'extract_content' => 'extract',
+                    'execute_js'      => null,      // Not supported server-side
+                    'get_page_info'   => 'get_page_content',
+                    default           => null,
+                };
+
+                if ($method === null) {
+                    $toolResults[] = [
+                        'tool'   => $toolName,
+                        'args'   => $args,
+                        'result' => ['success' => false, 'error' => "Tool '{$toolName}' is not available in server-side mode."],
+                    ];
+                    $stepLog[] = [
+                        'step'   => $i + 1,
+                        'type'   => 'error',
+                        'tool'   => $toolName,
+                        'error'  => "Tool not supported server-side",
+                    ];
+                    // Don't break — continue with other tools
+                } else {
+                    $result = $this->tools->execute($method, $args);
+                    $toolResults[] = [
+                        'tool'   => $tc['tool'],
+                        'args'   => $tc['args'],
+                        'result' => $result,
+                    ];
+
+                    $stepLog[] = [
+                        'step'   => $i + 1,
+                        'type'   => 'tool',
+                        'tool'   => $tc['tool'],
+                        'args'   => $tc['args'],
+                        'result' => $result['success'] ?? false,
+                    ];
+                }
             }
 
             // Add assistant response + tool results to history
-            $this->history[] = ['role' => 'assistant', 'content' => $llmResponse];
+            $this->history[] = ['role' => 'assistant', 'content' => $llmText];
 
             // Format tool results for the LLM
             $toolResultText = $this->formatToolResults($toolResults);
@@ -163,10 +193,11 @@ class BrowserAgentService
 
         $prompt .= "RULES:\n";
         $prompt .= "- Use ONLY the tools listed above.\n";
-        $prompt .= "- One tool call per line in the format [[TOOL:name|arg1=val1|arg2=val2]].\n";
-        $prompt .= "- You can make MULTIPLE tool calls in one response (one per line).\n";
+        $prompt .= "- For OpenAI/Claude with function tools: respond with tool calls directly.\n";
+        $prompt .= "- For Ollama/non-function-calling: use [[TOOL:name|arg1=val1|arg2=val2]] format.\n";
+        $prompt .= "- One tool call per response in non-function mode.\n";
         $prompt .= "- After you get results, decide if you need more tools or can answer.\n";
-        $prompt .= "- When done, respond naturally — NO [[TOOL:...]] in your final answer.\n";
+        $prompt .= "- When done, respond naturally — NO tool directives in your final answer.\n";
         $prompt .= "- Be concise. Don't narrate your plan, just execute.\n";
         $prompt .= "- Extract only what's asked. Don't over-collect data.\n\n";
 
@@ -179,139 +210,7 @@ class BrowserAgentService
         return $prompt;
     }
 
-    /**
-     * Call the configured LLM backend.
-     */
-    private function callLLM(string $system, array $history): string
-    {
-        $backend = $this->config['llm_backend'] ?? 'claude';
-
-        return match ($backend) {
-            'claude' => $this->callClaude($system, $history),
-            'openai' => $this->callOpenAI($system, $history),
-            'ollama' => $this->callOllama($system, $history),
-            default  => $this->callClaude($system, $history),
-        };
-    }
-
-    private function callClaude(string $system, array $history): string
-    {
-        $apiKey = $this->config['api_key'] ?? '';
-        if (!$apiKey) {
-            return "No API key configured. Please add your API key in the agent settings.";
-        }
-
-        $payload = [
-            'model'      => 'claude-haiku-4-5-20251001',
-            'max_tokens' => 1000,
-            'system'     => $system,
-            'messages'   => $history,
-        ];
-
-        $response = $this->httpPost(
-            'https://api.anthropic.com/v1/messages',
-            $payload,
-            [
-                'x-api-key: ' . $apiKey,
-                'anthropic-version: 2023-06-01',
-                'content-type: application/json',
-            ]
-        );
-
-        $data = json_decode($response, true);
-        return $data['content'][0]['text']
-            ?? $data['error']['message']
-            ?? 'No response from Claude API.';
-    }
-
-    private function callOpenAI(string $system, array $history): string
-    {
-        $apiKey = $this->config['api_key'] ?? '';
-        if (!$apiKey) {
-            return "No API key configured. Please add your API key in the agent settings.";
-        }
-
-        $messages = array_merge(
-            [['role' => 'system', 'content' => $system]],
-            $history
-        );
-
-        $payload = [
-            'model'       => 'gpt-4o-mini',
-            'max_tokens'  => 1000,
-            'messages'    => $messages,
-        ];
-
-        $response = $this->httpPost(
-            'https://api.openai.com/v1/chat/completions',
-            $payload,
-            [
-                'Authorization: Bearer ' . $apiKey,
-                'Content-Type: application/json',
-            ]
-        );
-
-        $data = json_decode($response, true);
-        return $data['choices'][0]['message']['content']
-            ?? $data['error']['message']
-            ?? 'No response from OpenAI API.';
-    }
-
-    private function callOllama(string $system, array $history): string
-    {
-        $baseUrl = $this->config['ollama_url'] ?? 'http://localhost:11434';
-
-        $messages = array_merge(
-            [['role' => 'system', 'content' => $system]],
-            $history
-        );
-
-        $payload = [
-            'model'    => $this->config['ollama_model'] ?? 'llama3.2',
-            'messages' => $messages,
-            'stream'   => false,
-        ];
-
-        $response = $this->httpPost(
-            $baseUrl . '/api/chat',
-            $payload,
-            ['Content-Type: application/json']
-        );
-
-        $data = json_decode($response, true);
-        return $data['message']['content'] ?? 'No response from Ollama.';
-    }
-
     // ── Helpers ──────────────────────────────────────────────────────────────
-
-    /**
-     * Parse [[TOOL:name|arg1=val1|arg2=val2]] directives from LLM response.
-     */
-    private function parseToolCalls(string $response): array
-    {
-        $calls = [];
-
-        if (preg_match_all('/\[\[TOOL:(\w+)((?:\|[^=\]]+=[^\[\]\]]+)*)\]\]/', $response, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $m) {
-                $tool  = $m[1];
-                $args  = [];
-
-                // Parse key=value pairs
-                $argStr = $m[2] ?? '';
-                if (preg_match_all('/\|([^=]+)=([^|\]]+)/', $argStr, $argMatches, PREG_SET_ORDER)) {
-                    foreach ($argMatches as $am) {
-                        $key = trim($am[1]);
-                        $val = trim($am[2]);
-                        $args[$key] = $val;
-                    }
-                }
-
-                $calls[] = ['tool' => $tool, 'args' => $args];
-            }
-        }
-
-        return $calls;
-    }
 
     /**
      * Format tool execution results for the LLM.
@@ -419,7 +318,7 @@ class BrowserAgentService
     }
 
     /**
-     * HTTP POST helper.
+     * HTTP POST helper (kept for compatibility, delegates to AgentLLMService).
      */
     private function httpPost(string $url, array $body, array $headers): string
     {
@@ -447,7 +346,6 @@ class BrowserAgentService
             return $res ?: '{}';
         }
 
-        // Fallback: stream context
         $ctx = stream_context_create([
             'http' => [
                 'method'  => 'POST',

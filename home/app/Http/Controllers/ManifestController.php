@@ -32,7 +32,7 @@ class ManifestController extends Controller
                 'name'             => 'YGXONE Browser',
                 'short_name'       => 'YGXONE',
                 'description'      => 'AI-powered agentic browser',
-                'start_url'        => '/browser',
+                'start_url'        => '/',
                 'scope'            => '/',
                 'display'          => 'standalone',
                 'orientation'      => 'any',
@@ -85,7 +85,7 @@ class ManifestController extends Controller
                 [
                     'name'       => 'Browser',
                     'short_name' => 'Browse',
-                    'url'        => '/browser',
+                    'url'        => '/',
                     'icons'      => [['src' => '/icons/icon-192.png', 'sizes' => '192x192']],
                 ],
                 [
@@ -102,7 +102,10 @@ class ManifestController extends Controller
         return response()->json(
             $data,
             200,
-            ['Content-Type' => 'application/manifest+json'],
+            [
+                'Content-Type'  => 'application/manifest+json',
+                'Cache-Control' => 'public, max-age=86400',
+            ],
             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         );
     }

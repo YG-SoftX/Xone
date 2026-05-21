@@ -27,13 +27,15 @@ class DashboardController extends Controller
             ]);
         }
 
-        $stats    = $this->fetch($apiBase . '/developer-console/dashboard', $user->api_token);
-        $projects = $this->fetch($apiBase . '/developer-console/projects?per_page=5', $user->api_token);
+        $dashboardData = $this->fetch($apiBase . '/developer-console/dashboard', $user->api_token);
+        
+        $stats    = $dashboardData['stats'] ?? [];
+        $projects = $dashboardData['recent_projects'] ?? [];
 
         return view('dashboard', [
             'user'       => $user,
             'stats'      => $stats,
-            'projects'   => $projects['data'] ?? [],
+            'projects'   => $projects,
             'accountUrl' => config('services.yg_account.url'),
         ]);
     }

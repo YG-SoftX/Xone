@@ -13,7 +13,9 @@ class CredentialController extends Controller
 
     public function index(int $projectId): View
     {
-        $project     = $this->api->get("developer-console/projects/{$projectId}");
+        $projectResponse = $this->api->get("developer-console/projects/{$projectId}");
+        $project         = $projectResponse['project'] ?? $projectResponse;
+        
         $credentials = $this->api->get("developer-console/projects/{$projectId}/credentials");
 
         return view('credentials.index', [
@@ -24,7 +26,9 @@ class CredentialController extends Controller
 
     public function create(int $projectId): View
     {
-        $project = $this->api->get("developer-console/projects/{$projectId}");
+        $projectResponse = $this->api->get("developer-console/projects/{$projectId}");
+        $project         = $projectResponse['project'] ?? $projectResponse;
+        
         return view('credentials.create', compact('project'));
     }
 

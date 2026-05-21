@@ -18,7 +18,7 @@ class AdminMiddleware
     {
         // Check if user is authenticated
         if (!auth()->check()) {
-            return redirect()->route('search.home')
+            return redirect()->route('browser.home')
                 ->with('error', 'Please login to access admin area.');
         }
         

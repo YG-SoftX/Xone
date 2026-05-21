@@ -85,7 +85,7 @@ self.addEventListener('fetch', (event) => {
             return response;
         }).catch(() => {
             return caches.match(event.request).then((cached) => {
-                return cached || caches.match('/browser');
+                return cached || caches.match('/');
             });
         })
     );
