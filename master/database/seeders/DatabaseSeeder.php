@@ -58,6 +58,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AppModuleSeeder::class,
             InfrastructureNodeSeeder::class,
+            UniversalFooterItemsSeeder::class,
         ]);
     }
 }

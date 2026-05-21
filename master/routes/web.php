@@ -7,6 +7,11 @@ Route::get('/', function () {
 // API Routes for Service Management
 Route::middleware(['auth'])->prefix('api')->group(function () {
     
+    // Footer Management API (Public - no auth required for reading)
+    Route::get('/footer/{serviceKey?}', [\App\Http\Controllers\Api\FooterController::class, 'index'])
+        ->where('serviceKey', '[a-zA-Z0-9_-]+')
+        ->name('api.footer.index');
+
     // Health Check Endpoints
     Route::prefix('health')->group(function () {
         Route::get('/status', [\App\Http\Controllers\HealthCheckController::class, 'getStatus'])->name('api.health.status');

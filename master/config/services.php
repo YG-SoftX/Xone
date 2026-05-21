@@ -31,4 +31,8 @@ return [
         ],
     ],
 
+    'master_api' => [
+        'url' => env('MASTER_API_URL', 'http://localhost:8001'),
+    ],
+
 ];

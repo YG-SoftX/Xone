@@ -7,7 +7,6 @@ use App\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use App\Filament\Resources\SupportTickets\Schemas\SupportTicketForm;
 use App\Filament\Resources\SupportTickets\Tables\SupportTicketsTable;
 use App\Models\Support\Ticket;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;

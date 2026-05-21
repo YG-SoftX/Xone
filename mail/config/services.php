@@ -39,4 +39,8 @@ return [
         'url' => env('YG_ACCOUNT_URL', 'http://localhost:8000'),
     ],
 
+    'master_api' => [
+        'url' => env('MASTER_API_URL', 'http://localhost:8001'),
+    ],
+
 ];
