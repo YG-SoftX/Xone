@@ -23,188 +23,207 @@
 @section('title', $isBrowsing ? ($pageTitle ?? 'Browsing...') . ' — YGXONE Browser' : 'YGXONE — Agentic Browser')
 
 @section('content')
-<div x-data="browserState()" x-init="init()" class="flex flex-col h-screen">
+<div x-data="browserState()" x-init="init()" class="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
 
-    {{-- ── TAB BAR ── --}}
-    <div class="flex-shrink-0 bg-[var(--yg-surface)] border-b border-[var(--yg-border)] flex items-center gap-0.5 px-1 py-1 overflow-x-auto scrollbar-hide"
+    {{-- ── TAB BAR (Modern Floating Design) ── --}}
+    <div class="flex-shrink-0 px-2 pt-2 pb-1 overflow-x-auto scrollbar-hide"
          x-show="tabs.length > 0"
          x-cloak>
-        {{-- Tab strip --}}
-        <template x-for="tab in tabs" :key="tab.id">
-            <button @click="switchTab(tab.id)"
-                    class="tab-btn group relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0 max-w-[160px]"
-                    :class="tab.id === activeTabId
-                        ? 'bg-white text-[var(--yg-text)] shadow-sm border border-[var(--yg-border)]'
-                        : 'text-[var(--yg-text-dim)] hover:bg-white/50 hover:text-[var(--yg-text)]'">
-                {{-- Favicon/initial --}}
-                <span class="w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold flex-shrink-0"
-                      :style="tab.id === activeTabId ? 'background:var(--yg-primary);color:white' : 'background:var(--yg-border);color:var(--yg-text-dim)'"
-                      x-text="tab.title ? tab.title.charAt(0).toUpperCase() : '?'">
-                </span>
-                {{-- Tab title --}}
-                <span class="truncate" x-text="tab.title || 'New Tab'"></span>
-                {{-- Close button --}}
-                <button @click.stop="closeTab(tab.id)"
-                        class="w-4 h-4 rounded flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] hover:text-[var(--yg-text)] transition-colors flex-shrink-0 ml-0.5">
-                    <i class="fas fa-times text-[8px]"></i>
+        <div class="flex items-center gap-1 max-w-7xl mx-auto">
+            {{-- Tab strip --}}
+            <template x-for="tab in tabs" :key="tab.id">
+                <button @click="switchTab(tab.id)"
+                        class="group relative flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-medium transition-all duration-200 flex-shrink-0 max-w-[200px] backdrop-blur-sm"
+                        :class="tab.id === activeTabId
+                            ? 'bg-white/95 shadow-lg border border-b-0 border-gray-200 text-gray-800 translate-y-0.5'
+                            : 'bg-white/40 hover:bg-white/70 text-gray-600 hover:text-gray-800 border border-transparent hover:border-gray-200'">
+                    {{-- Favicon/initial --}}
+                    <span class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition-all"
+                          :style="tab.id === activeTabId 
+                              ? 'background: linear-gradient(135deg, var(--yg-primary), var(--yg-secondary)); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1)' 
+                              : 'background: #e5e7eb; color: #6b7280'"
+                          x-text="tab.title ? tab.title.charAt(0).toUpperCase() : '?'">
+                    </span>
+                    {{-- Tab title --}}
+                    <span class="truncate flex-1" x-text="tab.title || 'New Tab'"></span>
+                    {{-- Close button --}}
+                    <button @click.stop="closeTab(tab.id)"
+                            class="w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0">
+                        <i class="fas fa-times text-[9px]"></i>
+                    </button>
                 </button>
+            </template>
+            
+            {{-- New tab button --}}
+            <button @click="newTab()"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-white hover:text-blue-600 hover:shadow-md transition-all flex-shrink-0 border border-dashed border-gray-300 hover:border-blue-400 ml-1"
+                    title="New tab (Ctrl+T)">
+                <i class="fas fa-plus text-xs"></i>
             </button>
-        </template>
-        {{-- New tab button --}}
-        <button @click="newTab()"
-                class="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-white hover:text-[var(--yg-primary)] transition-all flex-shrink-0 border border-dashed border-[var(--yg-border)] hover:border-[var(--yg-primary)]"
-                title="New tab">
-            <i class="fas fa-plus text-[10px]"></i>
-        </button>
+        </div>
     </div>
 
-    {{-- ── TOP: Navigation Bar ── --}}
-    <header class="relative z-50 flex-shrink-0 bg-white/90 backdrop-blur-xl border-b border-[var(--yg-border)] shadow-sm">
-        <div class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2">
+    {{-- ── TOP: Modern Navigation Bar ── --}}
+    <header class="relative z-50 flex-shrink-0 bg-white/80 backdrop-blur-2xl border-b border-gray-200/50 shadow-sm">
+        <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5">
 
             {{-- Logo / Home button --}}
             <a href="{{ route('browser.home') }}"
-               class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-[var(--yg-surface)] transition-colors flex-shrink-0"
+               class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 flex-shrink-0 group"
                title="Home">
-                {!! $headerLogo !!}
+                <div class="transform group-hover:scale-105 transition-transform">
+                    {!! $headerLogo !!}
+                </div>
             </a>
 
             {{-- Navigation buttons --}}
-            <div class="flex items-center gap-0.5">
+            <div class="flex items-center gap-1 bg-gray-50/50 rounded-xl p-1">
                 <button @click="goBack()"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors disabled:opacity-30"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                         :disabled="!canGoBack"
-                        title="Back">
-                    <i class="fas fa-chevron-left text-xs"></i>
+                        title="Back (Alt+←)">
+                    <i class="fas fa-chevron-left text-sm"></i>
                 </button>
                 <button @click="goForward()"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors disabled:opacity-30"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all disabled:opacity-30 disabled:hover:bg-transparent"
                         :disabled="!canGoForward"
-                        title="Forward">
-                    <i class="fas fa-chevron-right text-xs"></i>
+                        title="Forward (Alt+→)">
+                    <i class="fas fa-chevron-right text-sm"></i>
                 </button>
                 <button @click="refresh()"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        title="Refresh">
-                    <i class="fas fa-redo text-xs" :class="{ 'fa-spin': loading }"></i>
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all"
+                        title="Refresh (F5)">
+                    <i class="fas fa-redo text-sm" :class="{ 'fa-spin': loading }"></i>
                 </button>
                 <button @click="navigateTo('')"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all"
                         title="Home">
-                    <i class="fas fa-home text-xs"></i>
+                    <i class="fas fa-home text-sm"></i>
                 </button>
             </div>
 
-            {{-- Omnibox — the key component: URL bar + search --}}
+            {{-- Omnibox — Modern URL bar + search --}}
             <form @submit.prevent="navigateTo(urlInput)"
                   class="flex-1 min-w-0 mx-1 sm:mx-2">
-                <div class="search-glass rounded-xl flex items-center gap-2 px-3 sm:px-4 py-2 transition-all duration-200 border border-[var(--yg-border)]"
-                     :class="{ 'ring-2 ring-[var(--yg-primary)]/20 border-[var(--yg-primary)]': focused }">
-                    {{-- Padlock icon for HTTPS --}}
-                    <template x-if="currentUrl && currentUrl.startsWith('https://')">
-                        <i class="fas fa-lock text-[10px] text-[var(--yg-success)]"></i>
-                    </template>
-                    <template x-if="currentUrl && !currentUrl.startsWith('https://')">
-                        <i class="fas fa-globe text-[11px] text-[var(--yg-text-dim)] opacity-50"></i>
-                    </template>
-                    <template x-if="!currentUrl">
-                        <i class="fas fa-search text-[var(--yg-text-dim)]"></i>
-                    </template>
-                    <input type="text"
-                           x-model="urlInput"
-                           x-ref="omnibox"
-                           @focus="focused = true"
-                           @blur="focused = false"
-                           @keydown.escape="urlInput = currentUrl || ''; $refs.omnibox.blur()"
-                           class="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-[var(--yg-text-dim)]/40 focus:ring-0 font-body min-w-0"
-                           placeholder="Search or enter website URL..."
-                           autocomplete="off"
-                           spellcheck="false">
-                    {{-- Clear button --}}
-                    <button type="button"
-                            x-show="urlInput.length > 0"
-                            @click="urlInput = ''; $refs.omnibox.focus()"
-                            class="p-1 hover:bg-[var(--yg-surface)] rounded-lg transition-colors text-[var(--yg-text-dim)] flex-shrink-0">
-                        <i class="fas fa-times text-[10px]"></i>
-                    </button>
-                    {{-- Go button --}}
-                    <button type="submit"
-                            class="p-1.5 rounded-lg bg-[var(--yg-surface)] hover:bg-[var(--yg-border)] transition-colors text-[var(--yg-text)] flex-shrink-0"
-                            title="Go">
-                        <i class="fas fa-arrow-right text-[10px]"></i>
-                    </button>
+                <div class="relative group">
+                    <div class="omnibox-glass rounded-2xl flex items-center gap-2 px-4 py-2.5 transition-all duration-300 border border-gray-200/80 hover:border-blue-300/80 hover:shadow-md"
+                         :class="{ 'ring-2 ring-blue-500/20 border-blue-400 shadow-lg': focused }">
+                        {{-- Security indicator --}}
+                        <template x-if="currentUrl && currentUrl.startsWith('https://')">
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-50 border border-green-200">
+                                <i class="fas fa-lock text-xs text-green-600"></i>
+                                <span class="text-[10px] font-semibold text-green-700 hidden sm:inline">Secure</span>
+                            </div>
+                        </template>
+                        <template x-if="currentUrl && !currentUrl.startsWith('https://')">
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-orange-50 border border-orange-200">
+                                <i class="fas fa-shield-alt text-xs text-orange-600"></i>
+                                <span class="text-[10px] font-semibold text-orange-700 hidden sm:inline">Not Secure</span>
+                            </div>
+                        </template>
+                        <template x-if="!currentUrl">
+                            <i class="fas fa-search text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+                        </template>
+                        
+                        <input type="text"
+                               x-model="urlInput"
+                               x-ref="omnibox"
+                               @focus="focused = true"
+                               @blur="focused = false"
+                               @keydown.escape="urlInput = currentUrl || ''; $refs.omnibox.blur()"
+                               class="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-gray-400 focus:ring-0 font-medium min-w-0"
+                               placeholder="Search the web or enter URL..."
+                               autocomplete="off"
+                               spellcheck="false">
+                        
+                        {{-- Clear button --}}
+                        <button type="button"
+                                x-show="urlInput.length > 0"
+                                @click="urlInput = ''; $refs.omnibox.focus()"
+                                class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                        
+                        {{-- Go button --}}
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all text-white font-semibold text-xs flex-shrink-0 shadow-sm hover:shadow-md transform hover:scale-105"
+                                title="Go">
+                            <i class="fas fa-arrow-right mr-1"></i>
+                            <span class="hidden sm:inline">Go</span>
+                        </button>
+                    </div>
                 </div>
             </form>
 
             {{-- Right actions --}}
-            <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                 {{-- Ecosystem Apps toggle --}}
                 <button @click="showApps = !showApps"
-                        class="w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        :class="{ 'bg-[var(--yg-surface)]': showApps }"
+                        class="w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium text-gray-600 hover:bg-white hover:shadow-md transition-all"
+                        :class="{ 'bg-white shadow-md text-blue-600': showApps }"
                         title="YG Apps">
-                    <i class="fas fa-th text-xs"></i>
-                    <span class="hidden sm:inline">Apps</span>
+                    <i class="fas fa-th text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Apps</span>
                 </button>
 
                 {{-- Deep Research Mode toggle --}}
                 <button @click="showResearch = !showResearch"
-                        class="w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium transition-all"
-                        :class="showResearch ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)]'"
+                        class="w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium transition-all"
+                        :class="showResearch ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' : 'text-gray-600 hover:bg-white hover:shadow-md'"
                         title="Deep Research Mode">
-                    <i class="fas fa-microscope text-xs"></i>
-                    <span class="hidden sm:inline">Research</span>
+                    <i class="fas fa-microscope text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Research</span>
                 </button>
 
                 {{-- Citations Panel toggle --}}
                 <button @click="showCitations = !showCitations"
-                        class="relative w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        :class="{ 'bg-[var(--yg-surface)]': showCitations }"
+                        class="relative w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium text-gray-600 hover:bg-white hover:shadow-md transition-all"
+                        :class="{ 'bg-white shadow-md text-orange-600': showCitations }"
                         title="Citations">
-                    <i class="fas fa-quote-right text-xs"></i>
-                    <span class="hidden sm:inline">Cite</span>
+                    <i class="fas fa-quote-right text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Cite</span>
                     <span x-show="citationCount > 0"
-                          class="absolute -top-1 -right-1 bg-[var(--yg-primary)] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                          class="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse"
                           x-text="citationCount"></span>
                 </button>
 
                 {{-- Knowledge Graph toggle --}}
                 <button @click="showKnowledgeGraph = !showKnowledgeGraph"
-                        class="w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        :class="{ 'bg-[var(--yg-surface)]': showKnowledgeGraph }"
+                        class="w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium text-gray-600 hover:bg-white hover:shadow-md transition-all"
+                        :class="{ 'bg-white shadow-md text-indigo-600': showKnowledgeGraph }"
                         title="Knowledge Graph">
-                    <i class="fas fa-project-diagram text-xs"></i>
-                    <span class="hidden sm:inline">Graph</span>
+                    <i class="fas fa-project-diagram text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Graph</span>
                 </button>
 
                 {{-- Visual Summaries toggle --}}
                 <button @click="showVisualSummaries = !showVisualSummaries"
-                        class="w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        :class="{ 'bg-[var(--yg-surface)]': showVisualSummaries }"
+                        class="w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium text-gray-600 hover:bg-white hover:shadow-md transition-all"
+                        :class="{ 'bg-white shadow-md text-teal-600': showVisualSummaries }"
                         title="Visual Summaries (Charts & Tables)">
-                    <i class="fas fa-chart-bar text-xs"></i>
-                    <span class="hidden sm:inline">Charts</span>
+                    <i class="fas fa-chart-bar text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Charts</span>
                 </button>
 
                 {{-- Password Manager toggle --}}
                 <button @click="showPasswords = !showPasswords"
-                        class="relative w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors"
-                        :class="{ 'bg-[var(--yg-surface)]': showPasswords }"
+                        class="relative w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-medium text-gray-600 hover:bg-white hover:shadow-md transition-all"
+                        :class="{ 'bg-white shadow-md text-emerald-600': showPasswords }"
                         title="Password Manager">
-                    <i class="fas fa-key text-xs"></i>
-                    <span class="hidden sm:inline">Keys</span>
+                    <i class="fas fa-key text-sm"></i>
+                    <span class="hidden sm:inline font-semibold">Keys</span>
                     <span x-show="passwordCount > 0"
-                          class="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                          class="absolute -top-1 -right-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg"
                           x-text="passwordCount"></span>
                 </button>
 
                 {{-- AI Agent toggle (controlled by master admin) --}}
                 @if($agentEnabled)
                 <button @click="showAgent = !showAgent; if (showAgent) checkAgentStatus()"
-                        class="w-8 h-8 sm:w-auto sm:px-3 rounded-lg flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] hover:opacity-90 transition-all shadow-sm"
-                        :class="{ 'ring-2 ring-[var(--yg-primary)]/30': showAgent }"
+                        class="w-9 h-9 sm:w-auto sm:px-3 rounded-xl flex items-center gap-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 hover:from-violet-700 hover:via-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                        :class="{ 'ring-2 ring-purple-500/50 ring-offset-2': showAgent }"
                         title="AI Agent">
-                    <i class="fas fa-sparkles text-[10px]"></i>
+                    <i class="fas fa-sparkles text-sm"></i>
                     <span class="hidden sm:inline">AI</span>
                 </button>
                 @endif
@@ -212,14 +231,14 @@
                 {{-- Auth --}}
                 @if(auth()->check())
                 <a href="{{ route('sso.logout') }}"
-                   class="w-8 h-8 rounded-lg bg-[var(--yg-surface)] flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-border)] transition-colors text-xs"
+                   class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-gray-600 hover:bg-red-50 hover:text-red-600 hover:shadow-md transition-all text-xs"
                    title="Sign out">
-                    <i class="fas fa-sign-out-alt text-[10px]"></i>
+                    <i class="fas fa-sign-out-alt text-sm"></i>
                 </a>
                 @else
                 <a href="{{ route('sso.initiate') }}"
-                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] hover:opacity-90 transition-all">
-                    <i class="fas fa-key text-[10px]"></i>
+                   class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+                    <i class="fas fa-key text-sm"></i>
                     <span class="hidden sm:inline">Login</span>
                 </a>
                 @endif
@@ -231,80 +250,151 @@
     <div class="flex-1 flex overflow-hidden relative">
 
         {{-- MAIN CONTENT: Web Page (iframe) or Home Grid --}}
-        <div class="flex-1 flex flex-col min-w-0 bg-white" :class="{ 'mr-[340px]': showAgent }">
+        <div class="flex-1 flex flex-col min-w-0 bg-white/50 backdrop-blur-sm" :class="{ 'mr-[360px]': showAgent }">
             <template x-if="isBrowsing && currentUrl">
-                {{-- Loading bar --}}
+                {{-- Loading bar with animation --}}
                 <div x-show="loading" x-cloak
-                     class="h-0.5 bg-[var(--yg-surface)] overflow-hidden flex-shrink-0">
-                    <div class="h-full w-1/3 bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] animate-pulse"></div>
+                     class="h-1 bg-gray-100 overflow-hidden flex-shrink-0">
+                    <div class="h-full w-1/2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-loading-bar"></div>
                 </div>
-                {{-- Iframe --}}
-                <iframe x-ref="browserFrame"
-                        :src="'/browse?url=' + encodeURIComponent(currentUrl)"
-                        class="flex-1 w-full border-0"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                        @load="onFrameLoad()"
-                        allow="fullscreen"
-                        referrerpolicy="no-referrer">
-                </iframe>
+                
+                {{-- Iframe with modern container --}}
+                <div class="flex-1 w-full relative">
+                    <iframe x-ref="browserFrame"
+                            :src="'/browse?url=' + encodeURIComponent(currentUrl)"
+                            class="w-full h-full border-0"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                            @load="onFrameLoad()"
+                            allow="fullscreen"
+                            referrerpolicy="no-referrer">
+                    </iframe>
+                    
+                    {{-- Page info overlay --}}
+                    <div x-show="loading" 
+                         class="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center animate-pulse">
+                                <i class="fas fa-globe text-3xl text-white"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-700">Loading page...</p>
+                            <p class="text-xs text-gray-500 mt-1 truncate max-w-xs" x-text="currentUrl"></p>
+                        </div>
+                    </div>
+                </div>
             </template>
 
-            {{-- Home state — show ecosystem grid + search --}}
+            {{-- Home state — Modern start page with enhanced design --}}
             <template x-if="!isBrowsing || !currentUrl">
-                <div class="flex-1 flex flex-col items-center justify-center px-4 py-8 overflow-y-auto">
-                    <div class="w-full max-w-lg text-center mb-8 fade-in-up">
-                        <div class="text-5xl sm:text-6xl font-heading font-black tracking-tighter mb-2">
-                            <span class="gradient-text">{{ $browserName }}</span>
-                        </div>
-                        <p class="text-sm text-[var(--yg-text-dim)] font-medium">
-                            Agentic Browser — Browse anything, automate everything
-                        </p>
-                    </div>
-
-                    {{-- Quick Links (from Master Admin panel) --}}
-                    <div class="w-full max-w-2xl mb-12 fade-in-up fade-in-delay-1">
-                        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
-                            @foreach($quickLinks as $link)
-                            <button @click="navigateTo('{{ $link['url'] }}')"
-                                    class="eco-tile group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white border border-[var(--yg-border)] hover:border-transparent transition-all duration-300"
-                                    style="--tile-color: {{ $link['color'] }}">
-                                <div class="icon-wrapper w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl text-white transition-transform duration-300"
-                                     style="background: {{ $link['color'] }}">
-                                    <i class="{{ $link['icon'] }}"></i>
-                                </div>
-                                <span class="text-xs font-semibold text-[var(--yg-text)] group-hover:text-[var(--yg-primary)] transition-colors">
-                                    {{ $link['name'] }}
-                                </span>
-                            </button>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- YG Ecosystem Grid --}}
-                    <div class="w-full max-w-4xl fade-in-up fade-in-delay-2">
-                        <div class="text-center mb-6">
-                            <div class="flex items-center justify-center gap-2 text-[11px] font-bold text-[var(--yg-text-dim)] uppercase tracking-[0.2em]">
-                                <span class="w-8 h-px bg-[var(--yg-border)]"></span>
-                                <span>YG Ecosystem</span>
-                                <span class="w-8 h-px bg-[var(--yg-border)]"></span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
-                            @foreach($activeApps as $app)
-                            <a href="{{ $app['url'] }}" target="_blank"
-                               class="eco-tile group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white border border-[var(--yg-border)] hover:border-transparent transition-all duration-300"
-                               style="--tile-color: {{ $app['icon_color'] }}">
-                                <div class="icon-wrapper w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl text-white transition-transform duration-300"
-                                     style="background: linear-gradient(135deg, {{ $app['icon_color'] }}, {{ $app['icon_color'] }}cc)">
-                                    <i class="{{ $app['icon'] }}"></i>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-xs font-bold text-[var(--yg-text)] group-hover:text-[var(--yg-primary)] transition-colors">
-                                        {{ $app['name'] }}
+                <div class="flex-1 flex flex-col items-center justify-center px-4 py-12 overflow-y-auto">
+                    <div class="w-full max-w-5xl">
+                        {{-- Hero Section --}}
+                        <div class="text-center mb-12 fade-in-up">
+                            <div class="inline-block mb-6">
+                                <div class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-0.5 shadow-2xl">
+                                    <div class="w-full h-full rounded-3xl bg-white flex items-center justify-center">
+                                        <i class="fas fa-compass text-5xl bg-gradient-to-br from-blue-500 to-purple-600 bg-clip-text text-transparent"></i>
                                     </div>
                                 </div>
-                            </a>
-                            @endforeach
+                            </div>
+                            
+                            <h1 class="text-6xl sm:text-7xl font-black tracking-tight mb-4">
+                                <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    {{ $browserName }}
+                                </span>
+                            </h1>
+                            
+                            <p class="text-lg text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                                The intelligent browser that thinks for you. Browse, research, and automate with AI-powered assistance.
+                            </p>
+                            
+                            {{-- Quick search bar --}}
+                            <div class="mt-8 max-w-2xl mx-auto">
+                                <form @submit.prevent="navigateTo(quickSearch)" class="relative">
+                                    <div class="relative group">
+                                        <input type="text"
+                                               x-model="quickSearch"
+                                               placeholder="Search anything or enter URL..."
+                                               class="w-full px-6 py-4 pr-32 rounded-2xl bg-white border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none text-base shadow-xl hover:shadow-2xl transition-all duration-300 placeholder:text-gray-400"
+                                               autocomplete="off">
+                                        <button type="submit"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+                                            <i class="fas fa-search mr-2"></i>
+                                            Search
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Quick Links (from Master Admin panel) --}}
+                        <div class="mb-12 fade-in-up fade-in-delay-1">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-bolt text-white text-lg"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-800">Quick Access</h2>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                                @foreach($quickLinks as $link)
+                                <button @click="navigateTo('{{ $link['url'] }}')"
+                                        class="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-white border-2 border-gray-100 hover:border-transparent transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                        style="--tile-color: {{ $link['color'] }}">
+                                    <div class="icon-wrapper w-14 h-14 rounded-2xl flex items-center justify-center text-2xl text-white transition-all duration-300 group-hover:scale-110 shadow-lg"
+                                         style="background: linear-gradient(135deg, {{ $link['color'] }}, {{ $link['color'] }}dd)">
+                                        <i class="{{ $link['icon'] }}"></i>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors text-center">
+                                        {{ $link['name'] }}
+                                    </span>
+                                    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                                         style="background: linear-gradient(135deg, {{ $link['color'] }}10, transparent)"></div>
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- YG Ecosystem Grid --}}
+                        <div class="fade-in-up fade-in-delay-2">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-layer-group text-white text-lg"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-800">YG Ecosystem</h2>
+                                <span class="ml-auto text-sm text-gray-500">{{ count($activeApps) }} apps</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+                                @foreach($activeApps as $app)
+                                <a href="{{ $app['url'] }}" target="_blank"
+                                   class="group relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-white border-2 border-gray-100 hover:border-transparent transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                   style="--tile-color: {{ $app['icon_color'] }}">
+                                    <div class="icon-wrapper w-14 h-14 rounded-2xl flex items-center justify-center text-2xl text-white transition-all duration-300 group-hover:scale-110 shadow-lg"
+                                         style="background: linear-gradient(135deg, {{ $app['icon_color'] }}, {{ $app['icon_color'] }}cc)">
+                                        <i class="{{ $app['icon'] }}"></i>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">
+                                            {{ $app['name'] }}
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 mt-0.5 line-clamp-1">
+                                            {{ $app['description'] }}
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                                         style="background: linear-gradient(135deg, {{ $app['icon_color'] }}10, transparent)"></div>
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        {{-- Footer tips --}}
+                        <div class="mt-12 text-center">
+                            <div class="inline-flex items-center gap-6 text-xs text-gray-500 bg-white/50 backdrop-blur-sm px-6 py-3 rounded-xl border border-gray-200">
+                                <span><i class="fas fa-keyboard mr-1.5 text-blue-500"></i><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-[10px]">Ctrl+T</kbd> New Tab</span>
+                                <span><i class="fas fa-keyboard mr-1.5 text-purple-500"></i><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-[10px]">Ctrl+L</kbd> Focus URL</span>
+                                <span><i class="fas fa-keyboard mr-1.5 text-green-500"></i><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-[10px]">F5</kbd> Refresh</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -314,63 +404,78 @@
         {{-- SIDE PANEL: AI Agent --}}
         <div x-show="showAgent"
              x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="translate-x-4 opacity-0"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="translate-x-full opacity-0"
              x-transition:enter-end="translate-x-0 opacity-100"
-             class="w-[340px] flex-shrink-0 border-l border-[var(--yg-border)] bg-[var(--yg-surface)]/50 flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--yg-border)] bg-white/50">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-sparkles text-[var(--yg-primary)] text-sm"></i>
-                    <span class="text-sm font-bold text-[var(--yg-text)]">YG Agent</span>
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="translate-x-0 opacity-100"
+             x-transition:leave-end="translate-x-full opacity-0"
+             class="w-[360px] flex-shrink-0 border-l border-gray-200/50 bg-white/95 backdrop-blur-xl flex flex-col overflow-hidden shadow-2xl">
+            
+            {{-- Panel Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200/50 bg-gradient-to-r from-violet-50 via-purple-50 to-blue-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-sparkles text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm font-bold text-gray-800 block">YG Agent</span>
+                        <span class="text-[10px] text-gray-500">AI-Powered Assistant</span>
+                    </div>
                 </div>
                 <button @click="showAgent = false"
-                        class="w-6 h-6 rounded-lg flex items-center justify-center text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-colors text-xs">
-                    <i class="fas fa-times"></i>
+                        class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white hover:text-red-500 transition-all">
+                    <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
 
             {{-- Agent chat area --}}
-            <div class="flex-1 overflow-y-auto p-4 space-y-3" x-ref="agentMessages">
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" x-ref="agentMessages">
                 {{-- Welcome / not configured state --}}
-                <div x-show="agentMessages.length <= 1 && !agentConfigured" class="text-center py-8">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[var(--yg-primary)]/10 to-[var(--yg-secondary)]/10 flex items-center justify-center">
-                        <i class="fas fa-robot text-2xl" style="background:linear-gradient(135deg,var(--yg-primary),var(--yg-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>
+                <div x-show="agentMessages.length <= 1 && !agentConfigured" class="text-center py-10">
+                    <div class="w-20 h-20 mx-auto mb-5 rounded-3xl bg-gradient-to-br from-violet-100 via-purple-100 to-blue-100 flex items-center justify-center shadow-inner">
+                        <i class="fas fa-robot text-3xl bg-gradient-to-br from-violet-600 to-purple-600 bg-clip-text text-transparent"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-[var(--yg-text)] mb-1">YG Agentic Browser</h3>
-                    <p class="text-xs text-[var(--yg-text-dim)] leading-relaxed mb-3">
-                        Add your API key to enable AI-powered browsing.
+                    <h3 class="text-base font-bold text-gray-800 mb-2">Welcome to YG Agent</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed mb-4 max-w-[260px] mx-auto">
+                        Your AI-powered browsing companion. Automate tasks, research topics, and get intelligent assistance.
                     </p>
                     <a href="/agent/settings" target="_blank"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white text-xs font-bold hover:opacity-90 transition-all">
-                        <i class="fas fa-key text-[10px]"></i> Configure Agent
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-bold hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <i class="fas fa-key text-[10px]"></i> 
+                        Configure Agent
                     </a>
                 </div>
 
                 {{-- Agent conversation messages --}}
                 <template x-for="msg in agentMessages" :key="msg.id">
-                    <div>
+                    <div class="animate-fade-in">
                         {{-- User message --}}
-                        <div x-show="msg.role === 'user'" class="flex gap-2 justify-end mb-3">
-                            <div class="max-w-[85%] rounded-xl px-3 py-2 text-xs bg-[var(--yg-primary)] text-white">
-                                <span x-text="msg.content"></span>
+                        <div x-show="msg.role === 'user'" class="flex gap-3 justify-end mb-4">
+                            <div class="max-w-[85%] rounded-2xl px-4 py-3 text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md">
+                                <span x-text="msg.content" class="font-medium"></span>
                             </div>
                         </div>
 
                         {{-- Agent response (final) --}}
-                        <div x-show="msg.role === 'assistant'" class="flex gap-2 mb-3">
-                            <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-[var(--yg-primary)]/20 to-[var(--yg-secondary)]/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-sparkles text-[8px] text-[var(--yg-primary)]"></i>
+                        <div x-show="msg.role === 'assistant'" class="flex gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <i class="fas fa-sparkles text-xs text-purple-600"></i>
                             </div>
-                            <div class="max-w-[85%] rounded-xl px-3 py-2 text-xs bg-white border border-[var(--yg-border)] text-[var(--yg-text)]">
-                                <span x-text="msg.content"></span>
+                            <div class="max-w-[85%] rounded-2xl px-4 py-3 text-xs bg-white border border-gray-200 text-gray-700 shadow-sm">
+                                <span x-text="msg.content" class="leading-relaxed"></span>
+                                
                                 {{-- Show steps if present --}}
-                                <div x-show="msg.steps && msg.steps.length > 0" class="mt-2 pt-2 border-t border-[var(--yg-border)]">
-                                    <div class="text-[10px] text-[var(--yg-text-dim)] space-y-1">
+                                <div x-show="msg.steps && msg.steps.length > 0" class="mt-3 pt-3 border-t border-gray-200">
+                                    <div class="text-[10px] text-gray-600 space-y-2">
                                         <template x-for="step in msg.steps" :key="step.step">
-                                            <div class="flex items-center gap-1.5">
-                                                <i class="fas" :class="step.type === 'tool' ? 'fa-cog text-[var(--yg-primary)]' : 'fa-check text-[var(--yg-success)]'"></i>
-                                                <span x-text="step.tool || 'Done'"></span>
-                                                <span x-show="step.result" class="text-[var(--yg-success)]">✓</span>
+                                            <div class="flex items-center gap-2 p-2 rounded-lg bg-gray-50">
+                                                <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                                                     :class="step.type === 'tool' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'">
+                                                    <i class="fas" :class="step.type === 'tool' ? 'fa-cog text-[9px]' : 'fa-check text-[9px]'"></i>
+                                                </div>
+                                                <span x-text="step.tool || 'Complete'" class="font-medium"></span>
+                                                <span x-show="step.result" class="ml-auto text-green-600 font-bold">✓</span>
                                             </div>
                                         </template>
                                     </div>
@@ -379,13 +484,19 @@
                         </div>
 
                         {{-- Agent thinking indicator --}}
-                        <div x-show="msg.role === 'thinking'" class="flex gap-2 mb-3">
-                            <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-[var(--yg-primary)]/20 to-[var(--yg-secondary)]/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-sparkles text-[8px] text-[var(--yg-primary)]"></i>
+                        <div x-show="msg.role === 'thinking'" class="flex gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0 shadow-sm animate-pulse">
+                                <i class="fas fa-sparkles text-xs text-purple-600"></i>
                             </div>
-                            <div class="max-w-[85%] rounded-xl px-3 py-2 text-xs bg-white border border-[var(--yg-border)] text-[var(--yg-text-dim)] italic">
-                                <i class="fas fa-circle-notch fa-spin mr-1.5 text-[9px]"></i>
-                                <span x-text="msg.content"></span>
+                            <div class="max-w-[85%] rounded-2xl px-4 py-3 text-xs bg-white border border-gray-200 text-gray-600 italic shadow-sm">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex gap-1">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style="animation-delay: 0s"></div>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style="animation-delay: 0.1s"></div>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style="animation-delay: 0.2s"></div>
+                                    </div>
+                                    <span x-text="msg.content"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -393,30 +504,38 @@
             </div>
 
             {{-- Agent input --}}
-            <div class="p-3 border-t border-[var(--yg-border)] bg-white/50">
-                <form @submit.prevent="sendAgentMessage()" class="flex gap-2">
-                    <input type="text"
-                           x-model="agentInput"
-                           placeholder="What should I do? (e.g., 'Find the price of iPhone 16')"
-                           :disabled="agentRunning"
-                           class="flex-1 bg-white border border-[var(--yg-border)] rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[var(--yg-primary)]/20 focus:border-[var(--yg-primary)] disabled:opacity-50">
-                    <button type="submit"
-                            class="w-8 h-8 rounded-xl bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white flex items-center justify-center hover:opacity-90 transition-all text-xs flex-shrink-0 disabled:opacity-50"
-                            :disabled="!agentInput.trim() || agentRunning">
-                        <i class="fas" :class="agentRunning ? 'fa-circle-notch fa-spin text-[10px]' : 'fa-paper-plane text-[10px]'"></i>
-                    </button>
+            <div class="p-4 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
+                <form @submit.prevent="sendAgentMessage()" class="space-y-3">
+                    <div class="relative">
+                        <input type="text"
+                               x-model="agentInput"
+                               placeholder="What should I do? (e.g., 'Find iPhone 16 prices')"
+                               :disabled="agentRunning"
+                               class="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 pr-12 text-xs outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 disabled:opacity-50 transition-all shadow-sm">
+                        <button type="submit"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 text-white flex items-center justify-center hover:from-violet-700 hover:to-purple-700 transition-all text-xs flex-shrink-0 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-105"
+                                :disabled="!agentInput.trim() || agentRunning">
+                            <i class="fas" :class="agentRunning ? 'fa-circle-notch fa-spin text-[10px]' : 'fa-paper-plane text-[10px]'"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-[10px]">
+                        <a href="/agent/settings" target="_blank" class="flex items-center gap-1.5 text-gray-500 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-cog text-[9px]"></i>
+                            Settings
+                        </a>
+                        <div class="flex items-center gap-2">
+                            <span x-show="!agentConfigured" class="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+                                <i class="fas fa-exclamation-triangle text-[9px]"></i>
+                                Not configured
+                            </span>
+                            <span x-show="agentConfigured" class="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                Ready
+                            </span>
+                        </div>
+                    </div>
                 </form>
-                <div class="flex items-center justify-between mt-1.5">
-                    <a href="/agent/settings" target="_blank" class="text-[10px] text-[var(--yg-text-dim)] hover:text-[var(--yg-primary)] transition-colors">
-                        <i class="fas fa-cog text-[9px] mr-1"></i>Agent settings
-                    </a>
-                    <span x-show="!agentConfigured" class="text-[10px] text-amber-600">
-                        <i class="fas fa-exclamation-triangle text-[9px] mr-1"></i>Not configured
-                    </span>
-                    <span x-show="agentConfigured" class="text-[10px] text-[var(--yg-success)]">
-                        <i class="fas fa-circle text-[6px] mr-1"></i>Ready
-                    </span>
-                </div>
             </div>
         </div>
 
@@ -732,20 +851,33 @@
         </div>
     </div>
 
-    {{-- ── BOTTOM: Status Bar ── --}}
-    <div class="flex-shrink-0 bg-[var(--yg-surface)] border-t border-[var(--yg-border)] px-3 py-1.5 flex items-center gap-4 text-[10px] text-[var(--yg-text-dim)]">
-        <span x-text="currentUrl || '{{ $browserName }}'"></span>
-        <span class="flex-1"></span>
-        <span x-show="shieldsEnabled" class="flex items-center gap-1.5 text-green-600">
-            <i class="fas fa-shield-alt text-[9px]"></i>
-            <span x-show="shieldsStats.adsBlocked > 0"><span x-text="shieldsStats.adsBlocked"></span> ads</span>
-            <span x-show="shieldsStats.trackersBlocked > 0"><span x-text="shieldsStats.trackersBlocked"></span> trackers</span>
-            <span x-show="shieldsStats.httpsUpgraded" class="text-blue-600">HTTPS ↑</span>
-        </span>
-        <span x-show="loading" x-cloak>
-            <i class="fas fa-circle-notch fa-spin mr-1 text-[9px]"></i>Loading...
-        </span>
-        <span>v2.0</span>
+    {{-- ── BOTTOM: Modern Status Bar ── --}}
+    <div class="flex-shrink-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 px-4 py-2 flex items-center gap-4 text-[10px] text-gray-600 shadow-sm">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+            <i class="fas fa-info-circle text-blue-500"></i>
+            <span x-text="currentUrl || '{{ $browserName }}'" class="truncate font-medium"></span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            {{-- Shields status --}}
+            <span x-show="shieldsEnabled" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700">
+                <i class="fas fa-shield-alt text-[9px]"></i>
+                <span x-show="shieldsStats.adsBlocked > 0" class="font-semibold"><span x-text="shieldsStats.adsBlocked"></span> ads</span>
+                <span x-show="shieldsStats.trackersBlocked > 0" class="font-semibold"><span x-text="shieldsStats.trackersBlocked"></span> trackers</span>
+                <span x-show="shieldsStats.httpsUpgraded" class="text-blue-600 font-semibold">HTTPS ↑</span>
+            </span>
+            
+            {{-- Loading indicator --}}
+            <span x-show="loading" x-cloak class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
+                <i class="fas fa-circle-notch fa-spin text-[9px]"></i>
+                <span class="font-semibold">Loading...</span>
+            </span>
+            
+            {{-- Version badge --}}
+            <span class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 font-bold text-gray-700">
+                v2.0
+            </span>
+        </div>
     </div>
 </div>
 
