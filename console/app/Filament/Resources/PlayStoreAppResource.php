@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PlayStoreAppResource extends Resource
 {
@@ -16,7 +17,7 @@ class PlayStoreAppResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-device-phone-mobile';
 
-    protected static ?string $navigationGroup = 'Applications';
+    protected static string|UnitEnum|null $navigationGroup = 'Applications';
 
     protected static ?int $navigationSort = 1;
 

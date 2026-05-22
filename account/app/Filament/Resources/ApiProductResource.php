@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ApiProductResource extends Resource
 {
     protected static ?string $model = ApiProduct::class;
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-    protected static ?string $navigationGroup = 'Sovereign Command';
+    protected static string|UnitEnum|null $navigationGroup = 'Sovereign Command';
     protected static ?int $navigationSort = 3;
     protected static ?string $label = 'Subscription Plans';
 

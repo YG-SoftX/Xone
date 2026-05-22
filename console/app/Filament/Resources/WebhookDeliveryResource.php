@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class WebhookDeliveryResource extends Resource
 {
@@ -16,7 +17,7 @@ class WebhookDeliveryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
 
-    protected static ?string $navigationGroup = 'Webhooks';
+    protected static string|UnitEnum|null $navigationGroup = 'Webhooks';
 
     protected static ?int $navigationSort = 2;
 

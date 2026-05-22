@@ -21,6 +21,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
+use UnitEnum;
 
 class CronJobResource extends Resource
 {
@@ -28,7 +29,7 @@ class CronJobResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
     
-    protected static ?string $navigationGroup = 'System Management';
+    protected static string|UnitEnum|null $navigationGroup = 'System Management';
     
     protected static ?int $navigationSort = 50;
     

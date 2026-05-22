@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class SupportTicketResource extends Resource
 {
@@ -18,7 +19,7 @@ class SupportTicketResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-lifebuoy';
 
-    protected static ?string $navigationGroup = 'Support';
+    protected static string|UnitEnum|null $navigationGroup = 'Support';
 
     public static function form(Form $form): Form
     {

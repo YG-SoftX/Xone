@@ -13,11 +13,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use UnitEnum;
 
 class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
-    protected static ?string $navigationGroup = 'YG Society';
+    protected static string|UnitEnum|null $navigationGroup = 'YG Society';
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
     public static function form(Form $form): Form

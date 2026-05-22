@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PlatformFeatureResource extends Resource
 {
     protected static ?string $model = PlatformFeature::class;
     protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
-    protected static ?string $navigationGroup = 'Sovereign Command';
+    protected static string|UnitEnum|null $navigationGroup = 'Sovereign Command';
     protected static ?int $navigationSort = 2;
     protected static ?string $label = 'System Toggles';
 

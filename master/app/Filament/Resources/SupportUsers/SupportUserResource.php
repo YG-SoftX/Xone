@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SupportUserResource extends Resource
 {
@@ -15,7 +16,7 @@ class SupportUserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?string $navigationGroup = 'Ecosystem Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Ecosystem Management';
 
     protected static ?string $navigationLabel = 'Support Users';
 

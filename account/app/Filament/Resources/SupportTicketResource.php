@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SupportTicketResource extends Resource
 {
     protected static ?string $model = SupportTicket::class;
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationGroup = 'Support';
+    protected static string|UnitEnum|null $navigationGroup = 'Support';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

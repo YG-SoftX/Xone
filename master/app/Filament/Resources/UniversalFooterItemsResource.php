@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class UniversalFooterItemsResource extends Resource
 {
@@ -16,7 +17,7 @@ class UniversalFooterItemsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Ecosystem Configuration';
+    protected static string|UnitEnum|null $navigationGroup = 'Ecosystem Configuration';
 
     protected static ?int $navigationSort = 80;
 

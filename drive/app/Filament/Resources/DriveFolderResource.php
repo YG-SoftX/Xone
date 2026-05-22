@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class DriveFolderResource extends Resource
 {
     protected static ?string $model = DriveFolder::class;
     protected static ?string $navigationIcon = 'heroicon-o-folder';
-    protected static ?string $navigationGroup = 'Files';
+    protected static string|UnitEnum|null $navigationGroup = 'Files';
     protected static ?string $navigationLabel = 'Folders';
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'name';

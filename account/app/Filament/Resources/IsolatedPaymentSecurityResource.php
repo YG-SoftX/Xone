@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * IsolatedPaymentSecurity Resource
@@ -18,7 +19,7 @@ use Filament\Tables\Table;
 class IsolatedPaymentSecurityResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    protected static ?string $navigationGroup = 'Payment Security';
+    protected static string|UnitEnum|null $navigationGroup = 'Payment Security';
     protected static ?int $navigationSort = 1;
     protected static ?string $slug = 'isolated-payment-security';
 

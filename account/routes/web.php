@@ -268,12 +268,12 @@ Route::prefix('support')->name('support.')->group(function () {
 // ==========================================
 // YG VAULT (passwordmanager.ygxone.com)
 // ==========================================
-Route::domain('passwordmanager.' . parse_url(config('app.url'), PHP_URL_HOST))->group(function () {
+Route::domain('passwordmanager.' . parse_url(config('app.url'), PHP_URL_HOST))->name('vault.')->group(function () {
     Route::middleware(['auth'])->group(function () {
-        Route::get('/', [\App\Http\Controllers\PasswordManagerController::class, 'index'])->name('passwords.index');
-        Route::post('/', [\App\Http\Controllers\PasswordManagerController::class, 'store'])->name('passwords.store');
-        Route::put('/{password}', [\App\Http\Controllers\PasswordManagerController::class, 'update'])->name('passwords.update');
-        Route::delete('/{password}', [\App\Http\Controllers\PasswordManagerController::class, 'destroy'])->name('passwords.destroy');
+        Route::get('/', [\App\Http\Controllers\PasswordManagerController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\PasswordManagerController::class, 'store'])->name('store');
+        Route::put('/{password}', [\App\Http\Controllers\PasswordManagerController::class, 'update'])->name('update');
+        Route::delete('/{password}', [\App\Http\Controllers\PasswordManagerController::class, 'destroy'])->name('destroy');
     });
 });
 

@@ -10,13 +10,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
 
 class DocumentationResource extends Resource
 {
     protected static ?string $model = Documentation::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
-    protected static ?string $navigationGroup = 'Knowledge Base';
+    protected static string|UnitEnum|null $navigationGroup = 'Knowledge Base';
 
     public static function form(Form $form): Form
     {

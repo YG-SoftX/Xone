@@ -9,12 +9,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class KycResource extends Resource
 {
     protected static ?string $model = KYC::class;
     protected static ?string $navigationIcon = 'heroicon-o-identification';
-    protected static ?string $navigationGroup = 'User Management';
+    protected static string|UnitEnum|null $navigationGroup = 'User Management';
     protected static ?string $navigationLabel = 'KYC Verifications';
     protected static ?int $navigationSort = 2;
 

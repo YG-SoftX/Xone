@@ -19,7 +19,7 @@ class SupportTicketResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
-    protected static ?string $navigationGroup = 'Ecosystem Management';
+    protected static string|BackedEnum|null $navigationGroup = 'Ecosystem Management';
 
     protected static ?string $navigationLabel = 'Support Tickets';
 

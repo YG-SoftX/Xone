@@ -10,13 +10,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class AttachmentResource extends Resource
 {
     protected static ?string $model = Attachment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-paper-clip';
-    protected static ?string $navigationGroup = 'Communications';
+    protected static string|UnitEnum|null $navigationGroup = 'Communications';
 
     public static function form(Form $form): Form
     {
