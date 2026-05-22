@@ -27,15 +27,175 @@ class EcosystemService
     private const CACHE_TTL = 900;
 
     /**
+     * List of ecosystem services with metadata and health status.
+     */
+    private array $services = [
+        'mail' => [
+            'name' => 'Mail',
+            'description' => 'Secure email service',
+            'url' => 'https://mail.ygxone.com',
+            'icon' => 'fas fa-envelope',
+            'icon_color' => '#3b82f6',
+            'enabled' => true,
+        ],
+        'drive' => [
+            'name' => 'Drive',
+            'description' => 'Cloud storage & file sharing',
+            'url' => 'https://drive.ygxone.com',
+            'icon' => 'fas fa-cloud',
+            'icon_color' => '#10b981',
+            'enabled' => true,
+        ],
+        'docx' => [
+            'name' => 'DocX',
+            'description' => 'Document editor & processor',
+            'url' => 'https://docx.ygxone.com',
+            'icon' => 'fas fa-file-word',
+            'icon_color' => '#ef4444',
+            'enabled' => true,
+        ],
+        'calendar' => [
+            'name' => 'Calendar',
+            'description' => 'Schedule & appointment manager',
+            'url' => 'https://calendar.ygxone.com',
+            'icon' => 'fas fa-calendar',
+            'icon_color' => '#8b5cf6',
+            'enabled' => true,
+        ],
+        'chat' => [
+            'name' => 'Chat',
+            'description' => 'Secure messaging',
+            'url' => 'https://chat.ygxone.com',
+            'icon' => 'fas fa-comments',
+            'icon_color' => '#f59e0b',
+            'enabled' => true,
+        ],
+        'contacts' => [
+            'name' => 'Contacts',
+            'description' => 'Contact management',
+            'url' => 'https://contacts.ygxone.com',
+            'icon' => 'fas fa-address-book',
+            'icon_color' => '#ec4899',
+            'enabled' => true,
+        ],
+        'notes' => [
+            'name' => 'Notes',
+            'description' => 'Quick notes & reminders',
+            'url' => 'https://notes.ygxone.com',
+            'icon' => 'fas fa-sticky-note',
+            'icon_color' => '#8b5cf6',
+            'enabled' => true,
+        ],
+        'xcel' => [
+            'name' => 'Xcel',
+            'description' => 'Spreadsheet application',
+            'url' => 'https://xcel.ygxone.com',
+            'icon' => 'fas fa-table',
+            'icon_color' => '#22c55e',
+            'enabled' => true,
+        ],
+        'ai' => [
+            'name' => 'AI Assistant',
+            'description' => 'Intelligent assistant',
+            'url' => 'https://ai.ygxone.com',
+            'icon' => 'fas fa-robot',
+            'icon_color' => '#f97316',
+            'enabled' => true,
+        ],
+        'developer' => [
+            'name' => 'Developer',
+            'description' => 'API & developer tools',
+            'url' => 'https://developer.ygxone.com',
+            'icon' => 'fas fa-code',
+            'icon_color' => '#6366f1',
+            'enabled' => true,
+        ],
+        'collect' => [
+            'name' => 'Collect',
+            'description' => 'Data collection forms',
+            'url' => 'https://collect.ygxone.com',
+            'icon' => 'fas fa-database',
+            'icon_color' => '#14b8a6',
+            'enabled' => true,
+        ],
+        'support' => [
+            'name' => 'Support',
+            'description' => 'Help & support center',
+            'url' => 'https://support.ygxone.com',
+            'icon' => 'fas fa-life-ring',
+            'icon_color' => '#8b5cf6',
+            'enabled' => true,
+        ],
+    ];
+
+    /**
      * Get all active ecosystem apps formatted for the home UI.
      *
      * @return array<int, array> Sorted list of active app modules.
      */
     public function getActiveApps(): array
     {
-        return Cache::remember(self::CACHE_PREFIX . 'active_apps', self::CACHE_TTL, function () {
-            return $this->fetchActiveApps();
-        });
+        $activeApps = [];
+
+        foreach ($this->services as $key => $service) {
+            if ($service['enabled']) {
+                // Check service health with caching
+                $isHealthy = Cache::remember("ecosystem_service_health_{$key}", 300, function () use ($key, $service) {
+                    return $this->checkServiceHealth($key, $service['url']);
+                });
+
+                if ($isHealthy) {
+                    $activeApps[] = $service;
+                }
+            }
+        }
+
+        return $activeApps;
+    }
+
+    /**
+     * Get all ecosystem services.
+     */
+    public function getAllServices(): array
+    {
+        return $this->services;
+    }
+
+    /**
+     * Get a specific service by name.
+     */
+    public function getService(string $serviceName): ?array
+    {
+        return $this->services[$serviceName] ?? null;
+    }
+
+    /**
+     * Check if a service is healthy.
+     */
+    private function checkServiceHealth(string $key, string $url): bool
+    {
+        try {
+            // Try to reach the service's health endpoint
+            $healthUrl = rtrim($url, '/') . '/up';
+            $response = Http::timeout(5)->get($healthUrl);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::warning("Service health check failed for {$key} at {$url}", [
+                'error' => $e->getMessage()
+            ]);
+
+            // If the /up endpoint fails, try the base URL
+            try {
+                $response = Http::timeout(5)->get($url);
+                return $response->successful();
+            } catch (\Exception $e2) {
+                Log::warning("Fallback health check also failed for {$key} at {$url}", [
+                    'error' => $e2->getMessage()
+                ]);
+                return false;
+            }
+        }
     }
 
     /**
@@ -113,26 +273,6 @@ class EcosystemService
         return '<i class="' . e($icon) . ' ' . e($class) . '"></i>';
     }
 
-    /**
-     * Get standard ecosystem service definitions with icons, colors, descriptions.
-     */
-    public function getServiceDefinitions(): array
-    {
-        return [
-            'mail'     => ['label' => 'Mail',     'icon' => 'fas fa-envelope',      'color' => '#ef4444', 'description' => 'Sovereign Email'],
-            'drive'    => ['label' => 'Drive',    'icon' => 'fas fa-cloud',         'color' => '#22c55e', 'description' => 'Encrypted Storage'],
-            'docx'     => ['label' => 'DocX',     'icon' => 'fas fa-file-alt',      'color' => '#3b82f6', 'description' => 'Documents & Editing'],
-            'xcel'     => ['label' => 'Xcel',     'icon' => 'fas fa-table',         'color' => '#10b981', 'description' => 'Spreadsheets & Data'],
-            'chat'     => ['label' => 'Chat',     'icon' => 'fas fa-comment',       'color' => '#8b5cf6', 'description' => 'Team Messaging'],
-            'meet'     => ['label' => 'Meet',     'icon' => 'fas fa-video',         'color' => '#f59e0b', 'description' => 'Video Conferencing'],
-            'calendar' => ['label' => 'Calendar', 'icon' => 'fas fa-calendar-alt',  'color' => '#ec4899', 'description' => 'Scheduling'],
-            'contacts' => ['label' => 'Contacts', 'icon' => 'fas fa-address-book',  'color' => '#14b8a6', 'description' => 'Contact Management'],
-            'notes'    => ['label' => 'Notes',    'icon' => 'fas fa-sticky-note',   'color' => '#f97316', 'description' => 'Note Taking'],
-            'developer'=> ['label' => 'Developer','icon' => 'fas fa-code',          'color' => '#6366f1', 'description' => 'API Platform'],
-            'pay'      => ['label' => 'Pay',      'icon' => 'fas fa-credit-card',   'color' => '#06b6d4', 'description' => 'Payments & Billing'],
-            'account'  => ['label' => 'Account',  'icon' => 'fas fa-user-shield',   'color' => '#64748b', 'description' => 'Identity & Security'],
-        ];
-    }
 
     /**
      * Get ecosystem stats from the shared database.
@@ -160,141 +300,6 @@ class EcosystemService
         }
     }
 
-    // ── Private Helpers ─────────────────────────────────────────────────────────────
 
-    /**
-     * Fetch active apps from the shared app_modules table.
-     * Falls back to the master ecosystem config if the table is missing.
-     */
-    private function fetchActiveApps(): array
-    {
-        try {
-            $modules = DB::table('app_modules')
-                ->where('is_active', true)
-                ->orderBy('id')
-                ->get();
 
-            if ($modules->isEmpty()) {
-                return $this->getDefaultApps(true);
-            }
-
-            return $modules->map(function ($module) {
-                return $this->formatModule($module, true);
-            })->values()->toArray();
-        } catch (\Exception $e) {
-            Log::warning('app_modules table not accessible, using defaults', ['error' => $e->getMessage()]);
-            return $this->getDefaultApps(true);
-        }
-    }
-
-    /**
-     * Fetch ALL apps from the shared app_modules table (including inactive).
-     */
-    private function fetchAllApps(): array
-    {
-        try {
-            $modules = DB::table('app_modules')
-                ->orderBy('id')
-                ->get();
-
-            if ($modules->isEmpty()) {
-                return $this->getDefaultApps(false);
-            }
-
-            return $modules->map(function ($module) {
-                return $this->formatModule($module, false);
-            })->values()->toArray();
-        } catch (\Exception $e) {
-            Log::warning('app_modules table not accessible, using defaults', ['error' => $e->getMessage()]);
-            return $this->getDefaultApps(false);
-        }
-    }
-
-    /**
-     * Format a database module row into a consistent array.
-     */
-    private function formatModule($module, bool $activeOnly): array
-    {
-        $definitions = $this->getServiceDefinitions();
-        $slug = $module->slug ?? 'unknown';
-        $def = $definitions[$slug] ?? ['label' => $module->name, 'icon' => 'fas fa-cube', 'color' => '#6b7280', 'description' => $module->name];
-
-        $url = $module->base_url;
-        if (!$url) {
-            $url = match ($slug) {
-                'yg-xone', 'home'  => config('app.url', 'https://ygxone.com'),
-                'yg-account', 'account' => config('services.yg_account.url', 'https://account.ygxone.com'),
-                'yg-mail', 'mail'      => config('services.yg_mail.url', 'https://mail.ygxone.com'),
-                'yg-drive', 'drive'    => config('services.yg_drive.url', 'https://drive.ygxone.com'),
-                'yg-docx', 'docx'      => config('services.yg_docx.url', 'https://docs.ygxone.com'),
-                'yg-calendar', 'calendar' => config('services.yg_calendar.url', 'https://calendar.ygxone.com'),
-                'yg-contacts', 'contacts' => config('services.yg_contacts.url', 'https://contacts.ygxone.com'),
-                default => "https://{$slug}.ygxone.com",
-            };
-        }
-
-        return [
-            'id'          => $module->id ?? null,
-            'name'        => $module->name ?? $def['label'],
-            'slug'        => $slug,
-            'icon'        => $module->icon ?? $def['icon'],
-            'icon_color'  => $def['color'],
-            'description' => $def['description'],
-            'url'         => $url,
-            'is_active'   => (bool) ($module->is_active ?? true),
-            'is_core'     => (bool) ($module->is_core ?? false),
-        ];
-    }
-
-    /**
-     * Default apps when the app_modules table isn't available yet.
-     */
-    private function getDefaultApps(bool $activeOnly): array
-    {
-        $definitions = $this->getServiceDefinitions();
-        $apps = [];
-
-        $defaultModules = [
-            ['slug' => 'mail',     'name' => 'Mail',     'is_active' => true,  'is_core' => true],
-            ['slug' => 'drive',    'name' => 'Drive',    'is_active' => true,  'is_core' => true],
-            ['slug' => 'docx',     'name' => 'DocX',     'is_active' => true,  'is_core' => true],
-            ['slug' => 'xcel',     'name' => 'Xcel',     'is_active' => true,  'is_core' => false],
-            ['slug' => 'chat',     'name' => 'Chat',     'is_active' => true,  'is_core' => false],
-            ['slug' => 'meet',     'name' => 'Meet',     'is_active' => true,  'is_core' => false],
-            ['slug' => 'calendar', 'name' => 'Calendar', 'is_active' => true,  'is_core' => false],
-            ['slug' => 'contacts', 'name' => 'Contacts', 'is_active' => true,  'is_core' => false],
-            ['slug' => 'notes',    'name' => 'Notes',    'is_active' => true,  'is_core' => false],
-            ['slug' => 'developer','name' => 'Developer','is_active' => true,  'is_core' => false],
-            ['slug' => 'pay',      'name' => 'Pay',      'is_active' => true,  'is_core' => false],
-            ['slug' => 'account',  'name' => 'Account',  'is_active' => true,  'is_core' => true],
-        ];
-
-        foreach ($defaultModules as $mod) {
-            if ($activeOnly && !$mod['is_active']) {
-                continue;
-            }
-            $def = $definitions[$mod['slug']] ?? ['label' => $mod['name'], 'icon' => 'fas fa-cube', 'color' => '#6b7280', 'description' => $mod['name']];
-            $url = match ($mod['slug']) {
-                'mail'      => config('services.yg_mail.url', 'https://mail.ygxone.com'),
-                'drive'     => config('services.yg_drive.url', 'https://drive.ygxone.com'),
-                'docx'      => config('services.yg_docx.url', 'https://docs.ygxone.com'),
-                'account'   => config('services.yg_account.url', 'https://account.ygxone.com'),
-                default     => "https://{$mod['slug']}.ygxone.com",
-            };
-
-            $apps[] = [
-                'id'          => null,
-                'name'        => $mod['name'],
-                'slug'        => $mod['slug'],
-                'icon'        => $def['icon'],
-                'icon_color'  => $def['color'],
-                'description' => $def['description'],
-                'url'         => $url,
-                'is_active'   => $mod['is_active'],
-                'is_core'     => $mod['is_core'],
-            ];
-        }
-
-        return $apps;
-    }
 }

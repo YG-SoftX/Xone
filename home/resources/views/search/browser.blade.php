@@ -229,12 +229,24 @@
                 @endif
 
                 {{-- Auth --}}
-                @if(auth()->check())
-                <a href="{{ route('sso.logout') }}"
-                   class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-gray-600 hover:bg-red-50 hover:text-red-600 hover:shadow-md transition-all text-xs"
-                   title="Sign out">
-                    <i class="fas fa-sign-out-alt text-sm"></i>
-                </a>
+                @php
+                    $isLoggedIn = auth()->check() || session('sso_user');
+                    $currentUser = auth()->user() ?? session('sso_user');
+                @endphp
+                
+                @if($isLoggedIn)
+                <div class="flex items-center gap-2">
+                    @if($currentUser)
+                    <span class="hidden lg:inline text-xs font-medium text-gray-700">
+                        {{ is_array($currentUser) ? ($currentUser['name'] ?? 'User') : ($currentUser->name ?? 'User') }}
+                    </span>
+                    @endif
+                    <a href="{{ route('sso.logout') }}"
+                       class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-gray-600 hover:bg-red-50 hover:text-red-600 hover:shadow-md transition-all text-xs"
+                       title="Sign out">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
+                    </a>
+                </div>
                 @else
                 <a href="{{ route('sso.initiate') }}"
                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">

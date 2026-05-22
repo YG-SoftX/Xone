@@ -11,6 +11,7 @@ use App\Http\Controllers\EcosystemController;
 use App\Http\Controllers\SSOController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\LaunchImageController;
+use App\Http\Controllers\DownloadController;
 
 // Include authentication routes
 require __DIR__.'/auth.php';
@@ -34,9 +35,25 @@ Route::get('/icons/launch-generate-all', [LaunchImageController::class, 'generat
 Route::get('/browse', [SearchController::class, 'browse'])
     ->middleware('throttle:120,1')  // Prevent open-proxy abuse
     ->name('browser.proxy');
+
 Route::get('/browse/resource', [SearchController::class, 'browseResource'])
     ->middleware('throttle:300,1')  // Higher limit: images/CSS/JS are numerous
     ->name('browser.resource');
+
+// POST form submission via the browse-nav-worker (iframe-intercepted forms)
+Route::post('/browse/submit', [SearchController::class, 'browserSubmit'])
+    ->middleware('throttle:60,1')
+    ->name('browser.submit');
+
+// Blocked-popup resolver — worker sends intercepted window.open URLs here
+Route::get('/browse/popup', [SearchController::class, 'browsePopup'])
+    ->middleware('throttle:60,1')
+    ->name('browser.popup');
+
+// Structured-JSON page API — Phase 2 (REST data protocol for each worker renderer)
+Route::get('/browse/api/page', [SearchController::class, 'browseApiPage'])
+    ->middleware('throttle:120,1')
+    ->name('browser.api_page');
 
 // ── AI Agent routes ──
 Route::get('/agent/settings', [AgentController::class, 'settings'])->name('agent.settings');
@@ -82,6 +99,24 @@ Route::prefix('sso')->group(function () {
     Route::get('/initiate', [SSOController::class, 'initiate'])->name('sso.initiate');
     Route::get('/callback', [SSOController::class, 'callback'])->name('sso.callback');
     Route::get('/logout', [SSOController::class, 'logout'])->name('sso.logout');
+});
+
+// ── Download routes ──
+Route::prefix('downloads')->group(function () {
+    Route::get('/YGXONE-Browser-Windows.exe', function () {
+        return app(DownloadController::class)->downloadDesktopApp(request(), 'windows');
+    })->name('download.desktop.windows');
+    
+    Route::get('/YGXONE-Browser-macOS.dmg', function () {
+        return app(DownloadController::class)->downloadDesktopApp(request(), 'macos');
+    })->name('download.desktop.macos');
+    
+    Route::get('/YGXONE-Browser-Linux.AppImage', function () {
+        return app(DownloadController::class)->downloadDesktopApp(request(), 'linux');
+    })->name('download.desktop.linux');
+    
+    // Alternative route for download page
+    Route::get('/', [DownloadController::class, 'showDownloadsPage'])->name('downloads.page');
 });
 
 // Health check (public)

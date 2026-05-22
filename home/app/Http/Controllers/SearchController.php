@@ -227,7 +227,148 @@ class SearchController extends Controller
     }
     
     /**
-     * Count total results
+     * POST form submission proxy.
+     *
+     * Receives form data forwarded by the browse-nav-worker inside the
+     * proxied iframe via postMessage, cURL-POSTs the form to the real
+     * destination, rewrites the response, and returns rewritten HTML
+     * that the worker applies as an in-place replacement.
+     *
+     * Request body (JSON):
+     *   {
+     *     "page_url":   "https://originating-page.example.com/login",
+     *     "action":     "https://submit.example.com/login",
+     *     "method":     "POST",
+     *     "enctype":    "application/x-www-form-urlencoded",
+     *     "data":       { "email": "...", "password": "..." }
+     *   }
+     */
+    public function browserSubmit(Request $request)
+    {
+        $payload = $request->json()->all();
+
+        $pageUrl = $payload['page_url'] ?? $request->input('page_url', '');
+        $action  = $payload['action']  ?? $request->input('action', '');
+        $method  = $payload['method']  ?? $request->input('method',  'POST');
+        $enctype = $payload['enctype'] ?? $request->input('enctype', '');
+        $data    = $payload['data']    ?? $request->input('data', []);
+
+        if (empty($action) && empty($pageUrl)) {
+            return response('No form target specified.', 400);
+        }
+
+        $targetUrl = $action ?: $pageUrl;
+
+        try {
+            $proxy = app(BrowserProxyService::class);
+            $result = $proxy->submitForm($pageUrl, [
+                'action'  => $targetUrl,
+                'method'  => $method,
+                'enctype' => $enctype,
+                'data'    => is_array($data) ? $data : [],
+            ]);
+
+            return response($result['content'], $result['statusCode'])
+                ->header('Content-Type', $result['contentType'])
+                ->header('X-YG-Proxy-URL',  $result['url'])
+                ->header('X-YG-Proxy-Title', $result['title'] ?? '')
+                ->header('Access-Control-Allow-Origin', '*');
+        } catch (\Exception $e) {
+            Log::error("Browser form submit failed: " . $e->getMessage());
+            return response('<p>Form submission error.</p>', 500)
+                ->header('Content-Type', 'text/html');
+        }
+    }
+
+    /**
+     * Blocked-popup resolver.
+     *
+     * The browse-nav-worker calls this when it intercepts window.open().
+     * Fetches the popup page through the proxy and returns rewritten HTML
+     * so the outer app can open it in a fresh iframe or new tab.
+     */
+    public function browsePopup(Request $request)
+    {
+        $url = $request->input('url', '');
+        if (empty($url)) {
+            return response('No URL specified.', 400);
+        }
+
+        try {
+            $proxy = app(BrowserProxyService::class);
+            $result = $proxy->fetchPopupPage($url);
+
+            return response($result['content'], $result['statusCode'])
+                ->header('Content-Type', $result['contentType'])
+                ->header('X-YG-Proxy-URL',  $result['url'])
+                ->header('X-YG-Proxy-Title', $result['title'] ?? '')
+                ->header('Access-Control-Allow-Origin', '*');
+        } catch (\Exception $e) {
+            Log::error("Browser popup fetch failed: " . $e->getMessage());
+            return response('<p>Unable to load popup.</p>', 500)
+                ->header('Content-Type', 'text/html');
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    //  REST Data Protocol — Phase 2
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /browse/api/page?url=…&shields=1&speed_reader=0
+     *
+     * Returns structured browser-state JSON.
+     * Used by Phase 2 each worker renderer — consumes the DOM tree
+     * (formatted) and renders it directly into the app shell DOM,
+     * bypassing the iframe entirely for GET navigation.
+     *     "url","title","statusCode","contentType",
+     *     "dom":{...}, "text":"...", "styles":[...], "head":[...],
+     *     "links":[...], "forms":[...], "scripts":[...], "images":[...],
+     *     "meta":[...], "shields":{...}, "html":"<full rewritten html>"
+     *   }
+     */
+    public function browseApiPage(Request $request)
+    {
+        $targetUrl    = $request->input('url', '');
+        $shields      = $request->boolean('shields',        true);
+        $speedReader  = $request->boolean('speed_reader',  false);
+
+        if (empty($targetUrl)) {
+            return response()->json(['error' => 'No URL provided.'], 400);
+        }
+
+        try {
+            $proxy   = app(BrowserProxyService::class);
+            $options = ['shields_enabled' => $shields];
+            if ($speedReader) $options['speed_reader'] = true;
+
+            $result = $proxy->fetch($targetUrl, $options);
+
+            return response()->json([
+                'url'         => $result['url'],
+                'title'       => $result['title'],
+                'statusCode'  => $result['statusCode'],
+                'contentType' => $result['contentType'],
+                'shields'     => $result['shields'] ?? [],
+                'dom'         => $proxy->buildDomTree($result['content'], $result['url']),
+                'text'        => $proxy->extractPlainText($result['content']),
+                'styles'      => $proxy->extractStyles($result['content'], $result['url']),
+                'head'        => $proxy->extractHead($result['content'], $result['url']),
+                'links'       => $proxy->extractLinks($result['content'], $result['url']),
+                'forms'       => $proxy->extractForms($result['content'], $result['url']),
+                'scripts'     => $proxy->extractScripts($result['content'], $result['url']),
+                'images'      => $proxy->extractImages($result['content'], $result['url']),
+                'meta'        => $proxy->extractMetaTags($result['content']),
+                'html'        => $result['content'],
+            ])->header('Access-Control-Allow-Origin', '*');
+        } catch (\Exception $e) {
+            Log::error("browseApiPage error: " . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Count total results.
      */
     private function countTotalResults(array $results): int
     {
@@ -280,20 +421,200 @@ class SearchController extends Controller
             return redirect()->route('search.index', ['q' => $targetUrl]);
         }
 
+        // Special handling for sites that block proxying
+        $blockedDomains = [
+            'google.com', 'www.google.com',
+            'facebook.com', 'www.facebook.com',
+            'twitter.com', 'x.com',
+            'instagram.com',
+            'linkedin.com',
+            'netflix.com',
+            'amazon.com',
+        ];
+        
+        $parsedUrl = parse_url($targetUrl);
+        $host = $parsedUrl['host'] ?? '';
+        
+        foreach ($blockedDomains as $blocked) {
+            if (str_ends_with($host, $blocked)) {
+                // Show a friendly message for blocked sites
+                return response(
+                    '<html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Site Cannot Be Proxied — YGXONE Browser</title>
+                            <style>
+                                body { 
+                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                    display: flex; 
+                                    align-items: center; 
+                                    justify-content: center; 
+                                    min-height: 100vh; 
+                                    margin: 0;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                }
+                                .container {
+                                    text-align: center;
+                                    padding: 40px;
+                                    background: rgba(255,255,255,0.1);
+                                    backdrop-filter: blur(10px);
+                                    border-radius: 20px;
+                                    max-width: 600px;
+                                    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                                }
+                                h2 { margin-top: 0; font-size: 28px; font-weight: 700; }
+                                p { opacity: 0.95; line-height: 1.8; font-size: 16px; }
+                                .icon { font-size: 64px; margin-bottom: 20px; }
+                                .reasons {
+                                    text-align: left;
+                                    background: rgba(255,255,255,0.1);
+                                    padding: 20px;
+                                    border-radius: 12px;
+                                    margin: 20px 0;
+                                }
+                                .reasons li { margin: 8px 0; }
+                                .btn { 
+                                    display: inline-block;
+                                    color: white; 
+                                    text-decoration: none; 
+                                    padding: 14px 28px; 
+                                    background: rgba(255,255,255,0.2);
+                                    border-radius: 10px;
+                                    margin-top: 20px;
+                                    transition: all 0.3s;
+                                    font-weight: 600;
+                                    border: 2px solid rgba(255,255,255,0.3);
+                                }
+                                .btn:hover { 
+                                    background: rgba(255,255,255,0.3);
+                                    transform: translateY(-2px);
+                                }
+                                .alternative {
+                                    margin-top: 20px;
+                                    padding: 15px;
+                                    background: rgba(255,255,255,0.05);
+                                    border-radius: 10px;
+                                    font-size: 14px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="icon"></div>
+                                <h2>This Site Cannot Be Loaded in Browser</h2>
+                                <p><strong>' . htmlspecialchars($host) . '</strong> blocks proxy access for security reasons.</p>
+                                
+                                <div class="reasons">
+                                    <strong>Why this happens:</strong>
+                                    <ul>
+                                        <li>The site uses anti-bot protection</li>
+                                        <li>It detects and blocks proxy/iframe access</li>
+                                        <li>Security policies prevent external framing</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="alternative">
+                                    <strong>💡 Alternative:</strong> Open this site directly in a new tab:<br>
+                                    <a href="' . htmlspecialchars($targetUrl) . '" target="_blank" style="color: #ffd700; word-break: break-all;">' . htmlspecialchars($targetUrl) . '</a>
+                                </div>
+                                
+                                <a href="' . route('browser.home') . '" class="btn">← Back to YGXONE Browser</a>
+                            </div>
+                        </body>
+                    </html>', 
+                    403
+                )->header('Content-Type', 'text/html');
+            }
+        }
+
         try {
             $proxy = app(BrowserProxyService::class);
             $result = $proxy->fetch($targetUrl);
 
-            return response($result['content'], $result['statusCode'])
+            // Build response with headers that allow iframe embedding
+            $response = response($result['content'], $result['statusCode'])
                 ->header('Content-Type', $result['contentType'])
-                ->header('X-Frame-Options', 'SAMEORIGIN')
+                ->header('X-Frame-Options', 'ALLOWALL')  // Allow iframe embedding
+                ->header('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval'; frame-ancestors *;")
                 ->header('X-YG-Proxy-URL', $result['url'])
-                ->header('X-YG-Proxy-Title', $result['title'] ?? '');
+                ->header('X-YG-Proxy-Title', $result['title'] ?? '')
+                ->header('Access-Control-Allow-Origin', '*');  // Allow cross-origin requests
+
+            // Log successful proxy for debugging
+            Log::debug("Browser proxy success", [
+                'url' => $targetUrl,
+                'status' => $result['statusCode'],
+                'title' => $result['title'] ?? null,
+                'shields' => $result['shields'] ?? [],
+            ]);
+
+            return $response;
 
         } catch (\Exception $e) {
             Log::error("Browser proxy failed for {$targetUrl}: " . $e->getMessage());
-            return response('<html><body style="text-align:center;padding:60px;font-family:sans-serif;"><h2>Unable to load page</h2><p style="color:#666;">The page could not be loaded. Please check the URL and try again.</p><a href="' . route('browser.home') . '" style="color:#2563eb;">Back to YGXONE Browser</a></body></html>', 502)
-                ->header('Content-Type', 'text/html');
+            
+            // Return a helpful error page
+            return response(
+                '<html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Page Load Failed — YGXONE Browser</title>
+                        <style>
+                            body { 
+                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                min-height: 100vh; 
+                                margin: 0;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                            }
+                            .error-container {
+                                text-align: center;
+                                padding: 40px;
+                                background: rgba(255,255,255,0.1);
+                                backdrop-filter: blur(10px);
+                                border-radius: 20px;
+                                max-width: 500px;
+                                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                            }
+                            h2 { margin-top: 0; font-size: 24px; }
+                            p { opacity: 0.9; line-height: 1.6; }
+                            .btn { 
+                                color: white; 
+                                text-decoration: none; 
+                                padding: 12px 24px; 
+                                background: rgba(255,255,255,0.2);
+                                border-radius: 8px;
+                                display: inline-block;
+                                margin-top: 20px;
+                                transition: all 0.3s;
+                                border: 2px solid rgba(255,255,255,0.3);
+                            }
+                            .btn:hover { background: rgba(255,255,255,0.3); }
+                            .icon { font-size: 48px; margin-bottom: 20px; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="error-container">
+                            <div class="icon"></div>
+                            <h2>Unable to Load Page</h2>
+                            <p>The website could not be loaded through the proxy. This may be because:</p>
+                            <ul style="text-align: left; opacity: 0.9;">
+                                <li>The site blocks proxy access</li>
+                                <li>The URL is invalid or unreachable</li>
+                                <li>The site requires special authentication</li>
+                            </ul>
+                            <a href="' . route('browser.home') . '" class="btn">← Back to YGXONE Browser</a>
+                        </div>
+                    </body>
+                </html>', 
+                502
+            )->header('Content-Type', 'text/html');
         }
     }
 

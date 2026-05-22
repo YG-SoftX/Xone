@@ -22,3 +22,14 @@ use Illuminate\Support\Facades\Route;
 // Auth::routes() is removed because laravel/ui is not installed.
 // We map the standard logout route to our SSO controller.
 Route::post('/logout', [\App\Http\Controllers\SSOController::class, 'logout'])->name('logout');
+
+// Debug route to check authentication status
+Route::get('/debug/auth', function() {
+    return response()->json([
+        'auth_check' => auth()->check(),
+        'auth_user' => auth()->user(),
+        'session_sso_user' => session('sso_user'),
+        'session_id' => session()->getId(),
+        'cookies' => request()->cookies->all(),
+    ]);
+})->middleware('web');

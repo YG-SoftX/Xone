@@ -23,7 +23,7 @@ return [
     'health_timeout' => (int) env('ECOSYSTEM_HEALTH_TIMEOUT', 8),
 
     // ── App registry ───────────────────────────────────────────────────────────
-    // type: 'laravel' | 'static'
+    // type: 'laravel' | 'static' | 'electron'
     // health: endpoint appended to url to verify the app is alive
     'apps' => [
 
@@ -55,6 +55,16 @@ return [
             'health' => '/up',
             'icon'   => '⚙️',
             'order'  => 3,
+        ],
+
+        'yg-electron' => [
+            'name'   => 'YG Electron Browser',
+            'path'   => env('ECOSYSTEM_PATH_ELECTRON',  $root . '/electron-app'),
+            'type'   => 'electron',
+            'url'    => env('YG_ELECTRON_URL',          'ygxone://electron-app'),
+            'health' => '/health',
+            'icon'   => '🖥️',
+            'order'  => 21,
         ],
 
         'yg-mail' => [

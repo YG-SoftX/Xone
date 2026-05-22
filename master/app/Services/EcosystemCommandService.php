@@ -17,6 +17,11 @@ class EcosystemCommandService
         $path = $this->registry->path($id);
         $lib  = config('ecosystem.lib');
 
+        // Handle electron apps differently
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->updateElectronApp($id);
+        }
+
         if (! is_dir($path)) {
             return $this->fail("Path not found: {$path}");
         }
@@ -41,12 +46,41 @@ class EcosystemCommandService
     }
 
     /**
+     * Update electron app (send update command to client)
+     */
+    private function updateElectronApp(string $id): array
+    {
+        // For electron apps, we can't update directly since they run on user machines
+        // Instead, we update the configuration to prompt users to update
+        $app = \App\Models\AppModule::where('slug', $id)->first();
+        if ($app) {
+            $app->update([
+                'config' => array_merge(
+                    json_decode($app->config ?? '{}', true) ?: [],
+                    ['needs_update' => true, 'update_available' => true]
+                )
+            ]);
+        }
+
+        return [
+            'success' => true,
+            'output' => "Update notification sent to electron app {$id}",
+        ];
+    }
+
+    /**
      * Rollback the app to its last saved git commit.
      */
     public function rollback(string $id): array
     {
         $path   = $this->registry->path($id);
         $lib    = config('ecosystem.lib');
+
+        // Handle electron apps differently
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->rollbackElectronApp($id);
+        }
+
         $script = dirname(dirname($lib)) . '/rollback.sh';
 
         if (file_exists($script) && file_exists($lib)) {
@@ -74,10 +108,38 @@ class EcosystemCommandService
     }
 
     /**
+     * Rollback electron app
+     */
+    private function rollbackElectronApp(string $id): array
+    {
+        // For electron apps, we can't rollback directly since they run on user machines
+        // Instead, we update the configuration to prompt users to rollback
+        $app = \App\Models\AppModule::where('slug', $id)->first();
+        if ($app) {
+            $app->update([
+                'config' => array_merge(
+                    json_decode($app->config ?? '{}', true) ?: [],
+                    ['needs_update' => true, 'update_available' => false, 'rollback_required' => true]
+                )
+            ]);
+        }
+
+        return [
+            'success' => true,
+            'output' => "Rollback notification sent to electron app {$id}",
+        ];
+    }
+
+    /**
      * Run database migrations for an app.
      */
     public function migrate(string $id): array
     {
+        // Electron apps don't have database migrations
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support database migrations");
+        }
+
         return $this->artisan($id, 'migrate --force');
     }
 
@@ -86,6 +148,11 @@ class EcosystemCommandService
      */
     public function backup(string $id): array
     {
+        // Electron apps don't support server-side backups
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support server-side backups");
+        }
+
         $path   = $this->registry->path($id);
         $script = $path . '/scripts/backup.sh';
 
@@ -119,6 +186,11 @@ class EcosystemCommandService
      */
     public function artisan(string $id, string $command): array
     {
+        // Electron apps don't support artisan commands
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support artisan commands");
+        }
+
         $path = $this->registry->path($id);
         $php  = config('ecosystem.php', 'php');
 
@@ -152,6 +224,11 @@ class EcosystemCommandService
      */
     public function gitPull(string $id): array
     {
+        // Electron apps don't support git pulls
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support git operations");
+        }
+
         $path = $this->registry->path($id);
         return $this->run(
             "git -C " . escapeshellarg($path) . " pull origin " .
@@ -166,6 +243,11 @@ class EcosystemCommandService
      */
     public function rebuildCaches(string $id): array
     {
+        // Electron apps don't support cache rebuilding
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support cache operations");
+        }
+
         return $this->runArtisanSequence($id, $this->registry->path($id), [
             'optimize:clear',
             'config:cache',
@@ -180,6 +262,11 @@ class EcosystemCommandService
      */
     public function toggleMaintenance(string $id, bool $down): array
     {
+        // Electron apps don't support maintenance mode
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support maintenance mode");
+        }
+
         return $this->artisan($id, $down ? 'down --retry=30' : 'up');
     }
 
@@ -188,6 +275,11 @@ class EcosystemCommandService
      */
     public function restartQueue(string $id): array
     {
+        // Electron apps don't support queue operations
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support queue operations");
+        }
+
         return $this->artisan($id, 'queue:restart');
     }
 
@@ -196,6 +288,11 @@ class EcosystemCommandService
      */
     public function clearCache(string $id): array
     {
+        // Electron apps don't support cache clearing
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support cache operations");
+        }
+
         return $this->artisan($id, 'optimize:clear');
     }
 
@@ -234,6 +331,11 @@ class EcosystemCommandService
 
     private function runArtisanSequence(string $id, string $path, array $commands): array
     {
+        // Electron apps don't support artisan sequences
+        if ($this->registry->getType($id) === 'electron') {
+            return $this->fail("Electron apps don't support artisan operations");
+        }
+
         $php    = config('ecosystem.php', 'php');
         $output = [];
 

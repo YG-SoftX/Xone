@@ -10,7 +10,7 @@ class LandingPageController extends Controller
     public function index()
     {
         if (auth()->check()) {
-            return redirect('/dashboard');
+            return redirect()->route('mail.inbox'); // Redirect to mail inbox instead of generic dashboard
         }
 
         // Use settings from DB if available, otherwise use defaults

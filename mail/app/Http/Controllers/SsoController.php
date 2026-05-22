@@ -48,33 +48,40 @@ class SsoController extends Controller
         }
 
         try {
-            // Find or create local user in YG Mail's own DB
-            $user = User::firstOrCreate(
-                ['email' => $response['email']],
-                [
-                    'name' => $response['name'],
-                    'password' => Hash::make(Str::random(32)), // random password — auth via SSO only
-                ]
-            );
+            // Find user by email in the shared user table
+            $user = User::where('email', $response['email'])->first();
 
-            // Sync name in case it changed
-            if ($user->name !== $response['name']) {
-                $user->name = $response['name'];
-                $user->save();
+            if (!$user) {
+                // Create user if not found - this is fine in a unified database
+                $user = User::create([
+                    'name' => $response['name'],
+                    'email' => $response['email'],
+                    'password' => Hash::make(Str::random(32)), // random password — auth via SSO only
+                    'email_verified_at' => now(),
+                ]);
+            } else {
+                // Update name if it changed
+                if ($user->name !== $response['name']) {
+                    $user->name = $response['name'];
+                    $user->save();
+                }
             }
 
+            // Login the user
             Auth::login($user, true);
             $request->session()->regenerate();
 
-            return redirect('/');
+            // Redirect to the appropriate page after login
+            $redirectTo = $request->session()->pull('url.intended', route('mail.inbox'));
+            return redirect($redirectTo);
         } catch (\Exception $e) {
-            Log::error('SSO user creation failed', [
+            Log::error('SSO user creation/lookup failed', [
                 'error' => $e->getMessage(),
                 'email' => $response['email'] ?? 'unknown',
             ]);
 
             return redirect('/')->withErrors([
-                'sso' => 'Failed to create account. Please try again or contact support.',
+                'sso' => 'Failed to process account. Please try again or contact support.',
             ]);
         }
     }

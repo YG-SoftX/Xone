@@ -202,6 +202,37 @@
             }
         }
 
+        /* ── Custom Download Button Styles ───────────────────────── */
+        .download-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--yg-primary);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
         .font-heading { font-family: var(--font-heading); }
 
         /* Ambient Background Pattern */
@@ -344,267 +375,3 @@
     
     @stack('styles')
 </head>
-<body class="antialiased">
-
-    {{-- Splash Screen Overlay (fully dynamic, controlled from Master Panel) --}}
-    @if($splashConfig['enabled'] ?? true)
-    <div id="pwa-splash" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500"
-         style="background-color: {{ $splashConfig['bg_color'] ?? '#0f172a' }};">
-        {{-- Ambient background glow --}}
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-20"
-                 style="background: radial-gradient(circle, {{ $splashConfig['spinner_color'] ?? '#2563eb' }} 0%, transparent 70%);"></div>
-        </div>
-        
-        <div class="relative z-10 flex flex-col items-center gap-6 fade-in-up">
-            {{-- Logo --}}
-            @if(!empty($splashConfig['logo_url'] ?? ''))
-                <img src="{{ $splashConfig['logo_url'] }}" alt="{{ $splashConfig['title'] ?? 'YGXONE' }}" class="w-20 h-20 object-contain rounded-2xl shadow-lg">
-            @else
-                <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg"
-                     style="background: linear-gradient(135deg, {{ $splashConfig['spinner_color'] ?? '#2563eb' }}, {{ $splashConfig['spinner_color'] ?? '#2563eb' }}cc); color: white;">
-                    {{ strtoupper(substr($splashConfig['title'] ?? 'Y', 0, 2)) }}
-                </div>
-            @endif
-            
-            {{-- Title + Subtitle --}}
-            <div class="text-center">
-                <h1 class="text-2xl font-heading font-bold tracking-tight text-white mb-1">
-                    {{ $splashConfig['title'] ?? 'YGXONE' }}
-                </h1>
-                @if(!empty($splashConfig['subtitle'] ?? ''))
-                    <p class="text-sm text-white/60 font-body tracking-wide">
-                        {{ $splashConfig['subtitle'] }}
-                    </p>
-                @endif
-            </div>
-            
-            {{-- Spinner --}}
-            <div class="mt-4 relative">
-                <svg class="animate-spin" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <circle cx="16" cy="16" r="14" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
-                    <path d="M16 2a14 14 0 0 1 14 14" stroke="{{ $splashConfig['spinner_color'] ?? '#2563eb' }}" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
-        
-        {{-- Loading bar at bottom --}}
-        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
-            <div id="splash-progress-bar" class="h-full transition-all duration-300 ease-out"
-                 style="background-color: {{ $splashConfig['spinner_color'] ?? '#2563eb' }}; width: 0%;"></div>
-        </div>
-    </div>
-    @endif
-
-    {{-- PWA Install Prompt (floating button, controlled by master admin config) --}}
-    @if($pwaEnabled)
-    <div id="pwa-install-prompt" style="display:none" class="fixed bottom-4 right-4 z-[9999]">
-        <button id="pwa-install-btn" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white text-sm font-bold shadow-lg hover:opacity-90 transition-all animate-fade-in-up">
-            <i class="fas fa-download text-xs"></i>
-            <span>Install App</span>
-        </button>
-        <button id="pwa-dismiss-btn" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-300 transition-colors text-[10px]">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
-    <div class="bg-ambient"></div>
-
-    {{-- Admin Bar (visible to admins only) --}}
-    @if(auth()->check() && (
-        in_array(auth()->user()->email, array_filter(explode(',', env('ADMIN_EMAILS', '')))) ||
-        in_array((string) auth()->id(), array_filter(explode(',', env('ADMIN_USER_IDS', ''))))
-    ))
-    <div class="bg-gradient-to-r from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white px-4 py-2 text-xs font-semibold z-50" x-data="{ open: false }">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <span><i class="fas fa-shield-alt mr-2"></i>Admin Mode</span>
-                <span class="opacity-60">|</span>
-                <a href="{{ route('admin.dashboard') }}" class="hover:underline flex items-center gap-1.5">
-                    <i class="fas fa-chart-line text-[10px]"></i> Dashboard
-                </a>
-                <a href="https://master.ygxone.com/admin" target="_blank" class="hover:underline flex items-center gap-1.5">
-                    <i class="fas fa-external-link-alt text-[10px]"></i> Master Panel
-                </a>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1.5">
-                    <span class="live-dot"></span>
-                    <span>Live</span>
-                </span>
-                <span class="opacity-40">{{ now()->format('H:i:s') }}</span>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    {{-- Main Content --}}
-    <main class="flex-1">
-        @yield('content')
-    </main>
-
-    {{-- Global Alpine State --}}
-    <script>
-        function appState() {
-            return {
-                searchQuery: '',
-                suggestions: [],
-                showSuggestions: false,
-                loading: false,
-                themeLoaded: false,
-
-                init() {
-                    this.themeLoaded = true;
-                },
-
-                async fetchSuggestions() {
-                    if (this.searchQuery.length < 2) {
-                        this.suggestions = [];
-                        this.showSuggestions = false;
-                        return;
-                    }
-                    
-                    this.loading = true;
-                    try {
-                        const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(this.searchQuery)}`);
-                        const data = await res.json();
-                        this.suggestions = data.suggestions || [];
-                        this.showSuggestions = this.suggestions.length > 0;
-                    } catch (e) {
-                        this.suggestions = [];
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                selectSuggestion(suggestion) {
-                    this.searchQuery = suggestion;
-                    this.showSuggestions = false;
-                    document.getElementById('search-form')?.submit();
-                },
-
-                clearSearch() {
-                    this.searchQuery = '';
-                    this.suggestions = [];
-                    this.showSuggestions = false;
-                }
-            }
-        }
-    </script>
-
-    @stack('scripts')
-
-    {{-- Service Worker Registration --}}
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js', { scope: '/' })
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-    </script>
-
-    {{-- PWA Install Prompt --}}
-    <script>
-        let deferredPrompt = null;
-        const installPrompt = document.getElementById('pwa-install-prompt');
-        const installBtn = document.getElementById('pwa-install-btn');
-        const dismissBtn = document.getElementById('pwa-dismiss-btn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (installPrompt) {
-                installPrompt.style.display = 'block';
-            }
-        });
-
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log('PWA install:', outcome);
-                deferredPrompt = null;
-                if (installPrompt) installPrompt.style.display = 'none';
-            });
-        }
-
-        if (dismissBtn) {
-            dismissBtn.addEventListener('click', () => {
-                if (installPrompt) {
-                    installPrompt.style.display = 'none';
-                    sessionStorage.setItem('pwa_install_dismissed', '1');
-                }
-            });
-        }
-
-        // Don't show if previously dismissed this session
-        if (sessionStorage.getItem('pwa_install_dismissed') === '1') {
-            if (installPrompt) installPrompt.style.display = 'none';
-        }
-
-        // Hide prompt if app is already in standalone mode
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            if (installPrompt) installPrompt.style.display = 'none';
-        }
-    </script>
-
-    {{-- Splash Screen Dismissal (dynamic, respects master admin toggle) --}}
-    <script>
-        (function() {
-            const splash = document.getElementById('pwa-splash');
-            const progressBar = document.getElementById('splash-progress-bar');
-            if (!splash) return;
-
-            // Animate progress bar with smooth easing (no jitter)
-            if (progressBar) {
-                let width = 0;
-                let step = 0;
-                const totalSteps = 20; // More steps = smoother
-                const interval = setInterval(() => {
-                    step++;
-                    // Ease-out curve: fast at start, slowing toward 85%
-                    const easeOut = 1 - Math.pow(1 - step / totalSteps, 2);
-                    width = easeOut * 85;
-                    if (width >= 85) {
-                        width = 85;
-                        clearInterval(interval);
-                    }
-                    progressBar.style.width = width.toFixed(1) + '%';
-                }, 100);
-
-                // Complete to 100% on page load
-                const finishBar = () => {
-                    progressBar.style.width = '100%';
-                };
-                window.addEventListener('load', finishBar, { once: true });
-            }
-
-            // Dismiss splash after page loads + extra delay for smoothness
-            const dismissSplash = () => {
-                splash.style.opacity = '0';
-                splash.style.pointerEvents = 'none';
-                setTimeout(() => {
-                    if (splash.parentNode) splash.parentNode.removeChild(splash);
-                }, 500);
-            };
-
-            // Dismiss on load (with minimum 800ms display time for branding)
-            const minDisplayTime = 800;
-            const startTime = Date.now();
-            window.addEventListener('load', () => {
-                const elapsed = Date.now() - startTime;
-                const delay = Math.max(0, minDisplayTime - elapsed);
-                setTimeout(dismissSplash, delay);
-            });
-
-            // Fallback: dismiss after 5 seconds max
-            setTimeout(() => {
-                if (splash.parentNode) dismissSplash();
-            }, 5000);
-        })();
-    </script>
-</body>
-</html>

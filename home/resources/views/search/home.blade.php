@@ -18,7 +18,7 @@
     <header class="relative z-50 px-4 sm:px-8 lg:px-12 py-4">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             {{-- Logo --}}
-            <a href="{{ route('search.home') }}" class="flex items-center gap-2 no-underline hover:opacity-90 transition-opacity">
+            <a href="{{ route('browser.home') }}" class="flex items-center gap-2 no-underline hover:opacity-90 transition-opacity">
                 {!! $headerLogo !!}
             </a>
 
@@ -71,16 +71,21 @@
                 </div>
 
                 {{-- Quick Links --}}
-                <a href="{{ route('sso.initiate') }}" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-all duration-200">
+                <a href="{{ route('browser.home') }}" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--yg-text-dim)] hover:bg-[var(--yg-surface)] transition-all duration-200">
                     <i class="fas fa-question-circle text-xs"></i>
                     <span>Help</span>
                 </a>
 
                 {{-- Auth --}}
-                @if(auth()->check())
+                @php
+                    $isLoggedIn = auth()->check() || session('sso_user');
+                    $currentUser = auth()->user() ?? session('sso_user');
+                @endphp
+                
+                @if($isLoggedIn)
                 <div class="flex items-center gap-3">
                     <span class="hidden sm:block text-sm font-semibold text-[var(--yg-text)]">
-                        {{ auth()->user()->name }}
+                        {{ is_array($currentUser) ? ($currentUser['name'] ?? 'User') : ($currentUser->name ?? 'User') }}
                     </span>
                     <a href="{{ route('sso.logout') }}" 
                        class="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--yg-primary)] to-[var(--yg-secondary)] text-white flex items-center justify-center text-sm hover:opacity-90 transition-all duration-200 shadow-lg shadow-[var(--yg-primary)]/20"
@@ -118,7 +123,7 @@
     @endif
 
     {{-- ── Hero Section ── --}}
-    <section class="flex-1 flex flex-col items-center justify-center px-4 pb-16 sm:pb-24">
+    <section class="flex-1 flex flex-col items-center justify-center px-4 pb-8 sm:pb-12">
         
         {{-- Hero Logo / Title --}}
         <div class="text-center mb-8 fade-in-up">
@@ -208,44 +213,103 @@
             </div>
         </div>
 
-        {{-- ── Ecosystem App Grid ── --}}
-        <div class="w-full max-w-4xl px-4 fade-in-up fade-in-delay-3">
-            <div class="text-center mb-8">
-                <div class="flex items-center justify-center gap-2 text-xs font-bold text-[var(--yg-text-dim)] uppercase tracking-[0.2em]">
-                    <span class="w-8 h-px bg-[var(--yg-border)]"></span>
-                    <span>YG Ecosystem</span>
-                    <span class="w-8 h-px bg-[var(--yg-border)]"></span>
+        {{-- ── Desktop App Download Section ── --}}
+        <div class="w-full max-w-4xl px-4 mb-16 fade-in-up fade-in-delay-3">
+            <div class="bg-gradient-to-br from-[var(--yg-surface)] to-[var(--yg-border)] rounded-3xl p-8 border border-[var(--yg-border)]">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center gap-2 text-xs font-bold text-[var(--yg-text-dim)] uppercase tracking-[0.2em] mb-4">
+                        <span class="w-8 h-px bg-[var(--yg-border)]"></span>
+                        <span>YGXONE BROWSER</span>
+                        <span class="w-8 h-px bg-[var(--yg-border)]"></span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-[var(--yg-text)] mb-4">Download the Desktop Experience</h2>
+                    <p class="text-[var(--yg-text-dim)] max-w-2xl mx-auto">
+                        Get the full YG ecosystem experience with our desktop browser. Access all services in one integrated application with enhanced privacy and security features.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="/downloads/YGXONE-Browser-Windows.exe" 
+                       class="download-btn flex items-center gap-3 px-6 py-4 rounded-2xl bg-white border border-[var(--yg-border)] hover:shadow-lg transition-all duration-300 min-w-48">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500 text-white">
+                            <i class="fab fa-windows text-lg"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-[var(--yg-text)]">Windows</div>
+                            <div class="text-xs text-[var(--yg-text-dim)]">Download for PC</div>
+                        </div>
+                    </a>
+
+                    <a href="/downloads/YGXONE-Browser-macOS.dmg" 
+                       class="download-btn flex items-center gap-3 px-6 py-4 rounded-2xl bg-white border border-[var(--yg-border)] hover:shadow-lg transition-all duration-300 min-w-48">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-800 text-white">
+                            <i class="fab fa-apple text-lg"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-[var(--yg-text)]">macOS</div>
+                            <div class="text-xs text-[var(--yg-text-dim)]">Download for Mac</div>
+                        </div>
+                    </a>
+
+                    <a href="/downloads/YGXONE-Browser-Linux.AppImage" 
+                       class="download-btn flex items-center gap-3 px-6 py-4 rounded-2xl bg-white border border-[var(--yg-border)] hover:shadow-lg transition-all duration-300 min-w-48">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-500 text-white">
+                            <i class="fab fa-linux text-lg"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-[var(--yg-text)]">Linux</div>
+                            <div class="text-xs text-[var(--yg-text-dim)]">Download for Linux</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-[var(--yg-text-dim)]">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        Secure, private, and optimized for the YG ecosystem
+                    </p>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-                @foreach($activeApps as $app)
-                <a href="{{ $app['url'] }}" target="_blank"
-                   class="eco-tile group flex flex-col items-center gap-3 p-4 sm:p-5 rounded-[calc(var(--yg-radius,12px)*1.5)] bg-white border border-[var(--yg-border)] hover:border-transparent"
-                   style="--tile-color: {{ $app['icon_color'] }}"
-                   @mouseenter="$el.style.boxShadow = '0 8px 30px ' + getComputedStyle($el).getPropertyValue('--tile-color') + '25'"
-                   @mouseleave="$el.style.boxShadow = ''">
-                    
-                    {{-- Icon --}}
-                    <div class="icon-wrapper w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-xl sm:text-2xl text-white transition-all duration-300"
-                         style="background: linear-gradient(135deg, {{ $app['icon_color'] }}, {{ $app['icon_color'] }}cc)">
-                        <i class="{{ $app['icon'] }}"></i>
-                    </div>
-                    
-                    {{-- Label --}}
-                    <div class="text-center">
-                        <div class="text-sm font-bold text-[var(--yg-text)] group-hover:text-[var(--yg-primary)] transition-colors">
-                            {{ $app['name'] }}
-                        </div>
-                        <div class="text-[11px] text-[var(--yg-text-dim)] mt-0.5">{{ $app['description'] }}</div>
-                    </div>
-
-                    {{-- Hover Glow --}}
-                    <div class="absolute inset-0 rounded-[calc(var(--yg-radius,12px)*1.5)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                         style="background: radial-gradient(200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), {{ $app['icon_color'] }}08, transparent)"></div>
-                </a>
-                @endforeach
+    {{-- ── Ecosystem App Grid ── --}}
+    <section class="w-full max-w-4xl px-4 mb-16 fade-in-up fade-in-delay-3">
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-2 text-xs font-bold text-[var(--yg-text-dim)] uppercase tracking-[0.2em]">
+                <span class="w-8 h-px bg-[var(--yg-border)]"></span>
+                <span>YG Ecosystem</span>
+                <span class="w-8 h-px bg-[var(--yg-border)]"></span>
             </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            @foreach($activeApps as $app)
+            <a href="{{ $app['url'] }}" target="_blank"
+               class="eco-tile group flex flex-col items-center gap-3 p-4 sm:p-5 rounded-[calc(var(--yg-radius,12px)*1.5)] bg-white border border-[var(--yg-border)] hover:border-transparent"
+               style="--tile-color: {{ $app['icon_color'] }}"
+               @mouseenter="$el.style.boxShadow = '0 8px 30px ' + getComputedStyle($el).getPropertyValue('--tile-color') + '25'"
+               @mouseleave="$el.style.boxShadow = ''">
+                
+                {{-- Icon --}}
+                <div class="icon-wrapper w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-xl sm:text-2xl text-white transition-all duration-300"
+                     style="background: linear-gradient(135deg, {{ $app['icon_color'] }}, {{ $app['icon_color'] }}cc)">
+                    <i class="{{ $app['icon'] }}"></i>
+                </div>
+                
+                {{-- Label --}}
+                <div class="text-center">
+                    <div class="text-sm font-bold text-[var(--yg-text)] group-hover:text-[var(--yg-primary)] transition-colors">
+                        {{ $app['name'] }}
+                    </div>
+                    <div class="text-[11px] text-[var(--yg-text-dim)] mt-0.5">{{ $app['description'] }}</div>
+                </div>
+
+                {{-- Hover Glow --}}
+                <div class="absolute inset-0 rounded-[calc(var(--yg-radius,12px)*1.5)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                     style="background: radial-gradient(200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), {{ $app['icon_color'] }}08, transparent)"></div>
+            </a>
+            @endforeach
         </div>
     </section>
 

@@ -733,6 +733,246 @@ CSS;
         return $agents[array_rand($agents)];
     }
 
+    // ── POST Form Handling ──────────────────────────────────────────────────
+
+    /**
+     * Extract all <form> elements from raw HTML.
+     * Used by the worker to identify actionable forms and by the
+     * outer app to render a structured forms panel.
+     *
+     * @return array{action:string, method:string, enctype:string, fields:array}
+     */
+    public function extractForms(string $html, string $baseUrl): array
+    {
+        $forms = [];
+        $baseDomain = (parse_url($baseUrl, PHP_URL_SCHEME) ?? 'https') . '://' . (parse_url($baseUrl, PHP_URL_HOST) ?? '');
+
+        preg_match_all('/<form\b[^>]*>/i', $html, $openMatches, PREG_OFFSET_CAPTURE);
+
+        foreach ($openMatches[0] as $match) {
+            $tag     = $match[0];
+            $offset  = $match[1];
+            $tagEnd  = $offset + strlen($tag);
+
+            // Find closing </form>
+            $closePos = stripos($html, '</form>', $tagEnd);
+            if ($closePos === false) $closePos = strlen($html);
+
+            $formBlock = substr($html, $offset, $closePos - $offset + 7);
+
+            // Parse attributes
+            $action = $this->parseFormAttr($formBlock, 'action') ?: '';
+            if ($action && !preg_match('#^https?://#i', $action)) {
+                $action = rtrim($baseDomain, '/') . '/' . ltrim($action, '/');
+            }
+            $method   = strtoupper($this->parseFormAttr($formBlock, 'method') ?: 'GET');
+            $enctype  = $this->parseFormAttr($formBlock, 'enctype') ?: 'application/x-www-form-urlencoded';
+            $formId    = $this->parseFormAttr($formBlock, 'id') ?: '';
+            $formClass = $this->parseFormAttr($formBlock, 'class') ?: '';
+
+            // Extract fields
+            $fields = [];
+            preg_match_all('/<(input|select|textarea)\b[^>]*>/i', $formBlock, $fieldMatches, PREG_OFFSET_CAPTURE);
+            foreach ($fieldMatches[0] as $fm) {
+                $ftag  = $fm[0];
+                $name  = strtolower($this->parseFormAttr($ftag, 'name') ?: '');
+                $type  = strtolower($this->parseFormAttr($ftag, 'type') ?: '');
+                $fid   = strtolower($this->parseFormAttr($ftag, 'id') ?: '');
+                $label = '';
+                // Try to find associated <label>
+                if ($name) {
+                    $pat = '/<label\b[^>]*\bfor\s*=\s*["\']' . preg_quote($fid ?: $name, '/') . '["\'][^>]*>([^<]*)<\/label>/i';
+                    if (preg_match($pat, $html, $lm, 0, $offset)) {
+                        $label = trim(strip_tags($lm[1]));
+                    }
+                }
+                if ($name) {
+                    $fields[] = compact('name', 'type', 'fid', 'label');
+                }
+            }
+
+            $forms[] = compact('action', 'method', 'enctype', 'formId', 'formClass', 'fields');
+        }
+
+        return $forms;
+    }
+
+    /**
+     * Parse a single HTML attribute value from a tag string.
+     */
+    private function parseFormAttr(string $tag, string $attr): ?string
+    {
+        if (preg_match('/\b' . preg_quote($attr, '/') . '\s*=\s*["\']([^"\']*)["\']/i', $tag, $m)) {
+            return html_entity_decode($m[1]);
+        }
+        return null;
+    }
+
+    /**
+     * Submit a form to the target URL and return the proxied response.
+     *
+     * Called by SearchController::browserSubmit() when the worker forwards
+     * a form submission via postMessage.
+     *
+     * @return array{content: string, contentType: string, statusCode: int, url: string, title: string|null}
+     */
+    public function submitForm(string $pageUrl, array $formData): array
+    {
+        $targetUrl = $formData['action'] ?? $pageUrl;
+        $method    = strtoupper($formData['method'] ?? 'GET');
+        $enctype   = strtoupper($formData['enctype'] ?? '');
+        $inputs    = $formData['data'] ?? [];
+
+        $targetUrl = $this->normalizeUrl($targetUrl);
+
+        $this->shieldsStats = [
+            'ads_blocked' => 0, 'trackers_blocked' => 0, 'scripts_blocked' => 0,
+            'https_upgraded' => false, 'fingerprinting_blocked' => 0,
+        ];
+
+        $shieldsConfig  = $this->getShieldsConfig();
+        $useShields     = $shieldsConfig['enabled'] ?? true;
+        $blockFp        = $shieldsConfig['block_fingerprinting'] ?? true;
+        $upgradeHttps   = $shieldsConfig['https_upgrade'] ?? true;
+
+        if ($useShields && $upgradeHttps) {
+            $upgraded = $this->upgradeToHttps($targetUrl);
+            if ($upgraded !== $targetUrl) {
+                $this->shieldsStats['https_upgraded'] = true;
+                $targetUrl = $upgraded;
+            }
+        }
+
+        try {
+            $ch = curl_init();
+            $headers = $this->buildShieldedHeaders($useShields && $blockFp);
+
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => $targetUrl,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS      => 5,
+                CURLOPT_TIMEOUT        => $this->timeout,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_USERAGENT      => $useShields && $blockFp
+                    ? $this->getShieldedUserAgent()
+                    : $this->userAgent,
+                CURLOPT_HTTPHEADER     => $headers,
+                CURLOPT_SSL_VERIFYPEER => (bool) config('browser.verify_ssl', true),
+                CURLOPT_SSL_VERIFYHOST => config('browser.verify_ssl', true) ? 2 : 0,
+                CURLOPT_ENCODING       => '',
+            ]);
+
+            // Attach POST fields
+            if ($method === 'POST') {
+                curl_setopt($ch, CURLOPT_POST, true);
+                if (stripos($enctype, 'multipart') !== false) {
+                    // multipart/form-data
+                    $postfields = [];
+                    foreach ($inputs as $k => $v) {
+                        if (is_array($v)) {
+                            foreach ($v as $sub) $postfields[] = [$k => $sub];
+                        } else {
+                            $postfields[$k] = $v;
+                        }
+                    }
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+                } else {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($inputs));
+                    $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+                }
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            }
+
+            $content     = curl_exec($ch);
+            $statusCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?: 'text/html';
+            $finalUrl    = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) ?: $targetUrl;
+            $error       = curl_error($ch);
+            curl_close($ch);
+
+            if ($content === false || !empty($error)) {
+                Log::warning("BrowserProxy: Form submit error for {$targetUrl}: {$error}");
+                return $this->errorResponse("Form submission failed: {$error}");
+            }
+
+            $contentTypeLower = strtolower($contentType);
+            if (str_contains($contentTypeLower, 'text/html')) {
+                if ($useShields) {
+                    $shieldsConfig['submit_mode'] = true;
+                    $content = $this->applyShields($content, $shieldsConfig, []);
+                }
+                $content = $this->rewriteHtml($content, $finalUrl);
+            } elseif (str_contains($contentTypeLower, 'text/css')) {
+                $content = $this->rewriteCss($content, $finalUrl);
+            }
+
+            $title = null;
+            if (str_contains($contentTypeLower, 'text/html') && preg_match('/<title[^>]*>(.*?)<\/title>/is', $content, $m)) {
+                $title = trim($m[1]);
+            }
+
+            return [
+                'content'     => $content,
+                'contentType' => $this->cleanContentType($contentType),
+                'statusCode'  => $statusCode,
+                'url'         => $finalUrl,
+                'title'       => $title,
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("BrowserProxy: Form submit exception for {$targetUrl}: " . $e->getMessage());
+            return $this->errorResponse('Form submission error.');
+        }
+    }
+
+    /**
+     * Fetch a blocked-popup URL and return rewritten content.
+     * Used when the worker intercepts window.open() and sends the URL
+     * back to the outer app via postMessage so it can open the page
+     * in a fresh iframe or a new tab.
+     *
+     * @return array{content: string, contentType: string, statusCode: int, url: string, title: string|null}
+     */
+    public function fetchPopupPage(string $targetUrl): array
+    {
+        $targetUrl = $this->normalizeUrl($targetUrl);
+        if (!preg_match('#^https?://#i', $targetUrl)) {
+            return ['content' => '', 'contentType' => 'text/html', 'statusCode' => 400, 'url' => $targetUrl, 'title' => null];
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $targetUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 5,
+            CURLOPT_TIMEOUT        => $this->timeout,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_USERAGENT      => $this->userAgent,
+            CURLOPT_SSL_VERIFYPEER => (bool) config('browser.verify_ssl', true),
+            CURLOPT_SSL_VERIFYHOST => config('browser.verify_ssl', true) ? 2 : 0,
+            CURLOPT_ENCODING       => '',
+        ]);
+        $content    = curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $contentType= curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?: 'text/html';
+        $finalUrl   = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) ?: $targetUrl;
+        curl_close($ch);
+
+        if ($content === false) {
+            return $this->errorResponse("Failed to fetch popup page: " . curl_error($ch));
+        }
+
+        return [
+            'content'     => $content,
+            'contentType' => $this->cleanContentType($contentType),
+            'statusCode'  => $statusCode,
+            'url'         => $finalUrl,
+            'title'       => preg_match('/<title[^>]*>(.*?)<\/title>/is', $content, $m) ? trim($m[1]) : null,
+        ];
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /**
@@ -762,6 +1002,402 @@ CSS;
     {
         $parsed = parse_url($baseUrl);
         $baseDomain = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '');
+
+        // 0. Inject anti-frame-busting script BEFORE anything else
+        // This prevents sites from breaking out of the iframe using window.top.location
+        $antiFrameBustScript = <<<'JS'
+<script>
+(function() {
+    // Prevent frame busting / break-out attempts
+    if (window !== window.top) {
+        // Override location setter to prevent top navigation
+        Object.defineProperty(window, 'location', {
+            configurable: true,
+            enumerable: true,
+            get: function() { return document.location; },
+            set: function(value) { 
+                console.log('[YG Browser] Blocked frame-busting attempt:', value);
+                document.location.href = value; 
+            }
+        });
+        
+        // Prevent top.location assignment
+        try {
+            Object.defineProperty(window.top, 'location', {
+                configurable: false,
+                writable: false,
+                value: window.top.location
+            });
+        } catch(e) {}
+        
+        // Block common frame-bust patterns
+        var originalOpen = window.open;
+        window.open = function() {
+            console.log('[YG Browser] Blocked window.open in iframe');
+            return null;
+        };
+    }
+})();
+</script>
+JS;
+        
+        // Inject right after <head> opening tag
+        $html = preg_replace('/(<head[^>]*>)/is', '$1' . $antiFrameBustScript, $html, 1);
+
+        // 0b. Inject bidirectional navigation worker
+        // This bridges the iframe content with the outer YG Browser app shell.
+        // The worker runs inside the proxied iframe (same-origin via proxy) and
+        // posts structured messages back to the outer Alpine.js-driven app via postMessage.
+        // The outer app handles navigation, popup opening, form POST submission,
+        // and push notification display — the iframe is never trusted to navigate itself.
+        $browseNavWorker = <<<'JS'
+<script>
+(function() {
+    'use strict';
+
+    const base = new URL(window.location.href).origin + '/browse';
+    window.__yg_browse = { base };
+
+    // ── helpers ──────────────────────────────────────────────────────────
+    function postMsg(type, payload) {
+        try {
+            window.top.postMessage({ __yg_browse: true, type, payload }, '*');
+        } catch(e) { console.warn('[YG] postMessage failed:', e); }
+    }
+
+    function resolveUrl(href) {
+        try { return new URL(href, window.location.href).href; } catch(e) { return href; }
+    }
+
+    // ── worker hooks ─────────────────────────────────────────────────────
+
+    // 1. Popup blocker — intercept window.open and notify outer app
+    var _origOpen = window.open;
+    window.open = function(url, name, features) {
+        var u = resolveUrl(url || '');
+        postMsg('popup', { url: u, name: name || '', features: features || '' });
+        // Return a dummy window so the calling script doesn't crash
+        return { closed: false, close: function(){}, focus: function(){} };
+    };
+
+    // 2. POST form interceptor — intercept form submissions
+    // Normalises action + enctype + method + inputs → JSON for outer app
+    function patchForms() {
+        var forms = document.querySelectorAll('form[action]');
+        forms.forEach(function(f) {
+            if (f.dataset.ygPatched) return;
+            f.dataset.ygPatched = '1';
+            f.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var fd = {};
+                try {
+                    var inputs = f.querySelectorAll('input[name], select[name], textarea[name]');
+                    inputs.forEach(function(inp) {
+                        if (inp.type === 'submit' && !inp.name) return;
+                        if (inp.type === 'checkbox') fd[inp.name] = inp.checked;
+                        else if (inp.type === 'radio' && !inp.checked) return;
+                        else fd[inp.name] = inp.value;
+                    });
+                } catch(_) {}
+                postMsg('form-submit', {
+                    action: resolveUrl(f.action || window.location.href),
+                    method: (f.method || 'GET').toUpperCase(),
+                    enctype: f.enctype || 'application/x-www-form-urlencoded',
+                    data: fd
+                });
+            }, true);
+        });
+    }
+
+    // 3. Reloaded-page hook — re-patch forms on SPA/mutation updates
+    if (typeof MutationObserver !== 'undefined') {
+        var _mo = new MutationObserver(patchForms);
+        _mo.observe(document.documentElement, { childList: true, subtree: true });
+    }
+    // Also patch on DOMContentLoaded / load
+    patchForms();
+    document.addEventListener('DOMContentLoaded', patchForms);
+    window.addEventListener('load', patchForms);
+
+    // 4. Session isolation fix — proxy-scoped localStorage shim
+    // In a sandboxed same-origin iframe localStorage is scoped to the proxy
+    // origin (e.g. ygxone.com). Sites that check for login tokens in
+    // localStorage for their own domain will find an empty store. This shim
+    // stores values under a per-origin namespace so third-party scripts don't
+    // appear to be fighting over the same key-space.
+    (function() {
+        var proxyOrigin = window.location.origin;
+        Object.defineProperty(window, '__yg_proxy_origin', { value: proxyOrigin });
+
+        var _origLSGet  = Object.getOwnPropertyDescriptor(Storage.prototype, 'getItem');
+        var _origLSSet  = Object.getOwnPropertyDescriptor(Storage.prototype, 'setItem');
+        var _origLSRem  = Object.getOwnPropertyDescriptor(Storage.prototype, 'removeItem');
+        var _origLSClear= Object.getOwnPropertyDescriptor(Storage.prototype, 'clear');
+
+        function _key(k) { return '__yg_ls_' + proxyOrigin + '__' + k; }
+
+        Object.defineProperty(Storage.prototype, 'getItem', {
+            value: function(key) {
+                try { return _origLSGet.value.call(this, _key(key)); } catch(e) { return null; }
+            }
+        });
+        Object.defineProperty(Storage.prototype, 'setItem', {
+            value: function(key, val) {
+                try { _origLSSet.value.call(this, _key(key), String(val)); } catch(e) {}
+            }
+        });
+        Object.defineProperty(Storage.prototype, 'removeItem', {
+            value: function(key) {
+                try { _origLSRem.value.call(this, _key(key)); } catch(e) {}
+            }
+        });
+        Object.defineProperty(Storage.prototype, 'clear', {
+            value: function() {
+                // Only clear keys belonging to this proxy origin
+                try {
+                    for (var i = 0; i < this.length; i++) {
+                        var k = this.key(i);
+                        if (k && k.indexOf('__yg_ls_' + proxyOrigin + '__') === 0) {
+                            this.removeItem(k.replace('__yg_ls_' + proxyOrigin + '__', ''));
+                        }
+                    }
+                } catch(e) {}
+            }
+        });
+    })();
+
+    // 5. Scroll position cache — survive within-session history restores
+    // When the user navigates back/forward, the outer app re-sets iframe src.
+    // The site reloads from top. We cache the per-URL scroll position in
+    // sessionStorage (namespaced to the proxy origin) and restore it on load.
+    (function() {
+        var CACHE_KEY = '__yg_scroll_cache__';
+        var cached = {};
+        try {
+            var raw = sessionStorage.getItem(CACHE_KEY);
+            if (raw) cached = JSON.parse(raw);
+        } catch(e) {}
+
+        window.addEventListener('beforeunload', function() {
+            try {
+                cached[window.location.href] = { x: window.scrollX, y: window.scrollY };
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+            } catch(e) {}
+        });
+
+        window.addEventListener('load', function() {
+            try {
+                var entry = cached[window.location.href];
+                if (entry) window.scrollTo(entry.x || 0, entry.y || 0);
+            } catch(e) {}
+        }, true);
+    })();
+
+    // 6. Pull-to-refresh gesture (mobile) — triggers postMessage so outer app
+    // can reload the iframe cleanly.
+    (function() {
+        var startY = 0, pulling = false, threshold = 120;
+        document.addEventListener('touchstart', function(e) {
+            if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
+        }, { passive: true });
+        document.addEventListener('touchmove', function(e) {
+            if (!pulling) return;
+            var dy = e.touches[0].clientY - startY;
+            if (dy > threshold && window.scrollY === 0) {
+                pulling = false;
+                postMsg('pull-refresh', { url: window.location.href });
+            }
+        }, { passive: true });
+    })();
+
+    // 7. Notify outer app that page has loaded (for loading-bar hide)
+    window.addEventListener('load', function() {
+        postMsg('page-loaded', { url: window.location.href });
+    }, true);
+
+    console.log('[YG Browser] Worker initialised — postMessage bridge active');
+})();
+</script>
+JS;
+
+        // Inject browseNavWorker right after the anti-bust closing tag
+        // Detects either <!-- /YG Anti-Frame-Bust --> or <!-- /YG Agentic Browser Bar -->
+        $html = preg_replace(
+            '/(<!-- \/YG (?:Anti-Frame-Bust|Agentic Browser Bar) -->)/',
+            '$1' . "\n" . $browseNavWorker,
+            $html,
+            1
+        );
+
+        // Fallback: if neither marker found yet, inject after the first </script>
+        if (strpos($html, '__yg_browse') === false) {
+            $html = preg_replace('/(<\/script>\s*\n)\s*/is', '$1' . $browseNavWorker . "\n", $html, 1);
+        }
+
+        return $html;
+    }
+
+    // ── Structured-JSON page extraction (REST data protocol, Phase 2) ──────────
+
+    /**
+     * Build a structured DOM tree from the <body> of an HTML fragment.
+     * Recursive — only structural elements; style/text children are leaf nodes.
+     */
+    private function buildDomTree(string $html, string $baseUrl): array
+    {
+        $parsed = parse_url($baseUrl);
+        $baseDomain = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '');
+
+        if (!preg_match('/<body[^>]*>(.*)<\/body>/is', $html, $m)) {
+            return [];
+        }
+        return $this->domFromHtml($m[1], $baseDomain);
+    }
+
+    private function domFromHtml(string $fragment, string $baseDomain): array
+    {
+        $tree  = [];
+        $chunks = preg_split('/(?=<[a-z\/!])/i', $fragment);
+
+        foreach ($chunks as $raw) {
+            $raw = trim($raw);
+            if ($raw === '') continue;
+
+            // Text node (no leading <)
+            if (!preg_match('/^</', $raw)) {
+                $text = preg_replace('/\s+/', ' ', strip_tags($raw));
+                if (trim($text)) $tree[] = ['__text' => $text];
+                continue;
+            }
+
+            // Opening tag
+            if (preg_match('/^<([a-z][a-z0-9]*)\b/i', $raw, $tagM)) {
+                $tag   = strtolower($tagM[1]);
+                $skips = ['script','style','svg','noscript','head','html','meta','link','title','iframe','canvas','video','audio','embed','object','source','track'];
+                if (in_array($tag, $skips, true)) continue;
+
+                $attrs   = $this->domParseAttrs(substr($raw, strpos($raw, ' ')));
+                $isVoid  = in_array($tag, ['img','br','hr','input','meta','link','area','base','col','param','wbr'], true);
+                $isClose = preg_match('/<\//', $raw);
+                $inner   = '';
+                if (!$isVoid && !$isClose && preg_match('/>(.*)/is', $raw, $im)) {
+                    $inner = $im[1];
+                }
+
+                $children = $inner ? $this->domFromHtml($inner, $baseDomain) : [];
+                $tree[]   = ['tag' => $tag, 'attrs' => $attrs, 'children' => $children];
+            }
+        }
+
+        return $tree;
+    }
+
+    private function domParseAttrs(string $segment): array
+    {
+        $attrs = [];
+        preg_match_all('/([a-z_:][-a-z0-9_:.]*)\s*=\s*"([^"]*)"|([a-z_:][-a-z0-9_:.]*)\s*=\s*\'([^\']*)\'/i', $segment, $m, PREG_SET_ORDER);
+        foreach ($m as $pair) {
+            $name = strtolower($pair[1] ?: $pair[3]);
+            $val  = html_entity_decode($pair[2] ?: $pair[4] ?? '');
+            $attrs[$name] = $val;
+        }
+        return $attrs;
+    }
+
+    private function extractPlainText(string $html): string
+    {
+        $text = preg_replace('/<script\b[^>]*>.*?<\/script>/is', ' ', $html);
+        $text = preg_replace('/<style\b[^>]*>.*?<\/style>/is',  ' ', $text);
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/', ' ', $text);
+        return trim(substr($text, 0, 8000));
+    }
+
+    private function extractStyles(string $html, string $baseDomain): array
+    {
+        $styles = [];
+        preg_match_all('/<style\b[^>]*>(.*?)<\/style>/is', $html, $m);
+        foreach ($m[1] as $css) $styles[] = ['type' => 'inline', 'body' => trim($css)];
+        preg_match_all('/<link\b[^>]*\brel\s*=\s*["\'][^"\']*stylesheet[^"\']*["\'][^>]*>/i', $html, $m2);
+        foreach ($m2[0] as $link) {
+            if (preg_match('/href\s*=\s*["\']([^"\']+)["\']/i', $link, $hr)) {
+                $href = html_entity_decode($hr[1]);
+                $abs  = !preg_match('#^https?://#i', $href)
+                    ? rtrim($baseDomain, '/') . '/' . ltrim($href, '/')
+                    : $href;
+                $styles[] = ['type' => 'external', 'href' => $href, 'abs' => $abs];
+            }
+        }
+        return $styles;
+    }
+
+    private function extractHead(string $html, string $baseDomain): array
+    {
+        $heads = [];
+        preg_match('/<head[^>]*>(.*?)<\/head>/is', $html, $hm);
+        foreach (preg_split('/(?=<[a-z\/!])/i', $hm[1] ?? '') as $raw) {
+            if (!preg_match('/^<(meta|title|base|link)\b/i', trim($raw))) continue;
+            $raw = preg_replace('/<\/?[a-z][^>]*>/i', '', $raw); // strip tags — head-entries are self-closing meta/link
+            $heads[] = $this->domParseAttrs($raw);
+        }
+        return $heads;
+    }
+
+    private function extractLinks(string $html, string $baseDomain): array
+    {
+        $links = [];
+        preg_match_all('/<a\b[^>]*\bhref\s*=\s*["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', $html, $lm);
+        foreach ($lm[1] as $i => $rawHref) {
+            if (preg_match('#^(javascript:|mailto:|tel:|#)#i', $rawHref)) continue;
+            $abs = !preg_match('#^https?://#i', $rawHref)
+                ? rtrim($baseDomain, '/') . '/' . ltrim($rawHref, '/')
+                : $rawHref;
+            $links[] = ['text' => trim(strip_tags($lm[2][$i])), 'href' => $abs];
+        }
+        return array_slice($links, 0, 200);
+    }
+
+    private function extractScripts(string $html, string $baseDomain): array
+    {
+        $scripts = [];
+        preg_match_all('/<script\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\'][^>]*>/i', $html, $sm);
+        foreach ($sm[1] as $src) {
+            $abs = !preg_match('#^https?://#i', $src)
+                ? rtrim($baseDomain, '/') . '/' . ltrim($src, '/')
+                : $src;
+            $scripts[] = ['src' => $abs];
+        }
+        return $scripts;
+    }
+
+    private function extractImages(string $html, string $baseDomain): array
+    {
+        $imgs = [];
+        preg_match_all('/<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\'][^>]*>/i', $html, $im);
+        foreach ($im[1] as $src) {
+            if (str_starts_with($src, 'data:')) continue;
+            $abs = !preg_match('#^https?://#i', $src)
+                ? rtrim($baseDomain, '/') . '/' . ltrim($src, '/')
+                : $src;
+            $imgs[] = ['src' => $abs];
+        }
+        return array_slice($imgs, 0, 100);
+    }
+
+    private function extractMetaTags(string $html): array
+    {
+        $meta = [];
+        preg_match_all('/<meta\b[^>]*>/i', $html, $mm);
+        foreach ($mm[0] as $tag) {
+            $attrs = $this->domParseAttrs(str_replace('<meta', '', $tag));
+            $meta[] = $attrs;
+        }
+        return $meta;
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    /**
 
         // 1. Inject YG agent bar (at top of <body>)
         $injectedBar = $this->getAgentBarHtml();
@@ -826,6 +1462,13 @@ CSS;
         // 8. Remove X-Frame-Options and CSP frame-ancestors from meta tags
         $html = preg_replace(
             '/<meta\s[^>]*http-equiv\s*=\s*["\']X-Frame-Options["\'][^>]*>/is',
+            '',
+            $html
+        );
+        
+        // 9. Remove Content-Security-Policy meta tags that might block framing
+        $html = preg_replace(
+            '/<meta\s[^>]*http-equiv\s*=\s*["\']Content-Security-Policy["\'][^>]*>/is',
             '',
             $html
         );

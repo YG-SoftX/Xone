@@ -19,6 +19,16 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
         Route::post('/check/{slug}', [\App\Http\Controllers\HealthCheckController::class, 'checkService'])->name('api.health.check-service');
     });
 
+    // Electron App Endpoints
+    Route::prefix('ecosystem')->group(function () {
+        Route::post('/register', [\App\Http\Controllers\Api\ElectronAppController::class, 'register'])->name('api.ecosystem.register');
+        Route::post('/heartbeat', [\App\Http\Controllers\Api\ElectronAppController::class, 'heartbeat'])->name('api.ecosystem.heartbeat');
+        Route::get('/config/{appId}', [\App\Http\Controllers\Api\ElectronAppController::class, 'getConfig'])->name('api.ecosystem.config');
+        Route::put('/config/{appId}', [\App\Http\Controllers\Api\ElectronAppController::class, 'updateConfig'])->name('api.ecosystem.update-config');
+        Route::get('/status', [\App\Http\Controllers\Api\ElectronAppController::class, 'getStatus'])->name('api.ecosystem.status');
+        Route::delete('/unregister/{appId}', [\App\Http\Controllers\Api\ElectronAppController::class, 'unregister'])->name('api.ecosystem.unregister');
+    });
+
     // Deployment Endpoints
     Route::prefix('deployments')->group(function () {
         Route::post('/{id}/deploy', [\App\Http\Controllers\DeploymentController::class, 'deploy'])->name('api.deployments.deploy');
@@ -81,4 +91,3 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/clear', [\App\Http\Controllers\AiTrainingController::class, 'clear'])->name('ai-training.clear');
     });
 });
-

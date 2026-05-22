@@ -69,9 +69,25 @@ class SSOController extends Controller
                 // Natively log the user in locally since both applications share the database
                 if (!empty($user['id'])) {
                     Auth::loginUsingId($user['id'], true);
+                    
+                    // Verify the login was successful
+                    if (!Auth::check()) {
+                        Log::error('SSO: Auth::loginUsingId() failed to authenticate user', [
+                            'user_id' => $user['id'],
+                        ]);
+                    } else {
+                        Log::info('SSO: User successfully authenticated via Auth::loginUsingId', [
+                            'user_id' => $user['id'],
+                            'auth_id' => Auth::id(),
+                        ]);
+                    }
                 }
 
-                Log::info('SSO login successful', ['user_id' => $user['id'] ?? null]);
+                Log::info('SSO login successful', [
+                    'user_id' => $user['id'] ?? null,
+                    'auth_check' => Auth::check(),
+                    'session_has_sso_user' => Session::has('sso_user'),
+                ]);
 
                 return redirect()->route('browser.home')
                     ->with('sso_success', 'Welcome back, ' . ($user['name'] ?? 'User') . '!');

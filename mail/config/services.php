@@ -36,11 +36,11 @@ return [
     ],
 
     'yg_account' => [
-        'url' => env('YG_ACCOUNT_URL', 'http://localhost:8000'),
+        'url' => env('YG_ACCOUNT_URL', 'https://account.ygxone.com'), // Changed from localhost to production URL
     ],
 
     'master_api' => [
-        'url' => env('MASTER_API_URL', 'http://localhost:8001'),
+        'url' => env('MASTER_API_URL', 'https://master.ygxone.com'), // Changed from localhost to production URL
     ],
 
 ];

@@ -28,6 +28,11 @@ class AppRegistryService
         return ($this->get($id)['type'] ?? 'laravel') === 'laravel';
     }
 
+    public function getType(string $id): string
+    {
+        return $this->get($id)['type'] ?? 'laravel';
+    }
+
     /** Check whether the app directory actually exists on disk */
     public function exists(string $id): bool
     {
