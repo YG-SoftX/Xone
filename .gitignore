@@ -4,3 +4,4 @@
 .env
 node_modules/nul 
 nul 
+electron-app/release/
