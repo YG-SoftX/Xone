@@ -176,6 +176,12 @@ class EcosystemService
     private function checkServiceHealth(string $key, string $url): bool
     {
         try {
+            // Validate URL format
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                Log::warning("Invalid URL format for {$key} at {$url}");
+                return false;
+            }
+            
             // Check if Http facade is available
             if (!class_exists('\Illuminate\Support\Facades\Http')) {
                 // Fallback to simple cURL check if Http facade is not available
@@ -210,6 +216,12 @@ class EcosystemService
      */
     private function checkServiceHealthWithCurl(string $url): bool
     {
+        // Validate URL format
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            Log::warning("Invalid URL format for cURL health check: {$url}");
+            return false;
+        }
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
