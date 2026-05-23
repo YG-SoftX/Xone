@@ -12,12 +12,11 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Actions\Action;
-use UnitEnum;
 
 class ReportResource extends Resource
 {
     protected static ?string $model = Report::class;
-    protected static string|UnitEnum|null $navigationGroup = 'YG Society';
+    protected static ?string $navigationGroup = 'YG Society';
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
 
     public static function form(Form $form): Form

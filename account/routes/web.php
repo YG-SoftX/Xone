@@ -304,7 +304,7 @@ Route::middleware(['auth'])->prefix('billing')->name('billing.')->group(function
     Route::post('/payment-methods', [\App\Http\Controllers\BillingController::class, 'updatePaymentMethod'])->name('payment-methods.update');
 });
 
-Route::middleware(['auth'])->prefix('vault')->name('passwords.')->group(function () {
+Route::middleware(['auth'])->prefix('vault')->name('vault.')->group(function () {
     Route::get('/', [\App\Http\Controllers\PasswordManagerController::class, 'index'])->name('index');
     Route::post('/', [\App\Http\Controllers\PasswordManagerController::class, 'store'])->name('store');
     Route::put('/{password}', [\App\Http\Controllers\PasswordManagerController::class, 'update'])->name('update');

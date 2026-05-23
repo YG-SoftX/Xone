@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class AiUsageLogResource extends Resource
 {
@@ -17,7 +16,7 @@ class AiUsageLogResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-robot';
 
-    protected static string|UnitEnum|null $navigationGroup = 'AI Services';
+    protected static ?string $navigationGroup = 'AI Services';
 
     protected static ?int $navigationSort = 1;
 

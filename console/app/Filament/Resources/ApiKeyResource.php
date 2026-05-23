@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class ApiKeyResource extends Resource
 {
@@ -17,7 +16,7 @@ class ApiKeyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static string|UnitEnum|null $navigationGroup = 'API Management';
+    protected static ?string $navigationGroup = 'API Management';
 
     protected static ?int $navigationSort = 1;
 

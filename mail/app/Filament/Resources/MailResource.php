@@ -10,14 +10,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use UnitEnum;
 
 class MailResource extends Resource
 {
     protected static ?string $model = Mail::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
-    protected static string|UnitEnum|null $navigationGroup = 'Communications';
+    protected static ?string $navigationGroup = 'Communications';
     protected static ?string $navigationLabel = 'Inbox';
 
     public static function getNavigationBadge(): ?string

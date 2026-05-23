@@ -9,13 +9,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class DriveFileResource extends Resource
 {
     protected static ?string $model = DriveFile::class;
     protected static ?string $navigationIcon = 'heroicon-o-document';
-    protected static string|UnitEnum|null $navigationGroup = 'Files';
+    protected static ?string $navigationGroup = 'Files';
     protected static ?string $navigationLabel = 'All Files';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'name';

@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class OAuthApplicationResource extends Resource
 {
@@ -17,7 +16,7 @@ class OAuthApplicationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static string|UnitEnum|null $navigationGroup = 'API Management';
+    protected static ?string $navigationGroup = 'API Management';
 
     protected static ?int $navigationSort = 2;
 

@@ -9,13 +9,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class DocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static string|UnitEnum|null $navigationGroup = 'Documents';
+    protected static ?string $navigationGroup = 'Documents';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'title';
 

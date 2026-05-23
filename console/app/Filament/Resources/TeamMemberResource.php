@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class TeamMemberResource extends Resource
 {
@@ -17,7 +16,7 @@ class TeamMemberResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Projects';
+    protected static ?string $navigationGroup = 'Projects';
 
     protected static ?int $navigationSort = 2;
 

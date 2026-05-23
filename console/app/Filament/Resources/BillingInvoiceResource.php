@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class BillingInvoiceResource extends Resource
 {
@@ -17,7 +16,7 @@ class BillingInvoiceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Billing';
+    protected static ?string $navigationGroup = 'Billing';
 
     protected static ?int $navigationSort = 2;
 

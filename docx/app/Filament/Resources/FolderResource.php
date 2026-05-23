@@ -9,13 +9,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class FolderResource extends Resource
 {
     protected static ?string $model = Folder::class;
     protected static ?string $navigationIcon = 'heroicon-o-folder';
-    protected static string|UnitEnum|null $navigationGroup = 'Organization';
+    protected static ?string $navigationGroup = 'Organization';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'name';
 

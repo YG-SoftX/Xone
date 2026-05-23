@@ -9,13 +9,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class YgServiceResource extends Resource
 {
     protected static ?string $model = YgService::class;
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
-    protected static string|UnitEnum|null $navigationGroup = 'Sovereign Command';
+    protected static ?string $navigationGroup = 'Sovereign Command';
     protected static ?int $navigationSort = 1;
     protected static ?string $label = 'Ecosystem Services';
 

@@ -9,13 +9,12 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class TransactionResource extends Resource
 {
     protected static ?string $model = Transaction::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static string|UnitEnum|null $navigationGroup = 'Financial';
+    protected static ?string $navigationGroup = 'Financial';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class ProjectResource extends Resource
 {
@@ -18,7 +17,7 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Projects';
+    protected static ?string $navigationGroup = 'Projects';
 
     protected static ?int $navigationSort = 1;
 

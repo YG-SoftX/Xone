@@ -11,7 +11,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use UnitEnum;
 
 class MailTemplateResource extends Resource
 {
@@ -19,7 +18,7 @@ class MailTemplateResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Automation';
+    protected static ?string $navigationGroup = 'Automation';
 
     protected static ?string $navigationLabel = 'Templates';
 

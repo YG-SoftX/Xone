@@ -10,13 +10,12 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static string|UnitEnum|null $navigationGroup = 'User Management';
+    protected static ?string $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'name';
 
