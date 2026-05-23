@@ -233,7 +233,7 @@
                     $isLoggedIn = auth()->check() || session('sso_user');
                     $currentUser = auth()->user() ?? session('sso_user');
                 @endphp
-                
+
                 @if($isLoggedIn)
                 <div class="flex items-center gap-2">
                     @if($currentUser)

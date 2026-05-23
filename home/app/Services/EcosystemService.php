@@ -176,6 +176,12 @@ class EcosystemService
     private function checkServiceHealth(string $key, string $url): bool
     {
         try {
+            // Check if Http facade is available
+            if (!class_exists('\Illuminate\Support\Facades\Http')) {
+                // Fallback to simple cURL check if Http facade is not available
+                return $this->checkServiceHealthWithCurl($url);
+            }
+            
             // Try to reach the service's health endpoint
             $healthUrl = rtrim($url, '/') . '/up';
             $response = Http::timeout(5)->get($healthUrl);
@@ -197,6 +203,26 @@ class EcosystemService
                 return false;
             }
         }
+    }
+
+    /**
+     * Fallback method to check service health using cURL when Http facade is not available
+     */
+    private function checkServiceHealthWithCurl(string $url): bool
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return $httpCode >= 200 && $httpCode < 400;
     }
 
     /**
@@ -300,7 +326,4 @@ class EcosystemService
             ];
         }
     }
-
-
-
 }
