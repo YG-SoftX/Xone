@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Http as HttpFacade;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -136,14 +136,21 @@ class EcosystemService
      */
     public function getActiveApps(): array
     {
+        // Check if we should skip health checks (for development or when subdomains aren't ready)
+        $skipHealthChecks = config('app.skip_ecosystem_health_checks', false);
+        
         $activeApps = [];
 
         foreach ($this->services as $key => $service) {
             if ($service['enabled']) {
-                // Check service health with caching
-                $isHealthy = Cache::remember("ecosystem_service_health_{$key}", 300, function () use ($key, $service) {
-                    return $this->checkServiceHealth($key, $service['url']);
-                });
+                $isHealthy = true;
+                
+                // Only perform health checks if not skipped
+                if (!$skipHealthChecks) {
+                    $isHealthy = Cache::remember("ecosystem_service_health_{$key}", 300, function () use ($key, $service) {
+                        return $this->checkServiceHealth($key, $service['url']);
+                    });
+                }
 
                 if ($isHealthy) {
                     $activeApps[] = $service;
@@ -188,22 +195,22 @@ class EcosystemService
                 return $this->checkServiceHealthWithCurl($url);
             }
             
-            // Try to reach the service's health endpoint
+            // Try to reach the service's health endpoint with shorter timeout
             $healthUrl = rtrim($url, '/') . '/up';
-            $response = Http::timeout(5)->get($healthUrl);
+            $response = HttpFacade::timeout(2)->connectTimeout(1)->get($healthUrl);
 
             return $response->successful();
         } catch (\Exception $e) {
-            Log::warning("Service health check failed for {$key} at {$url}", [
+            Log::debug("Service health check failed for {$key} at {$url}", [
                 'error' => $e->getMessage()
             ]);
 
-            // If the /up endpoint fails, try the base URL
+            // If the /up endpoint fails, try the base URL with shorter timeout
             try {
-                $response = Http::timeout(5)->get($url);
+                $response = HttpFacade::timeout(2)->connectTimeout(1)->get($url);
                 return $response->successful();
             } catch (\Exception $e2) {
-                Log::warning("Fallback health check also failed for {$key} at {$url}", [
+                Log::debug("Fallback health check also failed for {$key} at {$url}", [
                     'error' => $e2->getMessage()
                 ]);
                 return false;
@@ -225,14 +232,23 @@ class EcosystemService
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);        // Total timeout
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Connection timeout
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'YGXONE-Ecosystem-Health-Check/1.0');
         
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
         curl_close($ch);
+        
+        // Log errors for debugging but don't fail completely
+        if ($error) {
+            Log::debug("cURL error for {$url}: {$error}");
+            return false;
+        }
         
         return $httpCode >= 200 && $httpCode < 400;
     }
@@ -247,6 +263,46 @@ class EcosystemService
         return Cache::remember(self::CACHE_PREFIX . 'all_apps', self::CACHE_TTL, function () {
             return $this->fetchAllApps();
         });
+    }
+
+    /**
+     * Internal method to fetch all apps from either database or config
+     */
+    private function fetchAllApps(): array
+    {
+        // First, try to get from the database table
+        $dbApps = [];
+        try {
+            $dbApps = DB::table('app_modules')->get()->toArray();
+        } catch (\Exception $e) {
+            // If database table doesn't exist, fall back to config
+            Log::info('app_modules table not found, using service config', ['error' => $e->getMessage()]);
+        }
+        
+        // Convert DB apps to our standard format
+        $formattedDbApps = [];
+        foreach ($dbApps as $app) {
+            $app = (array)$app;
+            $formattedDbApps[] = [
+                'name' => $app['name'] ?? 'Unknown App',
+                'description' => $app['description'] ?? 'No description',
+                'url' => $app['url'] ?? '#',
+                'icon' => $app['icon'] ?? 'fas fa-puzzle-piece',
+                'icon_color' => $app['icon_color'] ?? '#6b7280',
+                'enabled' => $app['is_active'] ?? true,
+                'slug' => $app['slug'] ?? strtolower(str_replace(' ', '_', $app['name'] ?? 'unknown_app'))
+            ];
+        }
+        
+        // If no DB apps, fall back to the built-in services array
+        if (empty($formattedDbApps)) {
+            $formattedDbApps = array_map(function($key, $service) {
+                $service['slug'] = $key;
+                return $service;
+            }, array_keys($this->services), $this->services);
+        }
+        
+        return $formattedDbApps;
     }
 
     /**

@@ -32,9 +32,8 @@ Route::get('/icons/launch-{size}.png', [LaunchImageController::class, 'serve'])-
 Route::get('/icons/launch-generate-all', [LaunchImageController::class, 'generateAll'])->name('pwa.launch_generate');
 
 // ── Agentic Browser proxy routes ──
-Route::get('/browse', [SearchController::class, 'browse'])
-    ->middleware('throttle:120,1')  // Prevent open-proxy abuse
-    ->name('browser.proxy');
+Route::get('/browse', [BrowserController::class, 'browse'])->name('browser.browse');
+Route::get('/browser', [BrowserController::class, 'index'])->name('browser.home');
 
 Route::get('/browse/resource', [SearchController::class, 'browseResource'])
     ->middleware('throttle:300,1')  // Higher limit: images/CSS/JS are numerous
