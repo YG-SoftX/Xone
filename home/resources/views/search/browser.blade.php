@@ -641,7 +641,7 @@
                             <i class="fas fa-lightbulb text-[10px]"></i> Key Takeaways
                         </h4>
                         <ul class="space-y-1">
-                            <template x-for="(takeaway, idx) in researchReport.key_takeaways" :key="idx">
+                            <template x-for="(takeaway, idx) in researchReport?.key_takeaways" :key="idx">
                                 <li class="text-xs text-gray-700 flex items-start gap-1.5">
                                     <i class="fas fa-check text-green-600 text-[9px] mt-0.5"></i>
                                     <span x-text="takeaway"></span>
@@ -653,10 +653,10 @@
                     {{-- Sources --}}
                     <div x-show="researchReport?.sources?.length > 0" class="border-t border-[var(--yg-border)] pt-3">
                         <h4 class="text-xs font-bold text-[var(--yg-text)] mb-2 flex items-center gap-1">
-                            <i class="fas fa-bookmark text-[10px]"></i> Sources (<span x-text="researchReport.sources.length"></span>)
+                            <i class="fas fa-bookmark text-[10px]"></i> Sources (<span x-text="researchReport?.sources?.length"></span>)
                         </h4>
                         <div class="space-y-1">
-                            <template x-for="(source, idx) in researchReport.sources" :key="idx">
+                            <template x-for="(source, idx) in researchReport?.sources" :key="idx">
                                 <a :href="source.url" target="_blank" class="block text-[10px] text-blue-600 hover:text-blue-800 truncate">
                                     <span x-text="(idx + 1) + '. ' + source.title"></span>
                                 </a>
@@ -947,10 +947,12 @@
         Alpine.data('browserState', () => ({
             // Core state
             currentUrl: @json($currentUrl),
-            urlInput: @json($currentUrl ?: $searchEngine),
+            urlInput: @json($currentUrl ?: ""),
             pageTitle: @json($isBrowsing ? ($pageTitle ?? 'Browsing...') : null),
             loading: false,
             focused: false,
+            isBrowsing: @json($isBrowsing),
+            searchEngine: @json($searchEngine),
             canGoBack: false,
             canGoForward: false,
 
@@ -1046,7 +1048,7 @@
                     this.activeTabId = tabId;
                     const activeTab = this.tabs[tabIndex];
                     this.currentUrl = activeTab.url;
-                    this.urlInput = activeTab.url || this.searchEngine;
+                    this.urlInput = activeTab.url || (((typeof this.searchEngine === "object" && this.searchEngine !== null) ? this.searchEngine.url : this.searchEngine));
                     this.pageTitle = activeTab.title;
                 }
             },
@@ -1087,7 +1089,7 @@
                     if (url.includes('.') && !url.includes(' ')) {
                         url = 'https://' + url;
                     } else {
-                        url = '{{ $searchEngine }}' + encodeURIComponent(url);
+                        url = '{{ is_array($searchEngine) ? ($searchEngine["url"] ?? "/search?q=") : $searchEngine }}' + encodeURIComponent(url);
                     }
                 }
 
@@ -1514,8 +1516,7 @@
 
                 return date.toLocaleDateString();
             },
-
-        }
-    }
+        }))
+    })
 </script>
 @endsection
