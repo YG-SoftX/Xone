@@ -375,3 +375,15 @@
     
     @stack('styles')
 </head>
+<body>
+    @yield('content')
+    @stack('scripts')
+    <script>
+        function appState() {
+            return {
+                init() {}
+            }
+        }
+    </script>
+</body>
+</html>
