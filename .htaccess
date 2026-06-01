@@ -1,0 +1,31 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect root to home/public
+    RewriteRule ^$ home/public/ [L]
+
+    # Handle assets and routes for the home module
+    RewriteCond %{REQUEST_URI} !^/home/public/
+    # Exclude other known module directories if they exist at root
+    RewriteCond %{REQUEST_URI} !^/account/
+    RewriteCond %{REQUEST_URI} !^/ai/
+    RewriteCond %{REQUEST_URI} !^/appstore/
+    RewriteCond %{REQUEST_URI} !^/calendar/
+    RewriteCond %{REQUEST_URI} !^/chat/
+    RewriteCond %{REQUEST_URI} !^/collect/
+    RewriteCond %{REQUEST_URI} !^/console/
+    RewriteCond %{REQUEST_URI} !^/contacts/
+    RewriteCond %{REQUEST_URI} !^/developer/
+    RewriteCond %{REQUEST_URI} !^/docx/
+    RewriteCond %{REQUEST_URI} !^/drive/
+    RewriteCond %{REQUEST_URI} !^/mail/
+    RewriteCond %{REQUEST_URI} !^/master/
+    RewriteCond %{REQUEST_URI} !^/notes/
+    RewriteCond %{REQUEST_URI} !^/support/
+    RewriteCond %{REQUEST_URI} !^/xcel/
+
+    # Rewrite all other non-existing files/dirs to home/public/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ home/public/$1 [L]
+</IfModule>
