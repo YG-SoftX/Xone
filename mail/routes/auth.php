@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     // Redirect all auth attempts to YG Account SSO
     Route::get('login', function () {
-        return redirect()->route('sso.initiate');
+        return redirect('/sso/initiate');
     })->name('login');
 
     Route::get('register', function () {
-        return redirect()->route('sso.initiate');
+        return redirect('/sso/initiate');
     })->name('register');
 });
 

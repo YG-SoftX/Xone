@@ -39,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'otp.verified' => \App\Http\Middleware\EnsureOtpVerified::class,
             'isolated.payment.security' => \App\Http\Middleware\IsolatedPaymentSecurity::class, // Maximum security for isolated payment module
         ]);
+
+        $middleware->redirectGuestsTo('/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
