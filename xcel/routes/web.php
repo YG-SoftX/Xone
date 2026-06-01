@@ -11,6 +11,22 @@ use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\SsoController;
 use Illuminate\Support\Facades\Route;
 
+// SSO Initiate (public)
+Route::get('/sso/initiate', function (\Illuminate\Http\Request $request) {
+    $accountUrl = config('services.yg_account.url', 'http://localhost:8000');
+    $callback = url('/sso/callback');
+    $service = 'YG Xcel';
+    $clientId = $request->query('client_id');
+    $queryParams = http_build_query([
+        'service' => $service,
+        'callback' => $callback,
+    ]);
+    if ($clientId) {
+        $queryParams .= '&client_id=' . urlencode($clientId);
+    }
+    return redirect($accountUrl . '/sso/initiate?' . $queryParams);
+})->name('sso.initiate');
+
 // SSO Callback (public)
 Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
 

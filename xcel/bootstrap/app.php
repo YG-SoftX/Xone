@@ -16,6 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [\App\Http\Middleware\HandleInertiaRequests::class]);
-        $middleware->alias(['auth' => \App\Http\Middleware\RedirectIfNotAuthenticated::class]);
+        $middleware->redirectGuestsTo('/sso/initiate');
     })
     ->withExceptions(function (Exceptions $exceptions): void { })->create();
